@@ -1,5 +1,5 @@
 CC=gcc
-CCOPTS=--std=gnu99 -Wall 
+CCOPTS=--std=gnu99 -Wall -g -Og
 AR=ar
 
 HEADERS=disastrOS.h\

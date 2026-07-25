@@ -1,0 +1,23 @@
+# File eseguibili
+disastrOS_test
+*.out
+*.exe
+
+# File oggetto
+*.o
+*.obj
+
+# Librerie compilate
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# File temporanei e di backup
+*~
+*.swp
+*.swo
+.DS_Store
+.vscode/
+.idea/

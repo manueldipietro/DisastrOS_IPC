@@ -1,0 +1,8 @@
+Author: Manuel Di Pietro
+Date: 25-07-2026
+Object: Diario di sviluppo giornaliero - DisastrOS-IPC
+-------------------------------------------------------------------------------------------
+25-07-2025:
+1. Ho aggiunto i file della versione con risorse di DiastrOS
+2. Ho aggiunto il file .gitignore (per ignorare il file eseguibile ed eventuali .o e .a), ho modificato il makefile per contenere i flags -Og e -g in modo da poter usare l'eseguibile generato con Valgrind. Ho usato il comando: valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./disastrOS_test, eseguendo il comando si osserva che ci sono vari errori legati alla libreria ucontext, che cercando online sono legati alla libreria e non risolvibili dall'utente (quindi andrebbero silenziati/soppressi con apposito file), ed inoltre, la memoria non presenta problemi di perdite (definitely_lost=0, indirectly_lost=0, possibily_lost=0 e suppressed = 0), c'è tuttavia la presenza di 2 blocchi still_reachable, ma questi sono dovuti ai buffer di IO della libc.
+3.
