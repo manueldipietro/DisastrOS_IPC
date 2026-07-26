@@ -40,7 +40,13 @@
 #define DSOS_CALL_DESTROY_RESOURCE 9
 #define DSOS_CALL_SHUTDOWN  10
 
+// New error's code
+
+
 //resources
+/**
+    TODO: Togliere questi e portarli tutti sui nuovi flags (quando si aggiorna la open). 
+*/
 #define DSOS_CREATE 0x1
 #define DSOS_READ 0x2
 #define DSOS_WRITE 0x3
@@ -49,3 +55,20 @@
 // scheduling
 #define ALPHA 0.5f
 #define INTERVAL 100 // milliseconds for timer tick
+
+
+// Resources type
+#define DSOS_RESTYPE_UNDEFIN    0
+#define DSOS_RESTYPE_IPCBASE    1
+#define DSOS_RESTYPE_IPCPIPE    2
+#define DSOS_RESTYPE_IPCFIFO    3
+#define DSOS_RESTYPE_IPCMQAN    4
+#define DSOS_RESTYPE_IPCMQNM    5
+
+// Flags for open syscall
+#define DSOS_O_RDONLY       0b00000001    
+#define DSOS_O_WRONLY       0b00000010
+#define DSOS_O_RDWR         0b00000011
+#define DSOS_O_CREAT        0b00000100
+#define DSOS_O_EXCL         0b00001000
+#define DSOS_O_NONBLOCK     0b00010000
