@@ -7,6 +7,8 @@ typedef struct {
   ListItem list;
   int id;
   int type;
+  //Flags --> RISORSA
+  //unlinked
   ListHead descriptors_ptrs;
 } Resource;
 

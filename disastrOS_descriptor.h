@@ -12,6 +12,9 @@ typedef struct Descriptor{
   Resource* resource;
   int fd;
   struct DescriptorPtr* ptr; // pointer to the entry in the resource list
+
+  /* Qui si aggiunge il campo per gestire i permessi di scrittura/lettura in apertura */
+
 } Descriptor;
 
 typedef struct DescriptorPtr{
