@@ -1,4 +1,4 @@
-#include <assert.h>
+/*#include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
 #include "disastrOS.h"
@@ -27,3 +27,4 @@ void internal_destroyResource(){
   Resource_free(res);
   running->syscall_retvalue=0;
 }
+*/

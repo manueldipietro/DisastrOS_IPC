@@ -1,4 +1,4 @@
-#include <assert.h>
+/*#include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
 #include "disastrOS.h"
@@ -31,3 +31,4 @@ void internal_closeResource(){
   DescriptorPtr_free(desptr);
   running->syscall_retvalue=0;
 }
+*/
