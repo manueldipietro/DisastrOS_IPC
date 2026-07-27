@@ -4,6 +4,7 @@
 #define MAX_NUM_RESOURCES 1024
 #define MAX_NUM_RESOURCES_PER_PROCESS 32
 #define MAX_NUM_DESCRIPTORS_PER_PROCESS 32
+#define DSOS_ANON_RES_STARTID 512
 
 #define STACK_SIZE        16384
 // signals
@@ -25,6 +26,11 @@
 #define DSOS_ERESOURCENOFD -11
 #define DSOS_ERESOURCECLOSE -12
 #define DSOS_ERESOURCEINUSE -13
+//---------NEW-ERRORS-CODE-TO-CHECK
+#define DSOS_EINVAL         -20
+#define DSOS_EXIST          -21
+#define DSOS_ENOENT         -22
+#define DSOS_ENOMEM         -23
 
 // syscall numbers
 #define DSOS_MAX_SYSCALLS 32

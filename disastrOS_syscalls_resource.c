@@ -6,7 +6,25 @@
 #include "disastrOS_resource.h"
 #include "disastrOS_descriptor.h"
 
+// Correggere con internal open
 void internal_openResource(){
+  printf("CHIAMATA SYSCALL OPEN\n");
+  // QUI DENTRO CI RESTA L'APERTURA DELLA RISORA SPECIFICA.
+  // E L'EVENTUALE CHIAMATA A OPEN SPECIALIZATA SE SERVE (MA NON CREDO SERVA)
+  
+  // Facciamo Dispatch argomenti e open().
+  
+  int id = running->syscall_args[0];
+  int flags = running->syscall_args[1];
+  // TO DO: andare a coreggere argomenti
+  //        sulle call
+
+  int ret = Resource_open(id, flags);
+  printf("La OPEN HA RITORNATO: %d\n", ret);
+  running->syscall_retvalue = ret;
+
+  return;
+  /*
   //1 get from the PCB the resource id of the resource to open
   int id=running->syscall_args[0];
   int type=running->syscall_args[1];
@@ -57,11 +75,39 @@ void internal_openResource(){
 
   // return the FD of the new descriptor to the process
   running->syscall_retvalue = des->fd;
+  */
+}
+
+void internal_read(){
+  // 0. Retrieve the arguments of syscall
+  //int fd = running->syscall_args[0];
+  //void* buffer = (void*) running->syscall_args[1];
+  //int count = running->syscall_args[2];
+
+  // 1. From fd retrieve the resource, and check validity
+  // NOTA: qui ci va anche validazione del FILEDESCRIPTOR
+  // Altrimenti si rischiano inconsistente
+  // Perchè non scrivere una funzione che lo fa automaticamente?
+  //Resource* resource;
+
+  // 2. Using VMT for call read
+  //int ret = ((resource->VMT).read)(fd, buffer, count);
+
+  // 3. Return value
+  //running->syscall_retvalue = ret;
+}
+
+void internal_write(){
+  // STESSA STRUTTURA DELLA READ
+  return;
 }
 
 void internal_closeResource(){
+  printf("CHIAMATA SYSCALL CLOSE\n");
+  /*
   //1 retrieve the fd of the resource to close
   int fd=running->syscall_args[0];
+
 
   Descriptor* des=DescriptorList_byFd(&running->descriptors, fd);
   //2 if the fd is not in the the process, we return an error
@@ -82,9 +128,13 @@ void internal_closeResource(){
   Descriptor_free(des);
   DescriptorPtr_free(desptr);
   running->syscall_retvalue=0;
+  */
 }
 
 void internal_destroyResource(){
+  printf("CHIAMATA SYSCALL DESTOY\n");
+
+  /*
   int id=running->syscall_args[0];
 
   // find the resource in with the id
@@ -104,4 +154,5 @@ void internal_destroyResource(){
   assert(res);
   Resource_free(res);
   running->syscall_retvalue=0;
+  */
 }

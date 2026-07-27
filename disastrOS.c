@@ -21,6 +21,8 @@ ListHead waiting_list;
 ListHead zombie_list;
 ListHead timer_list;
 
+int dsos_last_anon_resource_id = DSOS_ANON_RES_STARTID;
+
 // a resource can be a device, a file or an ipc thing
 ListHead resources_list;
 
@@ -47,7 +49,7 @@ void timerInterrupt(){
   if (log_file)
     fprintf(log_file, "TIME: %d\tPID: %d\tACTION: %s\n", disastrOS_time, running->pid, "TIMER_OUT");
   ++disastrOS_time;
-  printf("time: %d\n", disastrOS_time);
+  //printf("time: %d\n", disastrOS_time);
   internal_schedule();
   if (log_file)
     fprintf(log_file, "TIME: %d\tPID: %d\tACTION: %s\n", disastrOS_time, running->pid, "TIMER_IN");
@@ -274,8 +276,8 @@ int disastrOS_getpid(){
   return running->pid;
 }
 
-int disastrOS_openResource(int resource_id, int type, int mode) {
-  return disastrOS_syscall(DSOS_CALL_OPEN_RESOURCE, resource_id, type, mode);
+int disastrOS_openResource(int resource_id, int flags) {
+  return disastrOS_syscall(DSOS_CALL_OPEN_RESOURCE, resource_id, flags);
 }
 
 int disastrOS_closeResource(int fd) {
