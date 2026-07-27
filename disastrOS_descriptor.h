@@ -32,7 +32,6 @@ int Descriptor_free(Descriptor* d);
 //Descriptor* Descriptor_mk();
 //Descriptor* Descriptor_destroy();
 
-
 Descriptor*  DescriptorList_byFd(ListHead* l, int fd);
 void DescriptorList_print(ListHead* l);
 

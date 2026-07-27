@@ -27,7 +27,6 @@ void Resource_init(){
 // Se si riuscisse a scomporre tra allocatore e inizializzatore si potrebbe gestire l'inizializzazione
 // senza ripetere troppo codice
 Resource* Resource_alloc(int resource_id){
-
   // 1. Allocate Resource, if allocation goes wrong return NULL
   Resource* resource = (Resource*) PoolAllocator_getBlock(&_resources_allocator);
   if(!resource)
@@ -53,20 +52,30 @@ Resource* Resource_alloc(int resource_id){
   return resource;
 }
 
-/**QUESTA L'HO RIDEFINITA IO, PRIMA DI TOGLIERE LA ALLOC TOCCA CAPIRE DOVE VIENE CHIAMATA! */
+//Resource_build
+//Resource_inizializzatore
+
+//Pensato per far creare una risorsa all'utente, non accetta id anonimi.
 int Resource_mk(int resource_id){
-  // 0. Controlla resource_id
-  // 1. Controlla se la risorsa già esiste
-  // 2. Chiama l'allocatore, e ritorna ENOMEM se ritorna NULL.
-  // 3. Ritorna
+  // 1. Controlla resource_id
+  if(resource_id < 0 || resource_id >= DSOS_ANON_RES_STARTID)
+    return DSOS_EINVAL;
+
+  // 2. Controlla se la risorsa già esiste
+  Resource* resource = ResourceList_byId(&resources_list, resource_id);
+  if(resource) return DSOS_EEXIST;
+
+  // 3. Alloca la risorsa e ritorna ENOMEM in caso di fallimento.
+  resource = Resource_alloc(resource_id);
+  if(!resource) return DSOS_ENOMEM;
+  List_insert(&resources_list, resources_list.last, (ListItem*) resource);
+
+  // 4. Ritorna 0 in caso di successo
   return 0;
 }
 
 int Resource_open(int resource_id, int flags){
-  //DEBUG DA CANCELLARE
-  printf("ENTRO DENTRO LA OPEN!!!!\n");
-
-  // 1. Check arguments: if resource_id is valid (anonymous or out of bound)
+  // 1. Check resource_id if is valid (anonymous or out of bound)
   if(resource_id < 0 || resource_id >= DSOS_ANON_RES_STARTID)
     return DSOS_EINVAL;
 
@@ -80,8 +89,6 @@ int Resource_open(int resource_id, int flags){
   //    c. DSOS_O_CREAT OFF && DSOS_O_EXECL ON
   if(!(flags & DSOS_O_CREAT) && (flags & DSOS_O_EXCL)) return DSOS_EINVAL;
 
-  printf("Sopravvivo!\n");
-
   // 3. Query for resource
   Resource* res = ResourceList_byId(&resources_list, resource_id);
 
@@ -92,7 +99,7 @@ int Resource_open(int resource_id, int flags){
   //      a.1. DSOS_O_CREAT OFF: error! Return DSOS_ENOENT;
   //      a.2. DSOS_O_CREAT  ON: create resource and open (DSOS_O_EXCL not important)
   //    b. Resource EXIST (we need to consider only if DSOS_O_CREAT ON else we open resource)
-  //      b.1. DSOS_O_CREAT ON and DSOS_O_EXCL ON: error! Return DSOS_EXIST
+  //      b.1. DSOS_O_CREAT ON and DSOS_O_EXCL ON: error! Return DSOS_EEXIST
   //      b.2. DSOS_O_CREAT ON and DSOS_O_EXCL OFF: open resource (Default behavior)
   //      b.3. DSOS_O_CREAT OFF: open resource (Default behavior)
   // a
@@ -108,10 +115,8 @@ int Resource_open(int resource_id, int flags){
   // b
   else
     // b.1
-    if((flags & DSOS_O_CREAT) && (flags & DSOS_O_EXCL)) return DSOS_EXIST;
+    if((flags & DSOS_O_CREAT) && (flags & DSOS_O_EXCL)) return DSOS_EEXIST;
   // b.2 b.3 --> Default behavior
-
-  printf("Risorsa: %p\n", res);
 
   // TODO: riguardare codice apertura descrittori per ridefinire errori in standard "POSIX"
   // TODO: compattare dentro una funzione Descriptor_mk;
@@ -123,6 +128,7 @@ int Resource_open(int resource_id, int flags){
   running->last_fd++; // we increment the fd value for the next call
   DescriptorPtr* desptr=DescriptorPtr_alloc(des);
   List_insert(&running->descriptors, running->descriptors.last, (ListItem*) des);
+  //Nota che il controllo sul massimo numero di descrittori aperti va fatto sia lato risorsa che lato PCB
 
   // 6. Add to the resource, in the descriptor ptr list, apointer to the newly
   des->ptr=desptr;
@@ -140,42 +146,74 @@ int Resource_read(int fd, void* buffer, int count){
   return 0;
 }
 int Resource_write(int fd, const void* buffer, int count){
-  printf("Chiamata Resource Read\n");
+  printf("Chiamata Resource Write\n");
   //printf("SYSCALL_WRITE_ERROR: Operation not supported on resources of undefined type\n");
   return 0;
 }
 
 int Resource_close(int fd){
-  printf("Called Resource_close with fd: %d\n", fd);
+  // 1. Check the validity of fd number
+  if(fd < 0 || fd >= MAX_NUM_DESCRIPTORS_PER_PROCESS) return DSOS_EBADFD;
+  
+  // 2. Query for the file descriptor and check if is valid
+  Descriptor* descriptor = DescriptorList_byFd(&running->descriptors, fd);
+  if(!descriptor) return DSOS_EINVAL;
+  
+  // 3. Destroy the file descriptor
+  // Questa parte andrebbe fatta con una funzione del file descriptor
+  //Rimuove il descrittore dalla lista del processo
+  Resource* resource = descriptor->resource;
+  descriptor = (Descriptor*) List_detach(&running->descriptors, (ListItem*) descriptor);
+  assert(descriptor && "Fatal error during List detach (Descriptor). Kernel Panic!");
+  //Rimuove il puntatore al desrittore dalla lista delle risorse
+  DescriptorPtr* descriptor_pointer = (DescriptorPtr*) List_detach(&resource->descriptors_ptrs, (ListItem*)(descriptor->ptr));
+  assert(descriptor_pointer && "Fatal error during List detach (Descriptor Pointer). Kernel Panic!");
+  Descriptor_free(descriptor);
+  DescriptorPtr_free(descriptor_pointer);
+
+  // 4. Try to dealloc resources
+  Resource_destroy(resource);
+     
+  // 5. Return Sucess
   return 0;
 }
 
 int Resource_unlink(int resource_id){
-  printf("Called Resource unlink resource_id: %d\n", resource_id);
+  // 1. Check resource_id if is valid (anonymous or out of bound)
+  if(resource_id < 0 || resource_id >= DSOS_ANON_RES_STARTID)
+    return DSOS_EINVAL;
+
+  // 2. Query for the resource
+  Resource* resource = ResourceList_byId(&resources_list, resource_id);
+  if(resource == NULL) return DSOS_ENOENT;
+
+  // 3. Set unlinked field to 1
+  resource->unlinked = 1;
+
+  // 4. Remove the resource from resources_list
+  resource = (Resource*) List_detach(&resources_list, (ListItem*) resource);
+  assert(resource && "Fatal error during List detach. Kernel Panic!");
+
+  // 5. If there aren't file descriptor opened destroy the resource, else we will try to destroy during the close
+  Resource_destroy(resource); // Va resa polimorfica
+
+  // 6. Return success
   return 0;
-  /*
-  // 0. I controlli di apertura possono essere copiati dalla open
-  Resource* res;
-  // 1. We set unlink field to 1
-  res->unlink = 1;
-  // 2. We call destroyer (that effectively destroy only if there isn't fd in list)
-  Resource_destroy(resource_id);
-  return 0;*/
 }
 
-int Resource_destroy(int resource_id){
-  // NOTA CHE DEVE CONTROLLARE CHE UNLINK SIA UGUALE A 1
-  
-  // 0. I controlli di apertura possono essere copiati dalla open
-  
-  // 1. Query for the resource
-  
-  // 2. If resource doesn't exist return error
-  
-  // 3. Ensure the resource is not used by any process and destroy it, else exit.
-    // IF (NOT IN USE) --> DESTROY
-  
-  return 0;
+//Questa in realtà non va all'utente, l'utente non deve poter distruggere la risorsa, ma solo farne l'unlink.
+//Quindi qui unificare il gestore della distruzione (delete va qui).
+void Resource_destroy(Resource* resource){
+  // 1. Check if there is file descriptor and in case return and check pointer for avoiding SEGFAULT
+  if(!resource || !resource->unlinked || (resource->descriptors_ptrs).size)
+    return;
+
+  // 2. Dealloc the resource
+  int free_sucess = Resource_free(resource); // Va Resa polimorfica
+  assert(!free_sucess && "Fatal error during Resource free. Kernel Panic!");
+
+  // 3. Return
+  return;
 }
 
 int Resource_free(Resource* r) {
@@ -184,7 +222,8 @@ int Resource_free(Resource* r) {
   return PoolAllocator_releaseBlock(&_resources_allocator, r);
 }
 
-Resource* ResourceList_byId(ResourceList* l, int id) {
+//DA CORREGGERE PER SUPPORTARE LE RISORSE ANONIME (O forse no se usata da funzioni di sistema?? COntrollare!!)
+Resource* ResourceList_byId(ResourceList* l, int id){
   ListItem* aux=l->first;
   while(aux){
     Resource* r=(Resource*)aux;

@@ -47,6 +47,10 @@ int Resource_write(int fd, const void* buffer, int count);
 int Resource_close(int fd);
 int Resource_unlink(int resource_id);
 
+//AUX (NO USER)
+void Resource_destroy(Resource* resource);
+
+
 // Funzione di ricerca (bisogna eliminare la ricerca sugli ID anonimi)
 Resource* ResourceList_byId(ResourceList* l, int id);
 

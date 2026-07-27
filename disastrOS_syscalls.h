@@ -22,5 +22,5 @@ void internal_sleep();
 void internal_openResource();
 
 void internal_closeResource();
-
+//Sostituire destroy con unlink
 void internal_destroyResource();

@@ -8,21 +8,15 @@
 
 // Correggere con internal open
 void internal_openResource(){
-  printf("CHIAMATA SYSCALL OPEN\n");
-  // QUI DENTRO CI RESTA L'APERTURA DELLA RISORA SPECIFICA.
-  // E L'EVENTUALE CHIAMATA A OPEN SPECIALIZATA SE SERVE (MA NON CREDO SERVA)
-  
-  // Facciamo Dispatch argomenti e open().
-  
+  // 1. Retrieve argument from PCB  
   int id = running->syscall_args[0];
   int flags = running->syscall_args[1];
-  // TO DO: andare a coreggere argomenti
-  //        sulle call
 
+  // 2. Call open function
   int ret = Resource_open(id, flags);
-  printf("La OPEN HA RITORNATO: %d\n", ret);
-  running->syscall_retvalue = ret;
 
+  // 3. Write result to the PCB and return.
+  running->syscall_retvalue = ret;
   return;
   /*
   //1 get from the PCB the resource id of the resource to open
@@ -103,7 +97,16 @@ void internal_write(){
 }
 
 void internal_closeResource(){
-  printf("CHIAMATA SYSCALL CLOSE\n");
+  // 1. Retrieve argument from PCB  
+  int fd = running->syscall_args[0];
+
+  // 2. Call close function
+  int ret = Resource_close(fd);
+
+  // 3. Write result to the PCB and return.
+  running->syscall_retvalue = ret;
+  return;
+
   /*
   //1 retrieve the fd of the resource to close
   int fd=running->syscall_args[0];
@@ -131,10 +134,21 @@ void internal_closeResource(){
   */
 }
 
+void internal_unlinkResource(){
+  // 1. Retrieve argument from PCB  
+  int resource_id = running->syscall_args[0];
+
+  // 2. Call unlink function
+  int ret = Resource_unlink(resource_id);
+
+  // 3. Write result to the PCB and return.
+  running->syscall_retvalue = ret;
+  return;
+}
+/*
 void internal_destroyResource(){
   printf("CHIAMATA SYSCALL DESTOY\n");
 
-  /*
   int id=running->syscall_args[0];
 
   // find the resource in with the id
@@ -154,5 +168,6 @@ void internal_destroyResource(){
   assert(res);
   Resource_free(res);
   running->syscall_retvalue=0;
-  */
+
 }
+*/
