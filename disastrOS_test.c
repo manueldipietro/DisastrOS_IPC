@@ -17,7 +17,7 @@ void childFunction(void* args){
   printf("Hello, I am the child function %d\n",disastrOS_getpid());
   printf("I will iterate a bit, before terminating\n");
   int flags=  DSOS_O_RDWR;
-  int fd=disastrOS_openResource(disastrOS_getpid(), flags);
+  int fd=disastrOS_open(disastrOS_getpid(), flags);
   printf("fd=%d\n", fd);
   printf("PID: %d, terminating\n", disastrOS_getpid());
 
@@ -30,6 +30,12 @@ void childFunction(void* args){
 
 
 void initFunction(void* args) {
+  disastrOS_open(0, 0);
+  disastrOS_read(0, NULL, 0);
+  disastrOS_write(0, NULL, 0);
+  disastrOS_close(0);
+  disastrOS_unlink(0);
+
   disastrOS_printStatus();
   printf("hello, I am init and I just started\n");
   disastrOS_spawn(sleeperFunction, 0);
@@ -40,7 +46,7 @@ void initFunction(void* args) {
     int flags=DSOS_O_CREAT | DSOS_O_RDWR;
     printf("flags: %d\n", flags);
     printf("opening resource (and creating if necessary)\n");
-    int fd=disastrOS_openResource(i,flags);
+    int fd=disastrOS_open(i,flags);
     printf("fd=%d\n", fd);
     //disastrOS_spawn(childFunction, 0);
     disastrOS_printStatus();

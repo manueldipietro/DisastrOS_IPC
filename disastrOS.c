@@ -167,17 +167,20 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   syscall_vector[DSOS_CALL_SLEEP]     = internal_sleep;
   syscall_numarg[DSOS_CALL_SLEEP]     = 1;
 
-  syscall_vector[DSOS_CALL_OPEN_RESOURCE]     = internal_openResource;
-  syscall_numarg[DSOS_CALL_OPEN_RESOURCE]     = 3;
-
-  syscall_vector[DSOS_CALL_CLOSE_RESOURCE]     = internal_closeResource;
-  syscall_numarg[DSOS_CALL_CLOSE_RESOURCE]     = 1;
-
-  syscall_vector[DSOS_CALL_DESTROY_RESOURCE]     = internal_destroyResource;
-  syscall_numarg[DSOS_CALL_DESTROY_RESOURCE]     = 1;
-
   syscall_vector[DSOS_CALL_SHUTDOWN]      = internal_shutdown;
   syscall_numarg[DSOS_CALL_SHUTDOWN]      = 0;
+
+  // Syscalls resources
+  syscall_vector[DSOS_CALL_OPEN_RESOURCE]     = internal_open;
+  syscall_numarg[DSOS_CALL_OPEN_RESOURCE]     = 2;
+  syscall_vector[DSOS_CALL_READ_RESOURCE]     = internal_read;
+  syscall_numarg[DSOS_CALL_READ_RESOURCE]     = 3;
+  syscall_vector[DSOS_CALL_WRITE_RESOURCE]    = internal_write;
+  syscall_numarg[DSOS_CALL_WRITE_RESOURCE]    = 3;
+  syscall_vector[DSOS_CALL_CLOSE_RESOURCE]    = internal_close;
+  syscall_numarg[DSOS_CALL_CLOSE_RESOURCE]    = 1;
+  syscall_vector[DSOS_CALL_UNLINK_RESOURCE]   = internal_unlink;
+  syscall_numarg[DSOS_CALL_UNLINK_RESOURCE]   = 1;
 
   // setup the scheduling lists
   running=0;
@@ -276,16 +279,25 @@ int disastrOS_getpid(){
   return running->pid;
 }
 
-int disastrOS_openResource(int resource_id, int flags) {
+// Syscalls Resources
+int disastrOS_open(int resource_id, int flags) {
   return disastrOS_syscall(DSOS_CALL_OPEN_RESOURCE, resource_id, flags);
 }
 
-int disastrOS_closeResource(int fd) {
+int disastrOS_read(int fd, void* buffer, int count){
+  return disastrOS_syscall(DSOS_CALL_READ_RESOURCE, fd, buffer, count);
+}
+
+int disastrOS_write(int fd, const void* buffer, int count){
+  return disastrOS_syscall(DSOS_CALL_WRITE_RESOURCE, fd, buffer, count);
+}
+
+int disastrOS_close(int fd) {
   return disastrOS_syscall(DSOS_CALL_CLOSE_RESOURCE, fd);
 }
 
-int disastrOS_destroyResource(int resource_id) {
-  return disastrOS_syscall(DSOS_CALL_DESTROY_RESOURCE, resource_id);
+int disastrOS_unlink(int resource_id) {
+  return disastrOS_syscall(DSOS_CALL_UNLINK_RESOURCE, resource_id);
 }
 
 

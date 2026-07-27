@@ -39,11 +39,8 @@ Resource* Resource_alloc(int resource_id){
   resource->unlinked = (resource_id >= DSOS_ANON_RES_STARTID ? 1 : 0);
 
   // 3. Fills the VMT
-  (resource->VMT).open = Resource_open;
   (resource->VMT).read = Resource_read;
   (resource->VMT).write = Resource_write;
-  (resource->VMT).close = Resource_close;
-  (resource->VMT).unlink = Resource_unlink;
 
   // 4. Initialize the resource list
   List_init(&resource->descriptors_ptrs);

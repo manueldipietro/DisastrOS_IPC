@@ -19,8 +19,9 @@ void internal_schedule();
 
 void internal_sleep();
 
-void internal_openResource();
-
-void internal_closeResource();
-//Sostituire destroy con unlink
-void internal_destroyResource();
+// Syscalls resources
+void internal_open();
+void internal_read();
+void internal_write();
+void internal_close();
+void internal_unlink();
