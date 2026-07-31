@@ -1,8 +1,14 @@
 #include <assert.h>
 #include <stdio.h>
-#include "disastrOS_descriptor.h"
-#include "pool_allocator.h"
+
+#include "disastrOS_globals.h"
 #include "disastrOS_constants.h"
+
+#include "disastrOS_descriptor.h"
+#include "disastrOS_resource.h"
+
+#include "pool_allocator.h"
+#include "linked_list.h"
 
 #define DESCRIPTOR_SIZE sizeof(Descriptor)
 #define DESCRIPTOR_MEMSIZE (sizeof(Descriptor)+sizeof(int))
@@ -50,6 +56,53 @@ int Descriptor_free(Descriptor* d) {
   return PoolAllocator_releaseBlock(&_descriptor_allocator, d);
 }
 
+int Descriptor_mk(Descriptor** descriptor, Resource* resource){
+  // 1. Check if the maximum number of descriptors for the resource has been reached
+  if(resource->descriptors_ptrs.size >= MAX_NUM_RESOURCES_PER_PROCESS)
+    return DSOS_ENFILE;
+
+  // 2. Check if the maximum number of descriptors for the file has been reached 
+  if(running->descriptors.size >= MAX_NUM_DESCRIPTORS_PER_PROCESS)
+    return DSOS_EMFILE;
+  
+  // 3. Alloc new descriptor and list insert into processes' descriptor list
+  *descriptor = Descriptor_alloc(running->last_fd, resource, running);
+  if(!(*descriptor)) return DSOS_ENOMEM;
+  List_insert(&running->descriptors, running->descriptors.last, (ListItem*) (*descriptor));
+  
+  // 4. Increment the fd value for the next call
+  running->last_fd++;
+  
+  // 5. Alloc new descriptor pointer and list insert it into resource's descriptorPtr list
+  //    and manage case when there is error with allocation of descriptor pointer
+  DescriptorPtr* descriptor_ptr=DescriptorPtr_alloc(*descriptor);
+  // TODO: QUI VA GESTITO IL CASO IN CUI CI SIA UN ERRORE, STACCANDO IL DESCRITTORE DALLA LISTA, DEALLOCANDOLO E RITORNANDO L'ERRORE (ENOMEM)
+  (*descriptor)->ptr=descriptor_ptr;
+  List_insert(&resource->descriptors_ptrs, resource->descriptors_ptrs.last, (ListItem*) descriptor_ptr);
+
+  // 6. Return success
+  return DSOS_SUCCESS;
+}
+
+void Descriptor_destroy(Descriptor* descriptor){
+  // 1. Retrieve resource pointer and validate it 
+  Resource* resource = descriptor->resource;
+  assert(descriptor->resource && "Fatal error during descriptor destroy (resource null pointer). Kernel Panic!");
+  
+  // 2. List detach the descriptor from process' list
+  descriptor = (Descriptor*) List_detach(&running->descriptors, (ListItem*) descriptor);
+  assert(descriptor && "Fatal error during List detach (Descriptor). Kernel Panic!");
+  
+  // 3. List detach the descriptor pointer from resource's list
+  DescriptorPtr* descriptor_pointer = (DescriptorPtr*) List_detach(&resource->descriptors_ptrs, (ListItem*)(descriptor->ptr));
+  assert(descriptor_pointer && "Fatal error during List detach (Descriptor Pointer). Kernel Panic!");
+  
+  //4. Dealloc descriptor and descriptor pointer
+  Descriptor_free(descriptor);
+  DescriptorPtr_free(descriptor_pointer);
+}
+
+
 Descriptor*  DescriptorList_byFd(ListHead* l, int fd){
   ListItem* aux=l->first;
   while(aux){
@@ -60,6 +113,7 @@ Descriptor*  DescriptorList_byFd(ListHead* l, int fd){
   }
   return 0;
 }
+
 
 DescriptorPtr* DescriptorPtr_alloc(Descriptor* descriptor) {
   DescriptorPtr* d=PoolAllocator_getBlock(&_descriptor_ptr_allocator);

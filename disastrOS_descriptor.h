@@ -1,8 +1,7 @@
 #pragma once
+#include "disastrOS_resource.h"
 #include "linked_list.h"
 #include "disastrOS_pcb.h"
-#include "disastrOS_resource.h"
-
 
 struct DescriptorPtr;
 
@@ -12,9 +11,7 @@ typedef struct Descriptor{
   Resource* resource;
   int fd;
   struct DescriptorPtr* ptr; // Pointer to the entry in the resource list
-
-  // Si devono aggiungere i flags per gestire: permessi di scrittura/lettura, blocking.
-
+  int flags;                    // Opening mode (DSOS_O_RDONLY, DSOS_O_WRONLY, DSOS_O_RDWR)
 } Descriptor;
 
 typedef struct DescriptorPtr{
@@ -27,10 +24,8 @@ void Descriptor_init();
 Descriptor* Descriptor_alloc(int fd, Resource* res, PCB* pcb);
 int Descriptor_free(Descriptor* d);
 
-// Inserire funzione descriptor mk e descriptor destroy andando a delegare la logica
-// a questa libreria, in modo da rendere più agile la gestione risorse
-//Descriptor* Descriptor_mk();
-//Descriptor* Descriptor_destroy();
+int Descriptor_mk(Descriptor** descriptor, Resource* resource);
+void Descriptor_destroy(Descriptor* descriptor);
 
 Descriptor*  DescriptorList_byFd(ListHead* l, int fd);
 void DescriptorList_print(ListHead* l);

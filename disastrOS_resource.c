@@ -87,7 +87,7 @@ int Resource_open(int resource_id, int flags){
   if(!(flags & DSOS_O_CREAT) && (flags & DSOS_O_EXCL)) return DSOS_EINVAL;
 
   // 3. Query for resource
-  Resource* res = ResourceList_byId(&resources_list, resource_id);
+  Resource* resource = ResourceList_byId(&resources_list, resource_id);
 
   // 4. We distinguish the behavior based on whether the resource exists or not
   //    and on the DSOS_O_CREAT and DSOS_O_EXCL (That means: create resource but
@@ -100,14 +100,14 @@ int Resource_open(int resource_id, int flags){
   //      b.2. DSOS_O_CREAT ON and DSOS_O_EXCL OFF: open resource (Default behavior)
   //      b.3. DSOS_O_CREAT OFF: open resource (Default behavior)
   // a
-  if(res == NULL){
+  if(resource == NULL){
     // a.1
     if(!(flags & DSOS_O_CREAT)) return DSOS_ENOENT;
     // a.2
     //INSERIRE CREAZIONE RISORSA + CONTROLLO BUON FINE Altrimenti tornare errore ottenuto
-    res = Resource_alloc(resource_id);
-    if(!res) return DSOS_ENOMEM;
-    List_insert(&resources_list, resources_list.last, (ListItem*) res);
+    resource = Resource_alloc(resource_id);
+    if(!resource) return DSOS_ENOMEM;
+    List_insert(&resources_list, resources_list.last, (ListItem*) resource);
   }
   // b
   else
@@ -115,23 +115,11 @@ int Resource_open(int resource_id, int flags){
     if((flags & DSOS_O_CREAT) && (flags & DSOS_O_EXCL)) return DSOS_EEXIST;
   // b.2 b.3 --> Default behavior
 
-  // TODO: riguardare codice apertura descrittori per ridefinire errori in standard "POSIX"
-  // TODO: compattare dentro una funzione Descriptor_mk;
-  // 5. Create descriptor for the resource
-  Descriptor* des = Descriptor_alloc(running->last_fd, res, running);
-  if(!des){
-    return -1; //Errore allocazione descrittore;
-  }
-  running->last_fd++; // we increment the fd value for the next call
-  DescriptorPtr* desptr=DescriptorPtr_alloc(des);
-  List_insert(&running->descriptors, running->descriptors.last, (ListItem*) des);
-  //Nota che il controllo sul massimo numero di descrittori aperti va fatto sia lato risorsa che lato PCB
+  Descriptor* descriptor;
+  int ret_val = Descriptor_mk(&descriptor, resource);
+  if(ret_val != DSOS_SUCCESS) return ret_val;
 
-  // 6. Add to the resource, in the descriptor ptr list, apointer to the newly
-  des->ptr=desptr;
-  List_insert(&res->descriptors_ptrs, res->descriptors_ptrs.last, (ListItem*) desptr);
-
-  return des->fd;
+  return descriptor->fd;
 }
 
 /**
@@ -156,23 +144,18 @@ int Resource_close(int fd){
   Descriptor* descriptor = DescriptorList_byFd(&running->descriptors, fd);
   if(!descriptor) return DSOS_EINVAL;
   
-  // 3. Destroy the file descriptor
-  // Questa parte andrebbe fatta con una funzione del file descriptor
-  //Rimuove il descrittore dalla lista del processo
+  // 3. Retrive resource pointer and validate it
   Resource* resource = descriptor->resource;
-  descriptor = (Descriptor*) List_detach(&running->descriptors, (ListItem*) descriptor);
-  assert(descriptor && "Fatal error during List detach (Descriptor). Kernel Panic!");
-  //Rimuove il puntatore al desrittore dalla lista delle risorse
-  DescriptorPtr* descriptor_pointer = (DescriptorPtr*) List_detach(&resource->descriptors_ptrs, (ListItem*)(descriptor->ptr));
-  assert(descriptor_pointer && "Fatal error during List detach (Descriptor Pointer). Kernel Panic!");
-  Descriptor_free(descriptor);
-  DescriptorPtr_free(descriptor_pointer);
+  assert(descriptor->resource && "Fatal error during resource close (resource null pointer). Kernel Panic!");
+
+  // 3. Destroy the file descriptor
+  Descriptor_destroy(descriptor);
 
   // 4. Try to dealloc resources
   Resource_destroy(resource);
      
   // 5. Return Sucess
-  return 0;
+  return DSOS_SUCCESS;
 }
 
 int Resource_unlink(int resource_id){
@@ -195,7 +178,7 @@ int Resource_unlink(int resource_id){
   Resource_destroy(resource); // Va resa polimorfica
 
   // 6. Return success
-  return 0;
+  return DSOS_SUCCESS;
 }
 
 //Questa in realtà non va all'utente, l'utente non deve poter distruggere la risorsa, ma solo farne l'unlink.

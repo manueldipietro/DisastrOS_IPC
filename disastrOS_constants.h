@@ -27,11 +27,15 @@
 #define DSOS_ERESOURCECLOSE -12
 #define DSOS_ERESOURCEINUSE -13
 //---------NEW-ERRORS-CODE-TO-CHECK
+#define DSOS_SUCCESS        0
+
 #define DSOS_EINVAL         -20
 #define DSOS_EEXIST         -21
 #define DSOS_ENOENT         -22
 #define DSOS_ENOMEM         -23
 #define DSOS_EBADFD         -24
+#define DSOS_EMFILE         -25
+#define DSOS_ENFILE         -26
 
 // syscall numbers
 #define DSOS_MAX_SYSCALLS 32

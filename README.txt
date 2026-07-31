@@ -33,3 +33,19 @@ In this folder
    - disastrOS.c
      functions:
      -disastrOS_start
+
+
+NEW_README.txt
+1. Refactor disastrOS_descriptor.c:
+   -added: Descriptor_destroy
+   -added: Descriptor_make
+   -added support for DSOS_O_RDONLY, DSOS_O_WRONLY, DSOS_O_RDWR
+
+2. Refactor disastrOS_resource.c
+   -
+   -
+   -
+
+3. Refactor resource's syscalls
+
+4. 

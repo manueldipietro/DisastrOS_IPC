@@ -23,7 +23,7 @@ void childFunction(void* args){
 
   for (int i=0; i<(disastrOS_getpid()+1); ++i){
     printf("PID: %d, iterate %d\n", disastrOS_getpid(), i);
-    disastrOS_sleep((20-disastrOS_getpid())*5);
+    disastrOS_sleep((20-disastrOS_getpid())*/*5*/3);
   }
   disastrOS_exit(disastrOS_getpid()+1);
 }
@@ -48,7 +48,7 @@ void initFunction(void* args) {
     printf("opening resource (and creating if necessary)\n");
     int fd=disastrOS_open(i,flags);
     printf("fd=%d\n", fd);
-    //disastrOS_spawn(childFunction, 0);
+    disastrOS_spawn(childFunction, 0);
     disastrOS_printStatus();
     alive_children++;
   }
@@ -62,6 +62,11 @@ void initFunction(void* args) {
 	   pid, retval, alive_children);
     --alive_children;
   }
+  for (int i=0; i<10; ++i) {
+    if(i%2==0) disastrOS_unlink(i);
+    disastrOS_close(i);
+  }
+  disastrOS_printStatus();
   printf("shutdown!");
   disastrOS_shutdown();
 }

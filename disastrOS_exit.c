@@ -73,12 +73,17 @@ void internal_exit(){
 
     // we release all resources of a process upon termination
     while(running->descriptors.first) {
+      /*
       Descriptor* des=(Descriptor*) running->descriptors.first;
       List_detach(&running->descriptors, (ListItem*) des);
       Resource* res=des->resource;
       List_detach(&res->descriptors_ptrs, (ListItem*) des->ptr);
       DescriptorPtr_free(des->ptr);
       Descriptor_free(des);
+      */
+      Descriptor* descriptor = (Descriptor*) running->descriptors.first;
+      int close_ret = Resource_close(descriptor->fd);
+      assert(!close_ret && "Fatal error during exit (close resource). Kernel Panic!");
     }
     
     // the process finally dies
