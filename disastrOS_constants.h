@@ -36,6 +36,7 @@
 #define DSOS_EBADFD         -24
 #define DSOS_EMFILE         -25
 #define DSOS_ENFILE         -26
+#define DSOS_ENOSYS         -27
 
 // syscall numbers
 #define DSOS_MAX_SYSCALLS 32

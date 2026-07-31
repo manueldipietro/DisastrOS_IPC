@@ -2,8 +2,14 @@
 #include "linked_list.h"
 #include "disastrOS_pcb.h"
 
+// Dichiarazione Forward
+typedef struct Resource Resource;
+
 typedef int (*disastros_read_fn)(int fd, void* buffer, int count);
 typedef int (*disastros_write_fn)(int fd, const void* buffer, int count);
+typedef int (*disastros_resource_free_fn)(Resource* resource);
+
+
 //QUI VANNO AGGIUNTI I PUNTATORI A FUNZIONI DI DEALLOC E DESTROY
 
 // MI STO RENDENDO CONTO ORA CHE OPEN, CLOSE,UNLINK, DESTROY
@@ -13,16 +19,17 @@ typedef int (*disastros_write_fn)(int fd, const void* buffer, int count);
 typedef struct {
   disastros_read_fn read;
   disastros_write_fn write;
+  disastros_resource_free_fn free;
 } Resource_VMT;
 
-typedef struct {
+struct Resource{
   ListItem list;
   int id;
   int type;
   int unlinked;//Forse trasformarlo in un flags sarebbe più versatile?
   ListHead descriptors_ptrs;
   Resource_VMT VMT;
-} Resource;
+};
 
 typedef ListHead ResourceList;
 

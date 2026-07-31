@@ -19,13 +19,10 @@ static PoolAllocator _resources_allocator;
 
 void Resource_init(){
     int result=PoolAllocator_init(& _resources_allocator, RESOURCE_SIZE, MAX_NUM_RESOURCES, _resources_buffer, RESOURCE_BUFFER_SIZE);
-    assert(! result);
+    assert(!result && "Error during Resourc Poll Alloator init! Kernel Panic!");
     return;
 }
 
-// Alloc, rimane e non effettua nessun controllo sul parametro passato, è pensata per uso interno sicuro.
-// Se si riuscisse a scomporre tra allocatore e inizializzatore si potrebbe gestire l'inizializzazione
-// senza ripetere troppo codice
 Resource* Resource_alloc(int resource_id){
   // 1. Allocate Resource, if allocation goes wrong return NULL
   Resource* resource = (Resource*) PoolAllocator_getBlock(&_resources_allocator);
@@ -38,9 +35,11 @@ Resource* Resource_alloc(int resource_id){
   resource->type = DSOS_RESTYPE_UNDEFIN;
   resource->unlinked = (resource_id >= DSOS_ANON_RES_STARTID ? 1 : 0);
 
-  // 3. Fills the VMT
-  (resource->VMT).read = Resource_read;
-  (resource->VMT).write = Resource_write;
+  // 3. Fills the VMT, read and write are NULL because resource will be a virtual class,
+  //    but for test purpose we mantain the constructor and destructor
+  (resource->VMT).read = NULL;
+  (resource->VMT).write = NULL;
+  (resource->VMT).free = Resource_free;
 
   // 4. Initialize the resource list
   List_init(&resource->descriptors_ptrs);
@@ -48,9 +47,6 @@ Resource* Resource_alloc(int resource_id){
   // 5. Return the pointer to the resource
   return resource;
 }
-
-//Resource_build
-//Resource_inizializzatore
 
 //Pensato per far creare una risorsa all'utente, non accetta id anonimi.
 int Resource_mk(int resource_id){
@@ -126,25 +122,55 @@ int Resource_open(int resource_id, int flags){
   IDEA: USARE QUESTE DUE FUNZIONI COME CONTROLLO DI BASE SU PARAMETRI (TRANNE BUFFER E FD)?
 */
 int Resource_read(int fd, void* buffer, int count){
-  printf("Chiamata Resource Read\n");
-  //printf("SYSCALL_READ_ERROR: Operation not supported on resources of undefined type\n");
-  return 0;
+  // 1. Query for the file descriptor and check if is valid (exist and has correct flags)
+  Descriptor* descriptor = DescriptorList_byFd(&running->descriptors, fd);
+  if(!descriptor) return DSOS_EBADFD;
+  // TODO: controllo flag
+
+  // 2. Check the validity of the buffer and count
+  if(!buffer || count<=0) return DSOS_EINVAL;
+
+  // 3. Retrive resource pointer and validate it
+  Resource* resource = descriptor->resource;
+  assert(descriptor->resource && "Fatal error during resource read (resource null pointer). Kernel Panic!");
+
+  // 4. Use VMT for call virtual method
+  disastros_read_fn virtual_read = resource->VMT.read;
+  if(!virtual_read) return DSOS_ENOSYS;
+  int ret_value = virtual_read(fd, buffer, count);
+
+  // 5. Return value returned from virtual method
+  return ret_value;
 }
+
 int Resource_write(int fd, const void* buffer, int count){
-  printf("Chiamata Resource Write\n");
-  //printf("SYSCALL_WRITE_ERROR: Operation not supported on resources of undefined type\n");
-  return 0;
+  // 1. Query for the file descriptor and check if is valid (exist and has correct flags)
+  Descriptor* descriptor = DescriptorList_byFd(&running->descriptors, fd);
+  if(!descriptor) return DSOS_EBADFD;
+  // TODO: controllo flag
+
+  // 2. Check the validity of the buffer and count
+  if(!buffer || count<=0) return DSOS_EINVAL;
+
+  // 3. Retrive resource pointer and validate it
+  Resource* resource = descriptor->resource;
+  assert(descriptor->resource && "Fatal error during resource write (resource null pointer). Kernel Panic!");
+
+  // 4. Use VMT for call virtual method
+  disastros_write_fn virtual_write = resource->VMT.write;
+  if(!virtual_write) return DSOS_ENOSYS;
+  int ret_value = virtual_write(fd, buffer, count);
+
+  // 5. Return value returned from virtual method
+  return ret_value;
 }
 
 int Resource_close(int fd){
-  // 1. Check the validity of fd number
-  if(fd < 0 || fd >= MAX_NUM_DESCRIPTORS_PER_PROCESS) return DSOS_EBADFD;
-  
-  // 2. Query for the file descriptor and check if is valid
+  // 1. Query for the file descriptor and check if is valid
   Descriptor* descriptor = DescriptorList_byFd(&running->descriptors, fd);
-  if(!descriptor) return DSOS_EINVAL;
+  if(!descriptor) return DSOS_EBADFD;
   
-  // 3. Retrive resource pointer and validate it
+  // 2. Retrive resource pointer and validate it
   Resource* resource = descriptor->resource;
   assert(descriptor->resource && "Fatal error during resource close (resource null pointer). Kernel Panic!");
 
@@ -174,7 +200,7 @@ int Resource_unlink(int resource_id){
   resource = (Resource*) List_detach(&resources_list, (ListItem*) resource);
   assert(resource && "Fatal error during List detach. Kernel Panic!");
 
-  // 5. If there aren't file descriptor opened destroy the resource, else we will try to destroy during the close
+  // 5. Try to destroy during the close
   Resource_destroy(resource); // Va resa polimorfica
 
   // 6. Return success
@@ -189,7 +215,9 @@ void Resource_destroy(Resource* resource){
     return;
 
   // 2. Dealloc the resource
-  int free_sucess = Resource_free(resource); // Va Resa polimorfica
+  disastros_resource_free_fn virtual_free = resource->VMT.free;
+  assert(virtual_free && "Fatal error during Resource free (allocator non implemented. Kernel Panic!)");
+  int free_sucess = virtual_free(resource);
   assert(!free_sucess && "Fatal error during Resource free. Kernel Panic!");
 
   // 3. Return
@@ -203,6 +231,9 @@ int Resource_free(Resource* r) {
 }
 
 //DA CORREGGERE PER SUPPORTARE LE RISORSE ANONIME (O forse no se usata da funzioni di sistema?? COntrollare!!)
+// RAGGIONAMENTO: essendo questa usata solo dalle funzioni interne del kernel,
+// e visto che magari potrebbe essere necessario andare a recupare la risorsa anonima ad esempio nei test
+// non la modifico in alcun modo.
 Resource* ResourceList_byId(ResourceList* l, int id){
   ListItem* aux=l->first;
   while(aux){
