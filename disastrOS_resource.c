@@ -100,7 +100,6 @@ int Resource_open(int resource_id, int flags){
     // a.1
     if(!(flags & DSOS_O_CREAT)) return DSOS_ENOENT;
     // a.2
-    //INSERIRE CREAZIONE RISORSA + CONTROLLO BUON FINE Altrimenti tornare errore ottenuto
     resource = Resource_alloc(resource_id);
     if(!resource) return DSOS_ENOMEM;
     List_insert(&resources_list, resources_list.last, (ListItem*) resource);

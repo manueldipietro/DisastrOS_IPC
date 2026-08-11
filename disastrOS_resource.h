@@ -42,6 +42,7 @@ Resource* Resource_alloc(int id);
 int Resource_free(Resource* resource);
 
 // Posix interface function.  --DA COMMENTARE
+int Resource_mk(int resource_id);
 int Resource_open(int resource_id, int flags);
 int Resource_read(int fd, void* buffer, int count);
 int Resource_write(int fd, const void* buffer, int count);

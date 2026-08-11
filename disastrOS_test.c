@@ -2,6 +2,9 @@
 #include <unistd.h>
 #include <poll.h>
 
+#include "tester.h"
+#include "tester_resource.h"
+
 #include "disastrOS.h"
 
 // we need this to handle the sleep state
@@ -30,11 +33,11 @@ void childFunction(void* args){
 
 
 void initFunction(void* args) {
-  disastrOS_open(0, 0);
-  disastrOS_read(0, NULL, 0);
-  disastrOS_write(0, NULL, 0);
-  disastrOS_close(0);
-  disastrOS_unlink(0);
+  printf("STO ESEGUENDO IL TEST\n");
+  tester_utest_execute("Test disastrOS_resource: mk anonymous resource error", tester_resource_mk_test1);
+  printf("STO TORNANDO DAL TEST\n");
+  disastrOS_shutdown();
+
 
   disastrOS_printStatus();
   printf("hello, I am init and I just started\n");
