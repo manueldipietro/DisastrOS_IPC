@@ -62,9 +62,9 @@ int Resource_mk(int resource_id){
   resource = Resource_alloc(resource_id);
   if(!resource) return DSOS_ENOMEM;
   List_insert(&resources_list, resources_list.last, (ListItem*) resource);
-
+  //Qui tocca inserire l'assert per l'errore nell'inserimento nella lista.
   // 4. Ritorna 0 in caso di successo
-  return 0;
+  return DSOS_SUCCESS;
 }
 
 int Resource_open(int resource_id, int flags){
@@ -157,7 +157,7 @@ int Resource_write(int fd, const void* buffer, int count){
 
   // 4. Use VMT for call virtual method
   disastros_write_fn virtual_write = resource->VMT.write;
-  if(!virtual_write) return DSOS_ENOSYS;
+  //if(!virtual_write) return DSOS_ENOSYS;
   int ret_value = virtual_write(fd, buffer, count);
 
   // 5. Return value returned from virtual method

@@ -33,9 +33,71 @@ void childFunction(void* args){
 
 
 void initFunction(void* args) {
-  printf("STO ESEGUENDO IL TEST\n");
-  tester_utest_execute("Test disastrOS_resource: mk anonymous resource error", tester_resource_mk_test1);
-  printf("STO TORNANDO DAL TEST\n");
+
+  int u_test_counter;
+  // U1. Execute Unit Test for resource syscall
+  //    mk syscall test
+  tester_utest_execute("Test disastrOS_resource: mk: success", tester_resource_mk_test1);
+  tester_utest_execute("Test disastrOS_resource: mk: double make", tester_resource_mk_test2);
+  tester_utest_execute("Test disastrOS_resource: mk: invalid or anonymous id", tester_resource_mk_test3);
+  tester_utest_execute("Test disastrOS_resource: mk: too much resources", tester_resource_mk_test4);
+
+  //    open syscall test
+  //tester_utest_execute("Test disaastrOS_resource: unlink: success ", tester_resource_unlink_test1);
+
+
+  //    unlink syscall test
+  //    close syscall test
+  //    read syscall test
+  printf("Test resource_read (virtual method):\n");
+  u_test_counter = 0;
+  u_test_counter+= tester_utest_execute("Test disastrOS_resource: read: ", tester_resource_read1);
+  u_test_counter+= tester_utest_execute("Test disastrOS_resource: read: ", tester_resource_read2);
+  u_test_counter+= tester_utest_execute("Test disastrOS_resource: read: ", tester_resource_read3);
+  u_test_counter+= tester_utest_execute("Test disastrOS_resource: read: ", tester_resource_read4);
+  u_test_counter+= tester_utest_execute("Test disastrOS_resource: read: ", tester_resource_read5);
+  printf("Test corretti: %d/%d\n", u_test_counter, 5);
+
+  //    write syscall test
+  printf("Test resource_write (virtual method):\n");
+  u_test_counter = 0;
+  u_test_counter+= tester_utest_execute("Test disastrOS_resource: write: invalid fd", tester_resource_write1);
+  u_test_counter+= tester_utest_execute("Test disastrOS_resource: write: buffer or count invalid", tester_resource_write2);
+  u_test_counter+= tester_utest_execute("Test disastrOS_resource: write: write non implementata", tester_resource_write3);
+  u_test_counter+= tester_utest_execute("Test disastrOS_resource: write: flags", tester_resource_write4);
+  u_test_counter+= tester_utest_execute("Test disastrOS_resource: write: Write fittizia", tester_resource_write5);
+  printf("Test corretti: %d/%d\n", u_test_counter, 5);
+
+  tester_utest_execute("Test disastrOS_resource: mk:", tester_resource_mk_test1);
+  tester_utest_execute("Test disastrOS_resource: mk:", tester_resource_mk_test2);
+  tester_utest_execute("Test disastrOS_resource: mk:", tester_resource_mk_test3);
+  tester_utest_execute("Test disastrOS_resource: mk:", tester_resource_mk_test4);
+
+  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink1);
+  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink2);
+  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink3);
+  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink4);
+  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink5);
+  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink6);
+
+
+  // U2. Execute Unit Test for IPC syscall
+  //    mk syscall test
+  //    open syscall test
+  //    unlink syscall test
+  //    close syscall test
+  //    read syscall test
+  //    write syscall test
+
+  // U3. Execute Unit Test for PIPE and FIFO syscall
+
+  // U4. Execute Unit Test for MQ_QUEUE
+
+  // U5. Print Unit Test Summary
+
+  // I1. Integration test for resource
+  // I2. Integration test for IPC (Controllare che la sincronizzazione sui read funziona)
+
   disastrOS_shutdown();
 
 

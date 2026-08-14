@@ -37,7 +37,6 @@ void internal_read(){
 
 void internal_write(){
   // QUESTA FUNZIONE E' VIRTUALE, CAPIRE SE SERVE CHIAMARE VMT DA QUI O DA CLASSE BASE RESOURCES
-
   // 1. Retrieve argument from PCB  
   int fd = running->syscall_args[0];
   void* buffer = (void*) running->syscall_args[1];
