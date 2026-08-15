@@ -10,11 +10,3 @@
 #include <assert.h>
 
 #include "tester.h"
-
-/**===UTEST SYSCALL CLOSE===*/
-// Test 1: Try resource close and check descriptor deletion (not unlinked file)
-// Test 2: Apre e crea, unlink, chiude (deve venire distrutta)
-// Test 3: Try to close an unlinked file (twice opened) and check if it yet exist and try to check if file descriptor deallocated and check descriptor and after the file deletion
-    // Il 3 praticamente è apri il file 2 volte, unlinkalo, e verifica se la prima volta non viene distrutto e la seconda sì.
-// Test 4: Try to pass Bad file descriptor (not allocated descriptor)  (negativo e mai aperto)
-// Test 5: Try to double close 

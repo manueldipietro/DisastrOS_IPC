@@ -80,6 +80,21 @@ void initFunction(void* args) {
   tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink5);
   tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink6);
 
+  tester_utest_execute("Test disastrOS_resource: open: 1", tester_resource_open1);
+  tester_utest_execute("Test disastrOS_resource: open: 2", tester_resource_open2);
+  tester_utest_execute("Test disastrOS_resource: open: 3", tester_resource_open3);
+  tester_utest_execute("Test disastrOS_resource: open: 4", tester_resource_open4);
+  tester_utest_execute("Test disastrOS_resource: open: 5", tester_resource_open5);
+  tester_utest_execute("Test disastrOS_resource: open: 6", tester_resource_open6);
+  tester_utest_execute("Test disastrOS_resource: open: 7", tester_resource_open7);
+  tester_utest_execute("Test disastrOS_resource: open: 8", tester_resource_open8);
+  tester_utest_execute("Test disastrOS_resource: open: 9", tester_resource_open9);
+  tester_utest_execute("Test disastrOS_resource: open: 10", tester_resource_open10);
+  tester_utest_execute("Test disastrOS_resource: open: 11", tester_resource_open11);
+  tester_utest_execute("Test disastrOS_resource: open: 12", tester_resource_open12);
+  tester_utest_execute("Test disastrOS_resource: open: 13", tester_resource_open13);
+  //tester_utest_execute("Test disastrOS_resource: open: 10", tester_resource_open14);
+
 
   // U2. Execute Unit Test for IPC syscall
   //    mk syscall test

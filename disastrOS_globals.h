@@ -34,4 +34,3 @@ extern int shutdown_now;
 // 0 to DSOS_ANON_RES_STARTID-1 for user-named resources, and DSOS_ANON_RES_STARTID
 // onwards for anonymous resources automatically allocated by the kernel.
 extern int dsos_last_anon_resource_id;
-

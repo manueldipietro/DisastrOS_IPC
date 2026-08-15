@@ -2,6 +2,7 @@
 #include "disastrOS_resource.h"
 #include "linked_list.h"
 #include "disastrOS_pcb.h"
+#include "pool_allocator.h"
 
 struct DescriptorPtr;
 
@@ -33,3 +34,9 @@ void DescriptorList_print(ListHead* l);
 DescriptorPtr* DescriptorPtr_alloc(Descriptor* descriptor);
 int DescriptorPtr_free(DescriptorPtr* d);
 void DescriptorPtrList_print(ListHead* l);
+
+DescriptorPtr*  DescriptorPtrList_byDesc(ListHead* l, Descriptor* descriptor);
+
+// Only for test purpose
+PoolAllocator* Descriptor_allocator_getinfo();
+PoolAllocator* DescriptorPtr_allocator_getinfo();

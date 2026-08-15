@@ -101,7 +101,7 @@ int tester_resource_mk_test4(char* test_name){
     Resource* resource;
     TESTER_UTEST_CHECK(tester_utest_assert_listsize(&resources_list, 0, "Error, resources_list not empty at the startup"));
 
-    // 1. Create MAX_NUM_RESOURCE, using directly (for bypass anonymous id control) 
+    // 1. Create MAX_NUM_RESOURCE, using directly Resource_alloc(for bypass anonymous id control) 
     for(int i=1; i<MAX_NUM_RESOURCES+1; i++){
         resource_id = i;
         resource = Resource_alloc(resource_id);

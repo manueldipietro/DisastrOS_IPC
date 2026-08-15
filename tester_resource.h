@@ -12,6 +12,22 @@ int tester_resource_mk_test4(char* test_name);
     Test 2: Open a res
  */
 
+int tester_resource_open1(char* test_name);
+int tester_resource_open2(char* test_name);
+int tester_resource_open3(char* test_name);
+int tester_resource_open4(char* test_name);
+int tester_resource_open5(char* test_name);
+int tester_resource_open6(char* test_name);
+int tester_resource_open7(char* test_name);
+int tester_resource_open8(char* test_name);
+int tester_resource_open9(char* test_name);
+int tester_resource_open10(char* test_name);
+int tester_resource_open11(char* test_name);
+int tester_resource_open12(char* test_name);
+int tester_resource_open13(char* test_name);
+
+
+
 // Test DisastrOS_unlink (DisastrOS_unlink):
 /*
     Test 1: Unlink a resource that is not open by any process and verify that is destroyed properly and return DSOS_SUCCESS

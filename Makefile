@@ -28,16 +28,14 @@ OBJS=pool_allocator.o\
      disastrOS_schedule.o\
      disastrOS_preempt.o\
      disastrOS_sleep.o\
-     disastrOS_open_resource.o\
-     disastrOS_close_resource.o\
-     disastrOS_destroy_resource.o\
      disastrOS_syscalls_resource.o\
      tester.o\
      tester_resource.o\
      tester_resource_read.o\
      tester_resource_write.o\
      tester_resource_mk.o\
-     tester_resource_unlink.o
+     tester_resource_unlink.o\
+     tester_resource_open.o
 
 LIBS=libdisastrOS.a
 

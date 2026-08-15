@@ -1,5 +1,8 @@
 #include "tester.h"
 #include "linked_list.h"
+#include "pool_allocator.h"
+
+#include "disastrOS_constants.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,8 +68,32 @@ void tester_utest_print(int status, char* test_name, char* fail_dettails){
 int tester_utest_assert_int(int expected_value, int got_value, char* message){
     if(expected_value == got_value) return 1;
     if(message != NULL)
-        snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "%s - Return value assert: expected %s (%d), got %s (%d)", message,  "DA FARE", expected_value, "DA FARE", got_value);
-    else snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "Return value assert: expected %s (%d), got %s (%d)", "DA FARE", expected_value, "DA FARE", got_value);
+        snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "%s - int assert: expected %d, got %d", message, expected_value, got_value);
+    else snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "int assert: expected %d, got %d", expected_value, got_value);
+    return 0;
+}
+
+int tester_utest_assert_intge(int expected_value, int got_value, char* message){
+    if(expected_value >= got_value) return 1;
+    if(message != NULL)
+        snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "%s - int greater or equal assert: expected %d, got %d", message, expected_value, got_value);
+    else snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "int greater or equal assert: expected %d, got %d", expected_value, got_value);
+    return 0;
+}
+
+int tester_utest_assert_ecode(int expected_value, int got_value, char* message){
+    if(expected_value == got_value) return 1;
+    if(message != NULL)
+        snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "%s - Return value assert: expected %s (%d), got %s (%d)", message,  DSOS_STRERROR(expected_value), expected_value, DSOS_STRERROR(got_value), got_value);
+    else snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "Return value assert: expected %s (%d), got %s (%d)", DSOS_STRERROR(expected_value), expected_value, DSOS_STRERROR(got_value), got_value);
+    return 0;
+}
+
+int tester_utest_assert_ecodege(int expected_value, int got_value, char* message){
+    if(got_value >= expected_value) return 1;
+    if(message != NULL)
+        snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "%s - Return value assert: expected %s (%d), got %s (%d)", message,  DSOS_STRERROR(expected_value), expected_value, DSOS_STRERROR(got_value), got_value);
+    else snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "Return value assert: expected %s (%d), got %s (%d)", DSOS_STRERROR(expected_value), expected_value, DSOS_STRERROR(got_value), got_value);
     return 0;
 }
 
@@ -105,5 +132,19 @@ int tester_utest_assert_listsize(ListHead* list_head, int expected_size, char* m
     if(message != NULL)
         snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "%s - List size assert: expected size %d, got size %d", message, expected_size, list_head->size);
     else snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "List size assert: expected size %d, got size %d", expected_size, list_head->size);
+    return 0;
+}
+
+int tester_utest_assert_poolfreeblock(PoolAllocator* pool, int expected_free_block, char* message){
+    if(!pool){
+        if(message!=NULL)
+            snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "%s - Unexpected allocator null pointer", message);
+        else snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "Unexpected allocator null pointer");
+        return 0;
+    }
+    if(pool->size == expected_free_block) return 1;
+    if(message != NULL)
+        snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "%s - Allocator size assert: expected size %d, got size %d", message, expected_free_block, pool->size);
+    else snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "Allocator size assert: expected size %d, got size %d", expected_free_block, pool->size);
     return 0;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "linked_list.h"
 #include "disastrOS_pcb.h"
+#include "pool_allocator.h"
 
 // Dichiarazione Forward
 typedef struct Resource Resource;
@@ -58,3 +59,5 @@ Resource* ResourceList_byId(ResourceList* l, int id);
 
 //DEBUG FUNCTIONS
 void ResourceList_print(ListHead* l);
+
+PoolAllocator* Resource_allocator_getinfo();

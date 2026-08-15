@@ -79,7 +79,7 @@ int Resource_open(int resource_id, int flags){
   if(flags & (~supported_flags)) return DSOS_EINVAL;
   //    b. Sia Read che Write sono impostati a 0
   if(!(flags & (DSOS_O_RDONLY | DSOS_O_WRONLY | DSOS_O_RDWR))) return DSOS_EINVAL;
-  //    c. DSOS_O_CREAT OFF && DSOS_O_EXECL ON
+  //    c. DSOS_O_CREAT OFF && DSOS_O_EXCL ON
   if(!(flags & DSOS_O_CREAT) && (flags & DSOS_O_EXCL)) return DSOS_EINVAL;
 
   // 3. Query for resource
@@ -111,7 +111,7 @@ int Resource_open(int resource_id, int flags){
   // b.2 b.3 --> Default behavior
 
   Descriptor* descriptor;
-  int ret_val = Descriptor_mk(&descriptor, resource);
+  int ret_val = Descriptor_mk(&descriptor, resource); // Concettualmente questa cosa non va bene, farlo direttamente
   if(ret_val != DSOS_SUCCESS) return ret_val;
 
   return descriptor->fd;
@@ -268,3 +268,5 @@ void ResourceList_print(ListHead* l){
   }
   printf("}\n");
 }
+
+PoolAllocator* Resource_allocator_getinfo(){return &_resources_allocator;}

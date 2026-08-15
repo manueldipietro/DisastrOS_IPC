@@ -2,7 +2,7 @@
 
 #define MAX_NUM_PROCESSES 1024
 #define MAX_NUM_RESOURCES 1024
-#define MAX_NUM_RESOURCES_PER_PROCESS 32
+#define MAX_NUM_DESCRIPTORS_PTRS_PER_RESOURCE 32
 #define MAX_NUM_DESCRIPTORS_PER_PROCESS 32
 #define DSOS_ANON_RES_STARTID 512
 
@@ -26,6 +26,7 @@
 #define DSOS_ERESOURCENOFD -11
 #define DSOS_ERESOURCECLOSE -12
 #define DSOS_ERESOURCEINUSE -13
+
 //---------NEW-ERRORS-CODE-TO-CHECK
 #define DSOS_SUCCESS        0
 
@@ -37,6 +38,30 @@
 #define DSOS_EMFILE         -25
 #define DSOS_ENFILE         -26
 #define DSOS_ENOSYS         -27
+
+static inline const char* DSOS_STRERROR(int err_code){
+    switch (err_code){
+        case DSOS_SUCCESS:
+            return "DSOS_SUCCESS";
+        case DSOS_EINVAL:
+            return "DSOS_EINVAL";
+        case DSOS_EEXIST:
+            return "DSOS_EEXIST";
+        case DSOS_ENOENT:
+            return "DSOS_ENOENT";
+        case DSOS_ENOMEM:
+            return "DSOS_ENOMEM";
+        case DSOS_EBADFD:
+            return "DSOS_EBADFD";
+        case DSOS_EMFILE:
+            return "DSOS_EMFILE";
+        case DSOS_ENFILE:
+            return "DSOS_ENFILE";
+        case DSOS_ENOSYS:
+            return "DSOS_ENFILE";
+    }
+    return "DSOS UNDEFINED ERROR";
+}
 
 // syscall numbers
 #define DSOS_MAX_SYSCALLS 32
@@ -54,9 +79,6 @@
 #define DSOS_CALL_WRITE_RESOURCE 10
 #define DSOS_CALL_CLOSE_RESOURCE 11
 #define DSOS_CALL_UNLINK_RESOURCE 12
-
-// New error's code
-
 
 //resources
 /**

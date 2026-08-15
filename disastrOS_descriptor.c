@@ -17,7 +17,8 @@
 
 #define DESCRIPTORPTR_SIZE sizeof(DescriptorPtr)
 #define DESCRIPTORPTR_MEMSIZE (sizeof(DescriptorPtr)+sizeof(int))
-#define DESCRIPTORPTR_BUFFER_SIZE MAX_NUM_DESCRIPTORS*DESCRIPTORPTR_MEMSIZE
+#define MAX_NUM_DESCRIPTORS_PTRS  MAX_NUM_DESCRIPTORS_PTRS_PER_RESOURCE*MAX_NUM_PROCESSES
+#define DESCRIPTORPTR_BUFFER_SIZE MAX_NUM_DESCRIPTORS_PTRS*DESCRIPTORPTR_MEMSIZE
 
 static char _descriptor_buffer[DESCRIPTOR_BUFFER_SIZE];
 static PoolAllocator _descriptor_allocator;
@@ -57,8 +58,8 @@ int Descriptor_free(Descriptor* d) {
 }
 
 int Descriptor_mk(Descriptor** descriptor, Resource* resource){
-  // 1. Check if the maximum number of descriptors for the resource has been reached
-  if(resource->descriptors_ptrs.size >= MAX_NUM_RESOURCES_PER_PROCESS)
+  // 1. Check if the maximum number of descriptors ptrs for the resource has been reached
+  if(resource->descriptors_ptrs.size >= MAX_NUM_DESCRIPTORS_PTRS_PER_RESOURCE)
     return DSOS_ENFILE;
 
   // 2. Check if the maximum number of descriptors for the file has been reached 
@@ -77,6 +78,7 @@ int Descriptor_mk(Descriptor** descriptor, Resource* resource){
   //    and manage case when there is error with allocation of descriptor pointer
   DescriptorPtr* descriptor_ptr=DescriptorPtr_alloc(*descriptor);
   // TODO: QUI VA GESTITO IL CASO IN CUI CI SIA UN ERRORE, STACCANDO IL DESCRITTORE DALLA LISTA, DEALLOCANDOLO E RITORNANDO L'ERRORE (ENOMEM)
+      //INVECE NO, PERCHE' GLI ERRORI GESTIBILI SONO ENFILE ed EMFILE 
   (*descriptor)->ptr=descriptor_ptr;
   List_insert(&resource->descriptors_ptrs, resource->descriptors_ptrs.last, (ListItem*) descriptor_ptr);
 
@@ -128,6 +130,17 @@ int DescriptorPtr_free(DescriptorPtr* d){
   return PoolAllocator_releaseBlock(&_descriptor_ptr_allocator, d);
 }
 
+DescriptorPtr*  DescriptorPtrList_byDesc(ListHead* l, Descriptor* descriptor){
+  ListItem* aux=l->first;
+  while(aux){
+    DescriptorPtr* dp=(DescriptorPtr*)aux;
+    if (dp->descriptor==descriptor) return dp;
+    aux=aux->next;
+  }
+  return 0;
+}
+
+
 void DescriptorList_print(ListHead* l){
   ListItem* aux=l->first;
   printf("[");
@@ -142,7 +155,6 @@ void DescriptorList_print(ListHead* l){
   }
   printf("]");
 }
-
 
 void DescriptorPtrList_print(ListHead* l){
   ListItem* aux=l->first;
@@ -159,3 +171,7 @@ void DescriptorPtrList_print(ListHead* l){
   }
   printf("]");
 }
+
+// Only for test purpose
+PoolAllocator* Descriptor_allocator_getinfo(){return &_descriptor_allocator;}
+PoolAllocator* DescriptorPtr_allocator_getinfo(){return &_descriptor_ptr_allocator;}

@@ -34,23 +34,23 @@ int tester_resource_write2(char* test_name){
     resource_id = 100;
     return_value = disastrOS_open(resource_id, DSOS_O_RDONLY|DSOS_O_CREAT);
         //PROBLEMA, QUESTO DOVREBBE POTER TORNARE UN VALORE >0 e non necessariamente 0.
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
     file_descriptor = return_value;
 
     // 2. Try to pass a null buffer to write (should return DSOS_EINVAL)
     buffer = NULL; count = 100;
     return_value = disastrOS_write(file_descriptor, buffer, count);
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_EINVAL, return_value, "Error, disastrOS_write unrecognized null buffer"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_EINVAL, return_value, "Error, disastrOS_write unrecognized null buffer"));
 
     // 3. Try to pass a negative count to write (should return DSOS_EINVAL)
     buffer = (void*) 1; count = -1;
     return_value = disastrOS_write(file_descriptor, buffer, count);
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_EINVAL, return_value, "Error, disastrOS_write unrecognized negative count"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_EINVAL, return_value, "Error, disastrOS_write unrecognized negative count"));
 
     // 4. Try to pass count = 0 (should return DSOS_ENOSYS)
     buffer = (void*) 1; count = 0;
     return_value = disastrOS_write(file_descriptor, buffer, count);
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_ENOSYS, return_value, "Error, disastrOS_write unrecognized count=0 as valid"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_ENOSYS, return_value, "Error, disastrOS_write unrecognized count=0 as valid"));
 
     // 5. Test ok, return 1
     return 1;
