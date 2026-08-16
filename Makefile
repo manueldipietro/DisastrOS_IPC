@@ -35,7 +35,8 @@ OBJS=pool_allocator.o\
      tester_resource_write.o\
      tester_resource_mk.o\
      tester_resource_unlink.o\
-     tester_resource_open.o
+     tester_resource_open.o\
+     tester_resource_close.o
 
 LIBS=libdisastrOS.a
 

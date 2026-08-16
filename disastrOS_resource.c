@@ -166,6 +166,7 @@ int Resource_write(int fd, const void* buffer, int count){
 
 int Resource_close(int fd){
   // 1. Query for the file descriptor and check if is valid
+  if(fd < 0) return DSOS_EBADFD;
   Descriptor* descriptor = DescriptorList_byFd(&running->descriptors, fd);
   if(!descriptor) return DSOS_EBADFD;
   

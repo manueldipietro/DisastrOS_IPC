@@ -45,6 +45,14 @@ int tester_resource_unlink5(char* test_name);
 int tester_resource_unlink6(char* test_name);
 
 // Test DisastrOS_close
+int tester_resource_close1(char* test_name);
+int tester_resource_close2(char* test_name);
+int tester_resource_close3(char* test_name);
+int tester_resource_close4(char* test_name);
+int tester_resource_close5(char* test_name);
+int tester_resource_close6(char* test_name);
+int tester_resource_close7(char* test_name);
+
 
 /**
     UTEST FOR DisastrOS_write (DisastrOS_Resource):

@@ -93,7 +93,17 @@ void initFunction(void* args) {
   tester_utest_execute("Test disastrOS_resource: open: 11", tester_resource_open11);
   tester_utest_execute("Test disastrOS_resource: open: 12", tester_resource_open12);
   tester_utest_execute("Test disastrOS_resource: open: 13", tester_resource_open13);
-  //tester_utest_execute("Test disastrOS_resource: open: 10", tester_resource_open14);
+
+  tester_utest_execute("Test disastrOS_resource: close: 1", tester_resource_close1);
+  tester_utest_execute("Test disastrOS_resource: close: 2", tester_resource_close2);
+  tester_utest_execute("Test disastrOS_resource: close: 3", tester_resource_close3);
+  tester_utest_execute("Test disastrOS_resource: close: 4", tester_resource_close4);
+  tester_utest_execute("Test disastrOS_resource: close: 5", tester_resource_close5);
+  tester_utest_execute("Test disastrOS_resource: close: 6", tester_resource_close6);
+  tester_utest_execute("Test disastrOS_resource: close: 7", tester_resource_close7);
+
+
+
 
 
   // U2. Execute Unit Test for IPC syscall
