@@ -1,21 +1,27 @@
 #pragma once
-#include "linked_list.h"
-#include "disastrOS_pcb.h"
 #include "disastrOS_resource.h"
+
+#include "linked_list.h"
 #include "disastrOS_descriptor.h"
 
 
-typedef struct IPC{
-    Resource res;
-}IPC;
+typedef struct Ipc{
+    Resource resource;
+    
+    ListHead waiting_list_read;     // Process that are waiting for read on this resource
+    ListHead waiting_list_write;    // Process that are waiting for write on this resource
 
-// Bisogna aggiungere allocatore e deallocatore. -->In realtà considerando che dovrebbe essere virtuale non ci dovrebbe essere bisogno
+    int size;
+    int size_max;
+}Ipc;
 
-int IPC_mk(int resource_id);
-int IPC_open(int resource_id, int flags);       // Questa non serve la eredita da resources
+// Queste 4 funzioni in realtà non servirebbero veramente alla disastrOS_ipc ma le ho messe per la testabilità
+void Ipc_init();
+Ipc* Ipc_alloc(int id, int size_max);
+int Ipc_free(Resource* resource);
+int Ipc_mk(int resource_id, int size_max);
 
-int IPC_read(int fd, void* buffer, int count);  // Pur non usando void* questo deve essere definito per convenzione con la VMT
-int IPC_write(int fd, const void* buffer, int count);
+int Ipc_read(int fd, void* buffer, int count);
+int Ipc_write(int fd, const void* buffer, int count);
 
-int IPC_close(int fd);                          // Non dovrebbe essere ridefinito, ma bisogna verificare se ci sono comportamenti particolari quando si va a chiudere la risorsa
-int IPC_unlink(int resource_id);                // Non serve ridefinirlo
+int Ipc_close(int fd);

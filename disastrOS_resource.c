@@ -1,10 +1,11 @@
+#include "disastrOS_resource.h"
+
 #include <assert.h>
 #include <stdio.h>
 
 #include "disastrOS_globals.h"
 #include "disastrOS_constants.h"
 
-#include "disastrOS_resource.h"
 #include "disastrOS_descriptor.h"
 
 #include "pool_allocator.h"

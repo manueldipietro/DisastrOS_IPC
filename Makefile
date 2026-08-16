@@ -37,7 +37,9 @@ OBJS=pool_allocator.o\
      tester_utest_resource/tester_resource_unlink.o\
      tester_utest_resource/tester_resource_close.o\
      tester_utest_resource/tester_resource_read.o\
-     tester_utest_resource/tester_resource_write.o
+     tester_utest_resource/tester_resource_write.o\
+     \
+     disastrOS_IPC.o
 
 
 LIBS=libdisastrOS.a

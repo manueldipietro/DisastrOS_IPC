@@ -67,6 +67,8 @@ int Descriptor_mk(Descriptor** descriptor, Resource* resource, int flags){
   if(running->descriptors.size >= MAX_NUM_DESCRIPTORS_PER_PROCESS)
     return DSOS_EMFILE;
   
+  // DA FARE: con aumento del numero massimo di risorse complessivo a (MAX_IPC+MAX_RESOURCE)
+
   // 3. Alloc new descriptor and list insert into processes' descriptor list
   *descriptor = Descriptor_alloc(running->last_fd, resource, running, flags);
   assert((*descriptor) && "Fatal error during descriptor mk (null descriptor). Kernel Panic!");

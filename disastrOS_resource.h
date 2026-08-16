@@ -27,7 +27,7 @@ struct Resource{
   ListItem list;
   int id;
   int type;
-  int unlinked;//Forse trasformarlo in un flags sarebbe più versatile?
+  int unlinked;
   ListHead descriptors_ptrs;
   Resource_VMT VMT;
 };
