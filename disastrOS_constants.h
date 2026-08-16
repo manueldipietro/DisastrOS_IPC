@@ -58,7 +58,7 @@ static inline const char* DSOS_STRERROR(int err_code){
         case DSOS_ENFILE:
             return "DSOS_ENFILE";
         case DSOS_ENOSYS:
-            return "DSOS_ENFILE";
+            return "DSOS_ENOSYS";
     }
     return "DSOS UNDEFINED ERROR";
 }

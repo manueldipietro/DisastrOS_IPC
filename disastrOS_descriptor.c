@@ -104,9 +104,9 @@ void Descriptor_destroy(Descriptor* descriptor){
   Descriptor_free(descriptor);
   DescriptorPtr_free(descriptor_pointer);
   
+  // 5. Return
   return;
 }
-
 
 Descriptor*  DescriptorList_byFd(ListHead* l, int fd){
   ListItem* aux=l->first;
@@ -118,7 +118,6 @@ Descriptor*  DescriptorList_byFd(ListHead* l, int fd){
   }
   return 0;
 }
-
 
 DescriptorPtr* DescriptorPtr_alloc(Descriptor* descriptor) {
   DescriptorPtr* d=PoolAllocator_getBlock(&_descriptor_ptr_allocator);
@@ -143,7 +142,7 @@ DescriptorPtr*  DescriptorPtrList_byDesc(ListHead* l, Descriptor* descriptor){
   return 0;
 }
 
-
+// Only for debug purpose
 void DescriptorList_print(ListHead* l){
   ListItem* aux=l->first;
   printf("[");

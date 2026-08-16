@@ -86,8 +86,7 @@ int tester_resource_read4(char* test_name){
     // 1. Create and open (RDONLY) a test resource and try to read (should return DSOS_ENOSYS)
     resource_id = 100;
     return_value = disastrOS_open(resource_id, DSOS_O_RDONLY|DSOS_O_CREAT);
-        //PROBLEMA, QUESTO DOVREBBE POTER TORNARE UN VALORE >0 e non necessariamente 0.
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
     file_descriptor = return_value;
     buffer = (void*) 1; count = 100;
     return_value = disastrOS_read(file_descriptor, buffer, count);
@@ -96,8 +95,7 @@ int tester_resource_read4(char* test_name){
     // 2. Create and open (WRONLY) a test resource and try to read (should return DSOS_EBADFD)
     resource_id = 200;
     return_value = disastrOS_open(resource_id, DSOS_O_WRONLY|DSOS_O_CREAT);
-        //PROBLEMA, QUESTO DOVREBBE POTER TORNARE UN VALORE >0 e non necessariamente 0.
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
     file_descriptor = return_value;
     buffer = (void*) 1; count = 100;
     return_value = disastrOS_read(file_descriptor, buffer, count);
@@ -106,8 +104,7 @@ int tester_resource_read4(char* test_name){
     // 3. Create and open (RDWR) a test resource and try to read (should return DSOS_ENOSYS)
     resource_id = 300;
     return_value = disastrOS_open(resource_id, DSOS_O_RDWR|DSOS_O_CREAT);
-        //PROBLEMA, QUESTO DOVREBBE POTER TORNARE UN VALORE >0 e non necessariamente 0.
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
     file_descriptor = return_value;
     buffer = (void*) 1; count = 100;
     return_value = disastrOS_read(file_descriptor, buffer, count);

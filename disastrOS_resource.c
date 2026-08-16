@@ -74,7 +74,6 @@ int Resource_open(int resource_id, int flags){
 
   // 2. Check flags, and return DSOS_EINVAL in the following cases:
   //    a. Unsupported flags
-
   int supported_flags = DSOS_O_ACCMODE | DSOS_O_CREAT | DSOS_O_EXCL | DSOS_O_NONBLOCK;
   if(flags & (~supported_flags)) return DSOS_EINVAL;
   //    b. DSOS_O_RDONLY, DSOS_O_WRONLY and DSOS_O_RDWR setted
@@ -86,9 +85,9 @@ int Resource_open(int resource_id, int flags){
   Resource* resource = ResourceList_byId(&resources_list, resource_id);
 
   // 4. If resource non-existing we distinguish two case:
-  //    4.a Flags DSOS_O_CREAT setted (with or without DSOS_EXCL): create resource and continue
+  //    a Flags DSOS_O_CREAT setted (with or without DSOS_EXCL): create resource and continue
   //        Note: in this case we can have error ENOMEM because we can't alloc the resource
-  //    4.b Falgs DSOS_O_CREAT not setted: return DSOS_ENOENT error
+  //    b Falgs DSOS_O_CREAT not setted: return DSOS_ENOENT error
   if(resource == NULL){
     if(flags & DSOS_O_CREAT){
       resource = Resource_alloc(resource_id);
@@ -113,28 +112,27 @@ int Resource_open(int resource_id, int flags){
   return descriptor->fd;
 }
 
-/**
-  IDEA: USARE QUESTE DUE FUNZIONI COME CONTROLLO DI BASE SU PARAMETRI (TRANNE BUFFER E FD)?
-*/
 int Resource_read(int fd, void* buffer, int count){
   // 1. Query for the file descriptor and check if is valid (exist and has correct flags)
   Descriptor* descriptor = DescriptorList_byFd(&running->descriptors, fd);
   if(!descriptor) return DSOS_EBADFD;
-  // TODO: controllo flag
 
-  // 2. Check the validity of the buffer and count
-  if(!buffer || count<=0) return DSOS_EINVAL;
+  // 2. Check access mode
+  if( (descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_WRONLY) return DSOS_EBADFD;
 
-  // 3. Retrive resource pointer and validate it
+  // 3. Check the validity of the buffer and count
+  if(!buffer || count<0) return DSOS_EINVAL;
+
+  // 4. Retrive resource pointer and validate it
   Resource* resource = descriptor->resource;
   assert(descriptor->resource && "Fatal error during resource read (resource null pointer). Kernel Panic!");
 
-  // 4. Use VMT for call virtual method
+  // 5. Use VMT for call virtual method
   disastros_read_fn virtual_read = resource->VMT.read;
   if(!virtual_read) return DSOS_ENOSYS;
   int ret_value = virtual_read(fd, buffer, count);
 
-  // 5. Return value returned from virtual method
+  // 6. Return value returned from virtual method
   return ret_value;
 }
 
@@ -142,21 +140,23 @@ int Resource_write(int fd, const void* buffer, int count){
   // 1. Query for the file descriptor and check if is valid (exist and has correct flags)
   Descriptor* descriptor = DescriptorList_byFd(&running->descriptors, fd);
   if(!descriptor) return DSOS_EBADFD;
-  // TODO: controllo flag
 
-  // 2. Check the validity of the buffer and count
-  if(!buffer || count<=0) return DSOS_EINVAL;
+  // 2. Check access mode
+  if( (descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_RDONLY) return DSOS_EBADFD;
 
-  // 3. Retrive resource pointer and validate it
+  // 3. Check the validity of the buffer and count
+  if(!buffer || count<0) return DSOS_EINVAL;
+
+  // 4. Retrive resource pointer and validate it
   Resource* resource = descriptor->resource;
   assert(descriptor->resource && "Fatal error during resource write (resource null pointer). Kernel Panic!");
 
-  // 4. Use VMT for call virtual method
+  // 5. Use VMT for call virtual method
   disastros_write_fn virtual_write = resource->VMT.write;
-  //if(!virtual_write) return DSOS_ENOSYS;
+  if(!virtual_write) return DSOS_ENOSYS;
   int ret_value = virtual_write(fd, buffer, count);
 
-  // 5. Return value returned from virtual method
+  // 6. Return value returned from virtual method
   return ret_value;
 }
 
@@ -176,7 +176,7 @@ int Resource_close(int fd){
   // 4. Try to dealloc resources
   Resource_destroy(resource);
      
-  // 5. Return Sucess
+  // 5. Return DSOS_SUCCESS
   return DSOS_SUCCESS;
 }
 
@@ -197,9 +197,9 @@ int Resource_unlink(int resource_id){
   assert(resource && "Fatal error during List detach. Kernel Panic!");
 
   // 5. Try to destroy during the close
-  Resource_destroy(resource); // Va resa polimorfica
+  Resource_destroy(resource);
 
-  // 6. Return success
+  // 6. Return DSOS_SUCCESS
   return DSOS_SUCCESS;
 }
 
@@ -226,10 +226,6 @@ int Resource_free(Resource* r) {
   return PoolAllocator_releaseBlock(&_resources_allocator, r);
 }
 
-//DA CORREGGERE PER SUPPORTARE LE RISORSE ANONIME (O forse no se usata da funzioni di sistema?? COntrollare!!)
-// RAGGIONAMENTO: essendo questa usata solo dalle funzioni interne del kernel,
-// e visto che magari potrebbe essere necessario andare a recupare la risorsa anonima ad esempio nei test
-// non la modifico in alcun modo.
 Resource* ResourceList_byId(ResourceList* l, int id){
   ListItem* aux=l->first;
   while(aux){
@@ -241,11 +237,7 @@ Resource* ResourceList_byId(ResourceList* l, int id){
   return 0;
 }
 
-
-
-/**
- * FUNZIONE DI DEBUG
- */
+// Only for debug purpose
 void Resource_print(Resource* r) {
   printf("id: %d, type:%d, pids:", r->id, r->type);
   DescriptorPtrList_print(&r->descriptors_ptrs);
@@ -266,4 +258,5 @@ void ResourceList_print(ListHead* l){
   printf("}\n");
 }
 
+// Only for test purpose
 PoolAllocator* Resource_allocator_getinfo(){return &_resources_allocator;}

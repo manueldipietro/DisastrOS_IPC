@@ -20,8 +20,6 @@ void internal_open(){
 }
 
 void internal_read(){
-  // QUESTA FUNZIONE E' VIRTUALE, CAPIRE SE SERVE CHIAMARE VMT DA QUI O DA CLASSE BASE RESOURCES
-
   // 1. Retrieve argument from PCB  
   int fd = running->syscall_args[0];
   void* buffer = (void*) running->syscall_args[1];
@@ -36,14 +34,13 @@ void internal_read(){
 }
 
 void internal_write(){
-  // QUESTA FUNZIONE E' VIRTUALE, CAPIRE SE SERVE CHIAMARE VMT DA QUI O DA CLASSE BASE RESOURCES
   // 1. Retrieve argument from PCB  
   int fd = running->syscall_args[0];
   void* buffer = (void*) running->syscall_args[1];
   int count = running->syscall_args[2];
 
   // 2. Call read function
-  int ret = Resource_read(fd, buffer, count);
+  int ret = Resource_write(fd, buffer, count);
 
   // 3. Write result to the PCB and return.
   running->syscall_retvalue = ret;

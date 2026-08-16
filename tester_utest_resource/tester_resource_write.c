@@ -32,7 +32,7 @@ int tester_resource_write2(char* test_name){
 
     // 1. Open and create (O_CREATE) a test resource (should return file descriptor (return_value>=0))
     resource_id = 100;
-    return_value = disastrOS_open(resource_id, DSOS_O_RDONLY|DSOS_O_CREAT);
+    return_value = disastrOS_open(resource_id, DSOS_O_WRONLY|DSOS_O_CREAT);
         //PROBLEMA, QUESTO DOVREBBE POTER TORNARE UN VALORE >0 e non necessariamente 0.
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
     file_descriptor = return_value;
@@ -64,7 +64,7 @@ int tester_resource_write3(char* test_name){
 
     // 1. Open and create (O_CREATE) a test resource (should return file descriptor (return_value>=0))
     resource_id = 100;
-    return_value = disastrOS_open(resource_id, DSOS_O_RDONLY|DSOS_O_CREAT);
+    return_value = disastrOS_open(resource_id, DSOS_O_WRONLY|DSOS_O_CREAT);
         //PROBLEMA, QUESTO DOVREBBE POTER TORNARE UN VALORE >0 e non necessariamente 0.
     TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
     file_descriptor = return_value;
@@ -87,32 +87,31 @@ int tester_resource_write4(char* test_name){
     // 1. Create and open (RDONLY) a test resource and try to write (should return DSOS_ENOSYS)
     resource_id = 100;
     return_value = disastrOS_open(resource_id, DSOS_O_RDONLY|DSOS_O_CREAT);
-        //PROBLEMA, QUESTO DOVREBBE POTER TORNARE UN VALORE >0 e non necessariamente 0.
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
     file_descriptor = return_value;
     buffer = (void*) 1; count = 100;
     return_value = disastrOS_write(file_descriptor, buffer, count);
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_ENOSYS, return_value, "Error, disastrOS_write unrecognized DSOS_O_RDONLY"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_EBADFD, return_value, "Error, disastrOS_write unrecognized DSOS_O_RDONLY"));
 
     // 2. Create and open (WRONLY) a test resource and try to write (should return DSOS_EBADFD)
     resource_id = 200;
     return_value = disastrOS_open(resource_id, DSOS_O_WRONLY|DSOS_O_CREAT);
         //PROBLEMA, QUESTO DOVREBBE POTER TORNARE UN VALORE >0 e non necessariamente 0.
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
     file_descriptor = return_value;
     buffer = (void*) 1; count = 100;
     return_value = disastrOS_write(file_descriptor, buffer, count);
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_EBADFD, return_value, "Error, disastrOS_write unrecognized DSOS_O_WRONLY"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_ENOSYS, return_value, "Error, disastrOS_write unrecognized DSOS_O_WRONLY"));
     
     // 3. Create and open (RDWR) a test resource and try to write (should return DSOS_ENOSYS)
     resource_id = 300;
     return_value = disastrOS_open(resource_id, DSOS_O_RDWR|DSOS_O_CREAT);
         //PROBLEMA, QUESTO DOVREBBE POTER TORNARE UN VALORE >0 e non necessariamente 0.
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
     file_descriptor = return_value;
     buffer = (void*) 1; count = 100;
     return_value = disastrOS_write(file_descriptor, buffer, count);
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_ENOSYS, return_value, "Error, disastrOS_write unrecognized DSOS_O_RDWR"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_ENOSYS, return_value, "Error, disastrOS_write unrecognized DSOS_O_RDWR"));
 
     // 4. Test ok, return 1
     return 1;
@@ -127,9 +126,8 @@ int tester_resource_write5(char* test_name){
 
     // 1. Open and create (O_CREATE) a test resource (should return file descriptor (return_value>=0))
     resource_id = 100;
-    return_value = disastrOS_open(resource_id, DSOS_O_RDONLY|DSOS_O_CREAT);
-        //PROBLEMA, QUESTO DOVREBBE POTER TORNARE UN VALORE >0 e non necessariamente 0.
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
+    return_value = disastrOS_open(resource_id, DSOS_O_WRONLY|DSOS_O_CREAT);
+    TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "Error during test resource open and creation"));
     file_descriptor = return_value;
 
     // 2. Modify the VMT
@@ -139,7 +137,7 @@ int tester_resource_write5(char* test_name){
     // 3. Invoke write and check that return correct return value
     buffer = (char*) 1; count = 272;
     return_value = disastrOS_write(file_descriptor, buffer, count);
-    TESTER_UTEST_CHECK(tester_utest_assert_int(count, return_value, "Error, the specializing function was not executed"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(count, return_value, "Error, the specializing function was not executed"));
 
     // 4. Test ok, return 1
     return 1;

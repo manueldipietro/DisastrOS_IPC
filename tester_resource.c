@@ -60,7 +60,7 @@ int tester_utest_resources(){
         { .title = "Test disastrOS_resource: read1: invalid file descriptor", .utest_fn = tester_resource_read1},
         { .title = "Test disastrOS_resource: read2: buffer or count invalid", .utest_fn = tester_resource_read2},
         { .title = "Test disastrOS_resource: read3: read operation not supported", .utest_fn = tester_resource_read3},
-        { .title = "Test disastrOS_resource: read4: flags", .utest_fn = tester_resource_read4},
+        { .title = "Test disastrOS_resource: read4: access mode", .utest_fn = tester_resource_read4},
         { .title = "Test disastrOS_resource: read5: test read operation", .utest_fn = tester_resource_read5},
     };
 
@@ -68,7 +68,7 @@ int tester_utest_resources(){
         { .title = "Test disastrOS_resource: write1: invalid file descriptor", .utest_fn = tester_resource_write1},
         { .title = "Test disastrOS_resource: write2: buffer or count invalid", .utest_fn = tester_resource_write2},
         { .title = "Test disastrOS_resource: write3: write operation not supported", .utest_fn = tester_resource_write3},
-        { .title = "Test disastrOS_resource: write4: flags", .utest_fn = tester_resource_write4},
+        { .title = "Test disastrOS_resource: write4: access mode", .utest_fn = tester_resource_write4},
         { .title = "Test disastrOS_resource: write5: test write operation", .utest_fn = tester_resource_write5},
     };
 
