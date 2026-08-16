@@ -39,23 +39,30 @@ int tester_resource_unlink2(char* test_name){
     // 0. Initialization
     int return_value, resource_id;
     Resource* resource;
+    TESTER_UTEST_CHECK(tester_utest_assert_listsize(&resources_list, 0, "resources_list not empty at the startup"));
+    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Resource_allocator_getinfo(), Resource_allocator_getinfo()->size_max, "_resource_allocator not empty at the startup"));
+    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Descriptor_allocator_getinfo(), Descriptor_allocator_getinfo()->size_max, "_descriptor_allocator not empty at the startup"));
+    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(DescriptorPtr_allocator_getinfo(), DescriptorPtr_allocator_getinfo()->size_max, "_descriptor_ptr_allocator not empty at the startup"));
 
     // 1. Create and open the test resource
     resource_id = 0;
     return_value = disastrOS_open(resource_id, DSOS_O_RDWR|DSOS_O_CREAT);
-    //QUESTO ASSERT NON VA BENE!
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_SUCCESS, return_value, "Error during test resource open"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "Error during test resource open"));
+    resource = ResourceList_byId(&resources_list, resource_id);
+    TESTER_UTEST_CHECK(tester_utest_assert_allocated((void*) resource, "Error during resource creation"));
 
     // 2. Unlink test resource    
-    int old_resources_list_size = resources_list.size;
     return_value = disastrOS_unlink(resource_id);
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_SUCCESS, return_value, "Error during unlink resource"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "Error during unlink resource"));
 
-    // 3. Check that resource has not been destroyed and the unlink attribute.
-    resource = ResourceList_byId(&resources_list, resource_id);
-    TESTER_UTEST_CHECK(tester_utest_assert_allocated((void*) resource, "Error the resource has been destroyed after destroy"));
-    TESTER_UTEST_CHECK(tester_utest_assert_listsize(&resources_list, old_resources_list_size, "Error on the resource list size after destroy"));
+    // 3. Check that resource is allocated and unlinked setted
+    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Descriptor_allocator_getinfo(), Descriptor_allocator_getinfo()->size_max-1, "_descriptor_allocator expected allocation after disastrOS_open"));
     TESTER_UTEST_CHECK(tester_utest_assert_int(1, resource->unlinked, "Unlinked attribute not setted"));
+
+    // 4. Check that resource has been unlinked from the list.
+    resource = ResourceList_byId(&resources_list, resource_id);
+    TESTER_UTEST_CHECK(tester_utest_assert_notallocated((void*) resource, "Error the resource has been destroyed after destroy"));
+    TESTER_UTEST_CHECK(tester_utest_assert_listsize(&resources_list, 0, "Error on the resource list size after destroy"));
     
     // 4. Test ok, return 1
     return 1;

@@ -203,8 +203,6 @@ int Resource_unlink(int resource_id){
   return DSOS_SUCCESS;
 }
 
-//Questa in realtà non va all'utente, l'utente non deve poter distruggere la risorsa, ma solo farne l'unlink.
-//Quindi qui unificare il gestore della distruzione (delete va qui).
 void Resource_destroy(Resource* resource){
   // 1. Check if there is file descriptor and in case return and check pointer for avoiding SEGFAULT
   if(!resource || !resource->unlinked || (resource->descriptors_ptrs).size)
