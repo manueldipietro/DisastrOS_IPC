@@ -105,7 +105,7 @@ int tester_resource_open3(char* test_name){
     TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Descriptor_allocator_getinfo(), Descriptor_allocator_getinfo()->size_max, "unexpected change on _descriptor_allocator after disastrOS_open with unsupported flags (case all flags to 1)"));
     TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(DescriptorPtr_allocator_getinfo(), DescriptorPtr_allocator_getinfo()->size_max, "unexpected change on _descriptor_ptr_allocator after disastrOS_open with unsupported flags (case all flags to 1)"));
 
-    // 2. Open resource with unsupported flags (set more significative bit to 1) (should return DSOS_EINVAL)
+    // 2. Open resource with unsupported flags (set more significative bit (MSB) to 1) (should return DSOS_EINVAL)
     flags = (1U << (sizeof(int)*8-1));
     return_value = disastrOS_open(resource_id, flags);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_EINVAL, return_value, "unsupported flags (case MSB to 1) id unrecognized by disastrOS_open"));
@@ -220,7 +220,7 @@ int tester_resource_open6(char* test_name){
     TESTER_UTEST_CHECK(tester_utest_assert_pointer((void*) running, (void*) descriptor->pcb, "mismatch on descriptor->pcb"));
     TESTER_UTEST_CHECK(tester_utest_assert_pointer((void*) resource, (void*) descriptor->resource, "mismatch on descriptor->resource"));
     TESTER_UTEST_CHECK(tester_utest_assert_int(file_descriptor, descriptor->fd, "mismatch on descriptor->file_descriptor"));
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_O_RDONLY, descriptor->flags, "mismatch on descriptor->flags"));
+    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_O_RDONLY|DSOS_O_CREAT, descriptor->flags, "mismatch on descriptor->flags"));
     TESTER_UTEST_CHECK(tester_utest_assert_pointer((void*) descriptorPtr, (void*) descriptor->ptr, "mismatch on descriptor->ptr"));
 
     // 7. Test ok, return 1
@@ -269,7 +269,7 @@ int tester_resource_open7(char* test_name){
     TESTER_UTEST_CHECK(tester_utest_assert_pointer((void*) running, (void*) descriptor->pcb, "Error mismatch on descriptor->pcb"));
     TESTER_UTEST_CHECK(tester_utest_assert_pointer((void*) resource, (void*) descriptor->resource, "Error mismatch on descriptor->resource"));
     TESTER_UTEST_CHECK(tester_utest_assert_int(file_descriptor, descriptor->fd, "Error mismatch on descriptor->file_descriptor"));
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_O_RDONLY, descriptor->flags, "Error mismatch on descriptor->flags"));
+    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_O_RDONLY|DSOS_O_CREAT, descriptor->flags, "Error mismatch on descriptor->flags"));
     TESTER_UTEST_CHECK(tester_utest_assert_pointer((void*) descriptorPtr, (void*) descriptor->ptr, "Error mismatch on descriptor->ptr"));
 
     // 7. Test ok, return 1
@@ -323,7 +323,7 @@ int tester_resource_open8(char* test_name){
     TESTER_UTEST_CHECK(tester_utest_assert_pointer((void*) running, (void*) descriptor->pcb, "mismatch on descriptor->pcb"));
     TESTER_UTEST_CHECK(tester_utest_assert_pointer((void*) resource, (void*) descriptor->resource, "mismatch on descriptor->resource"));
     TESTER_UTEST_CHECK(tester_utest_assert_int(file_descriptor, descriptor->fd, "mismatch on descriptor->file_descriptor"));
-    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_O_RDONLY, descriptor->flags, "mismatch on descriptor->flags"));
+    TESTER_UTEST_CHECK(tester_utest_assert_int(DSOS_O_RDONLY|DSOS_O_CREAT|DSOS_O_EXCL, descriptor->flags, "mismatch on descriptor->flags"));
     TESTER_UTEST_CHECK(tester_utest_assert_pointer((void*) descriptorPtr, (void*) descriptor->ptr, "mismatch on descriptor->ptr"));
 
     // 7. Test ok, return 1

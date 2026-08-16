@@ -24,7 +24,7 @@ void Resource_init(){
 }
 
 Resource* Resource_alloc(int resource_id){
-  // 1. Allocate Resource, if allocation goes wrong return NULL
+  // 1. Allocate resource, if allocation goes wrong return NULL
   Resource* resource = (Resource*) PoolAllocator_getBlock(&_resources_allocator);
   if(!resource)
     return NULL;
@@ -41,79 +41,75 @@ Resource* Resource_alloc(int resource_id){
   (resource->VMT).write = NULL;
   (resource->VMT).free = Resource_free;
 
-  // 4. Initialize the resource list
+  // 4. Initialize the descriptors_ptrs list
   List_init(&resource->descriptors_ptrs);
   
   // 5. Return the pointer to the resource
   return resource;
 }
 
-//Pensato per far creare una risorsa all'utente, non accetta id anonimi.
 int Resource_mk(int resource_id){
-  // 1. Controlla resource_id
+  // 1. Check resource_id if is not valid (anonymous or negative)
   if(resource_id < 0 || resource_id >= DSOS_ANON_RES_STARTID)
     return DSOS_EINVAL;
 
-  // 2. Controlla se la risorsa già esiste
+  // 2. Check if resource does not existing
   Resource* resource = ResourceList_byId(&resources_list, resource_id);
   if(resource) return DSOS_EEXIST;
 
-  // 3. Alloca la risorsa e ritorna ENOMEM in caso di fallimento.
+  // 3. Alloc resource and return DSOS_ENOMEM if out of memory, insert new resource on resources_list
   resource = Resource_alloc(resource_id);
   if(!resource) return DSOS_ENOMEM;
-  List_insert(&resources_list, resources_list.last, (ListItem*) resource);
-  //Qui tocca inserire l'assert per l'errore nell'inserimento nella lista.
-  // 4. Ritorna 0 in caso di successo
+  resource = (Resource*) List_insert(&resources_list, resources_list.last, (ListItem*) resource);
+  assert(resource && "Fatal error during resource mk (list_insert). Kernel Panic!");
+  
+  // 4. Return DSOS_SUCCESS
   return DSOS_SUCCESS;
 }
 
 int Resource_open(int resource_id, int flags){
-  // 1. Check resource_id if is valid (anonymous or out of bound)
+  // 1. Check resource_id if is not valid (anonymous or negative)
   if(resource_id < 0 || resource_id >= DSOS_ANON_RES_STARTID)
     return DSOS_EINVAL;
 
-  // TODO: Bisogna modificare in modo da assumere il comportamento di default come read only quando non si passa il flags di lettura
   // 2. Check flags, and return DSOS_EINVAL in the following cases:
-  //    a. Sono stati impostati flags non supportati
-  int supported_flags = DSOS_O_RDONLY | DSOS_O_WRONLY | DSOS_O_RDWR | DSOS_O_CREAT | DSOS_O_EXCL | DSOS_O_NONBLOCK;
+  //    a. Unsupported flags
+
+  int supported_flags = DSOS_O_ACCMODE | DSOS_O_CREAT | DSOS_O_EXCL | DSOS_O_NONBLOCK;
   if(flags & (~supported_flags)) return DSOS_EINVAL;
-  //    b. Sia Read che Write sono impostati a 0
-  if(!(flags & (DSOS_O_RDONLY | DSOS_O_WRONLY | DSOS_O_RDWR))) return DSOS_EINVAL;
-  //    c. DSOS_O_CREAT OFF && DSOS_O_EXCL ON
+  //    b. DSOS_O_RDONLY, DSOS_O_WRONLY and DSOS_O_RDWR setted
+  if( (flags&DSOS_O_ACCMODE)!=DSOS_O_RDONLY && (flags&DSOS_O_ACCMODE)!=DSOS_O_WRONLY && (flags&DSOS_O_ACCMODE)!=DSOS_O_RDWR) return DSOS_EINVAL;
+  //    c. DSOS_O_EXCL specified without DSOS_O_CREAT 
   if(!(flags & DSOS_O_CREAT) && (flags & DSOS_O_EXCL)) return DSOS_EINVAL;
 
   // 3. Query for resource
   Resource* resource = ResourceList_byId(&resources_list, resource_id);
 
-  // 4. We distinguish the behavior based on whether the resource exists or not
-  //    and on the DSOS_O_CREAT and DSOS_O_EXCL (That means: create resource but
-  //    fail if exists yet) flags:
-  //    a. Resource NOT EXIST
-  //      a.1. DSOS_O_CREAT OFF: error! Return DSOS_ENOENT;
-  //      a.2. DSOS_O_CREAT  ON: create resource and open (DSOS_O_EXCL not important)
-  //    b. Resource EXIST (we need to consider only if DSOS_O_CREAT ON else we open resource)
-  //      b.1. DSOS_O_CREAT ON and DSOS_O_EXCL ON: error! Return DSOS_EEXIST
-  //      b.2. DSOS_O_CREAT ON and DSOS_O_EXCL OFF: open resource (Default behavior)
-  //      b.3. DSOS_O_CREAT OFF: open resource (Default behavior)
-  // a
+  // 4. If resource non-existing we distinguish two case:
+  //    4.a Flags DSOS_O_CREAT setted (with or without DSOS_EXCL): create resource and continue
+  //        Note: in this case we can have error ENOMEM because we can't alloc the resource
+  //    4.b Falgs DSOS_O_CREAT not setted: return DSOS_ENOENT error
   if(resource == NULL){
-    // a.1
-    if(!(flags & DSOS_O_CREAT)) return DSOS_ENOENT;
-    // a.2
-    resource = Resource_alloc(resource_id);
-    if(!resource) return DSOS_ENOMEM;
-    List_insert(&resources_list, resources_list.last, (ListItem*) resource);
+    if(flags & DSOS_O_CREAT){
+      resource = Resource_alloc(resource_id);
+      if(!resource) return DSOS_ENOMEM;
+      resource = (Resource*) List_insert(&resources_list, resources_list.last, (ListItem*) resource);
+      assert(resource && "Fatal error during open (list_insert resource). Kernel Panic!");
+    }else{
+      return DSOS_ENOENT;
+    }
   }
-  // b
-  else
-    // b.1
+  // 5. Else if resource exist (not null) and DSOS_O_CREAT and DSOS_O_EXCL (exclusive) both setted we return DSOS_EEXIST error
+  else{
     if((flags & DSOS_O_CREAT) && (flags & DSOS_O_EXCL)) return DSOS_EEXIST;
-  // b.2 b.3 --> Default behavior
+  }
 
+  // 6. Allocate descriptors. Note: Descriptor_mk can generate DSOS_ENFILE, DSOS_EMFILE
   Descriptor* descriptor;
-  int ret_val = Descriptor_mk(&descriptor, resource); // Concettualmente questa cosa non va bene, farlo direttamente
+  int ret_val = Descriptor_mk(&descriptor, resource, flags);
   if(ret_val != DSOS_SUCCESS) return ret_val;
-
+  
+  // 7. Return file descriptor
   return descriptor->fd;
 }
 

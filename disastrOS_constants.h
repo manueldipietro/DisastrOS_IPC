@@ -103,9 +103,10 @@ static inline const char* DSOS_STRERROR(int err_code){
 #define DSOS_RESTYPE_IPCMQNM    5
 
 // Flags for open syscall
-#define DSOS_O_RDONLY       0b00000001    
-#define DSOS_O_WRONLY       0b00000010
-#define DSOS_O_RDWR         0b00000011
+#define DSOS_O_ACCMODE      0b00000011
+#define DSOS_O_RDONLY       0b00000000    
+#define DSOS_O_WRONLY       0b00000001
+#define DSOS_O_RDWR         0b00000010
 #define DSOS_O_CREAT        0b00000100
 #define DSOS_O_EXCL         0b00001000
 #define DSOS_O_NONBLOCK     0b00010000

@@ -12,7 +12,7 @@ typedef struct Descriptor{
   Resource* resource;
   int fd;
   struct DescriptorPtr* ptr; // Pointer to the entry in the resource list
-  int flags;                    // Opening mode (DSOS_O_RDONLY, DSOS_O_WRONLY, DSOS_O_RDWR)
+  int flags;
 } Descriptor;
 
 typedef struct DescriptorPtr{
@@ -22,10 +22,10 @@ typedef struct DescriptorPtr{
 
 void Descriptor_init();
 
-Descriptor* Descriptor_alloc(int fd, Resource* res, PCB* pcb);
+Descriptor* Descriptor_alloc(int fd, Resource* res, PCB* pcb, int flags);
 int Descriptor_free(Descriptor* d);
 
-int Descriptor_mk(Descriptor** descriptor, Resource* resource);
+int Descriptor_mk(Descriptor** descriptor, Resource* resource, int flags);
 void Descriptor_destroy(Descriptor* descriptor);
 
 Descriptor*  DescriptorList_byFd(ListHead* l, int fd);
