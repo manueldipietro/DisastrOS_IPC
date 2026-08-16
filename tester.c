@@ -55,6 +55,16 @@ int tester_utest_execute(char* test_name, tester_utest_fn utest_fn){
     return 0;
 }
 
+int tester_utest_executelist(tester_utest_list* utest_list, int test_number, char* testing_object){
+    int utest_counter = 0;
+    printf("Testing %s:\n", testing_object);
+    for(int i=0; i<test_number; i++){
+        utest_counter += tester_utest_execute(utest_list[i].title, utest_list[i].utest_fn);
+    }
+    printf("Test passed %d of %d\n", utest_counter, test_number);
+    return utest_counter;
+}
+
 void tester_utest_print(int status, char* test_name, char* fail_dettails){
     if(status)
         printf("\033[1m[\033[1;92m OK \033[0m\033[1m]\033[0m");

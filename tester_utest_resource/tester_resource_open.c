@@ -173,7 +173,7 @@ int tester_resource_open5(char* test_name){
     return 1;
 }
 
-// Test 6: Try to opening an unexisting resource with O_CREATE flags (should return DSOS_SUCCESS)
+// Test 6: Try to opening an non existing resource with O_CREATE flags (should return DSOS_SUCCESS)
 int tester_resource_open6(char* test_name){
     // 0. Initialization
     int return_value, resource_id, file_descriptor;
@@ -276,7 +276,7 @@ int tester_resource_open7(char* test_name){
     return 1;
 }
 
-// Test 8: try to open an unexisting resource with DSOS_O_CREAT and DSOS_O_EXCL flags
+// Test 8: try to open a non existing resource with DSOS_O_CREAT and DSOS_O_EXCL flags
 int tester_resource_open8(char* test_name){
     // 0. Initialization
     int return_value, resource_id, file_descriptor;

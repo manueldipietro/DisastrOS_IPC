@@ -1,5 +1,5 @@
 CC=gcc
-CCOPTS=--std=gnu99 -Wall -g
+CCOPTS=--std=gnu99 -Wall -g -I .
 AR=ar
 
 HEADERS=disastrOS.h\
@@ -31,12 +31,14 @@ OBJS=pool_allocator.o\
      disastrOS_syscalls_resource.o\
      tester.o\
      tester_resource.o\
-     tester_resource_read.o\
-     tester_resource_write.o\
-     tester_resource_mk.o\
-     tester_resource_unlink.o\
-     tester_resource_open.o\
-     tester_resource_close.o
+     \
+     tester_utest_resource/tester_resource_mk.o\
+     tester_utest_resource/tester_resource_open.o\
+     tester_utest_resource/tester_resource_unlink.o\
+     tester_utest_resource/tester_resource_close.o\
+     tester_utest_resource/tester_resource_read.o\
+     tester_utest_resource/tester_resource_write.o
+
 
 LIBS=libdisastrOS.a
 

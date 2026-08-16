@@ -33,103 +33,45 @@ void childFunction(void* args){
 
 
 void initFunction(void* args) {
+  
+  // 1. Execute unit tests to test the developed modules (resource, IPC, PIPE/FIFO, MQ)
+  //    Using fork in the test suite, we ensure that each unit test has a clean exectuion environment
+  //    This avoids implementing setup and tear down functions
+  int is_utest_ok = 1;
+  is_utest_ok *= tester_utest_resources();
+  //is_utest_ok *= tester_utest_IPC();
+  //is_utest_ok *= tester_utest_FIFO();
+  //is_utest_ok *= tester_utest_PIPE();
+  //is_utest_ok *= tester_utest_MQ();
 
-  int u_test_counter;
-  // U1. Execute Unit Test for resource syscall
-  //    mk syscall test
-  tester_utest_execute("Test disastrOS_resource: mk: success", tester_resource_mk_test1);
-  tester_utest_execute("Test disastrOS_resource: mk: double make", tester_resource_mk_test2);
-  tester_utest_execute("Test disastrOS_resource: mk: invalid or anonymous id", tester_resource_mk_test3);
-  tester_utest_execute("Test disastrOS_resource: mk: too much resources", tester_resource_mk_test4);
-
-  //    open syscall test
-  //tester_utest_execute("Test disaastrOS_resource: unlink: success ", tester_resource_unlink_test1);
-
-
-  //    unlink syscall test
-  //    close syscall test
-  //    read syscall test
-  printf("Test resource_read (virtual method):\n");
-  u_test_counter = 0;
-  u_test_counter+= tester_utest_execute("Test disastrOS_resource: read: ", tester_resource_read1);
-  u_test_counter+= tester_utest_execute("Test disastrOS_resource: read: ", tester_resource_read2);
-  u_test_counter+= tester_utest_execute("Test disastrOS_resource: read: ", tester_resource_read3);
-  u_test_counter+= tester_utest_execute("Test disastrOS_resource: read: ", tester_resource_read4);
-  u_test_counter+= tester_utest_execute("Test disastrOS_resource: read: ", tester_resource_read5);
-  printf("Test corretti: %d/%d\n", u_test_counter, 5);
-
-  //    write syscall test
-  printf("Test resource_write (virtual method):\n");
-  u_test_counter = 0;
-  u_test_counter+= tester_utest_execute("Test disastrOS_resource: write: invalid fd", tester_resource_write1);
-  u_test_counter+= tester_utest_execute("Test disastrOS_resource: write: buffer or count invalid", tester_resource_write2);
-  u_test_counter+= tester_utest_execute("Test disastrOS_resource: write: write non implementata", tester_resource_write3);
-  u_test_counter+= tester_utest_execute("Test disastrOS_resource: write: flags", tester_resource_write4);
-  u_test_counter+= tester_utest_execute("Test disastrOS_resource: write: Write fittizia", tester_resource_write5);
-  printf("Test corretti: %d/%d\n", u_test_counter, 5);
-
-  tester_utest_execute("Test disastrOS_resource: mk:", tester_resource_mk_test1);
-  tester_utest_execute("Test disastrOS_resource: mk:", tester_resource_mk_test2);
-  tester_utest_execute("Test disastrOS_resource: mk:", tester_resource_mk_test3);
-  tester_utest_execute("Test disastrOS_resource: mk:", tester_resource_mk_test4);
-
-  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink1);
-  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink2);
-  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink3);
-  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink4);
-  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink5);
-  tester_utest_execute("Test disastrOS_resource: unlink:", tester_resource_unlink6);
-
-  tester_utest_execute("Test disastrOS_resource: open: 1", tester_resource_open1);
-  tester_utest_execute("Test disastrOS_resource: open: 2", tester_resource_open2);
-  tester_utest_execute("Test disastrOS_resource: open: 3", tester_resource_open3);
-  tester_utest_execute("Test disastrOS_resource: open: 4", tester_resource_open4);
-  tester_utest_execute("Test disastrOS_resource: open: 5", tester_resource_open5);
-  tester_utest_execute("Test disastrOS_resource: open: 6", tester_resource_open6);
-  tester_utest_execute("Test disastrOS_resource: open: 7", tester_resource_open7);
-  tester_utest_execute("Test disastrOS_resource: open: 8", tester_resource_open8);
-  tester_utest_execute("Test disastrOS_resource: open: 9", tester_resource_open9);
-  tester_utest_execute("Test disastrOS_resource: open: 10", tester_resource_open10);
-  tester_utest_execute("Test disastrOS_resource: open: 11", tester_resource_open11);
-  tester_utest_execute("Test disastrOS_resource: open: 12", tester_resource_open12);
-  tester_utest_execute("Test disastrOS_resource: open: 13", tester_resource_open13);
-
-  tester_utest_execute("Test disastrOS_resource: close: 1", tester_resource_close1);
-  tester_utest_execute("Test disastrOS_resource: close: 2", tester_resource_close2);
-  tester_utest_execute("Test disastrOS_resource: close: 3", tester_resource_close3);
-  tester_utest_execute("Test disastrOS_resource: close: 4", tester_resource_close4);
-  tester_utest_execute("Test disastrOS_resource: close: 5", tester_resource_close5);
-  tester_utest_execute("Test disastrOS_resource: close: 6", tester_resource_close6);
-  tester_utest_execute("Test disastrOS_resource: close: 7", tester_resource_close7);
-
-
-
-
-
-  // U2. Execute Unit Test for IPC syscall
-  //    mk syscall test
-  //    open syscall test
-  //    unlink syscall test
-  //    close syscall test
-  //    read syscall test
-  //    write syscall test
-
-  // U3. Execute Unit Test for PIPE and FIFO syscall
-
-  // U4. Execute Unit Test for MQ_QUEUE
-
-  // U5. Print Unit Test Summary
-
-  // I1. Integration test for resource
-  // I2. Integration test for IPC (Controllare che la sincronizzazione sui read funziona)
-
-  disastrOS_shutdown();
-
-
-  disastrOS_printStatus();
+  // 2. Prepare disastrOS for integration test execution
   printf("hello, I am init and I just started\n");
   disastrOS_spawn(sleeperFunction, 0);
   
+  // 3. Execute integration test for each module
+  //    To limit the size of the output, the user will select the test to be executed
+  //    To keep the process image clean and allow further tests to be run without restarting the process
+  //    integration tests will be executed on a fork of the base process.
+/*
+  int choose;
+  while(1){
+    printf("Enter a number to select the integration test to run:\n");
+    printf("0 - disastrOS shutdown\n");
+    printf("1 - Resource test\n");
+
+    // Scelta
+    scanf("%d", &choose);
+    // Jump table per eseguire le funzioni
+
+    // Pulizia terminale
+    printf("\033[H\033[J");
+    fflush(stdout);
+  }
+*/
+  disastrOS_shutdown();
+
+
+
   printf("I feel like to spawn 10 nice threads\n");
   int alive_children=0;
   for (int i=0; i<10; ++i) {

@@ -18,7 +18,13 @@ extern char TESTER_UTEST_NAME[TESTER_UTEST_NAME_SIZE];
 
 typedef int (*tester_utest_fn)(char* test_name);
 
+typedef struct tester_utest_list {
+    char title[255];
+    tester_utest_fn utest_fn;
+} tester_utest_list;
+
 int tester_utest_execute(char* test_name, tester_utest_fn utest_fn);
+int tester_utest_executelist(tester_utest_list* utest_list, int test_number, char* testing_object);
 void tester_utest_print(int status, char* test_name, char* fail_dettails);
 
 int tester_utest_assert_int(int expected_value, int got_value, char* message);

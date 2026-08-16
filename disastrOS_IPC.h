@@ -9,10 +9,10 @@ typedef struct IPC{
     Resource res;
 }IPC;
 
-// Bisogna aggiungere allocatore e deallocatore.
+// Bisogna aggiungere allocatore e deallocatore. -->In realtà considerando che dovrebbe essere virtuale non ci dovrebbe essere bisogno
 
 int IPC_mk(int resource_id);
-int IPC_open(int resource_id, int flags);       // Questa non serve
+int IPC_open(int resource_id, int flags);       // Questa non serve la eredita da resources
 
 int IPC_read(int fd, void* buffer, int count);  // Pur non usando void* questo deve essere definito per convenzione con la VMT
 int IPC_write(int fd, const void* buffer, int count);
