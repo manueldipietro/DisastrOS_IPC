@@ -25,6 +25,7 @@ void Resource_init(){
 }
 
 Resource* Resource_alloc(int resource_id){
+  // Qui ci va un assert sul resource_id?
   // 1. Allocate resource, if allocation goes wrong return NULL
   Resource* resource = (Resource*) PoolAllocator_getBlock(&_resources_allocator);
   if(!resource)
@@ -77,7 +78,7 @@ int Resource_open(int resource_id, int flags){
   //    a. Unsupported flags
   int supported_flags = DSOS_O_ACCMODE | DSOS_O_CREAT | DSOS_O_EXCL | DSOS_O_NONBLOCK;
   if(flags & (~supported_flags)) return DSOS_EINVAL;
-  //    b. DSOS_O_RDONLY, DSOS_O_WRONLY and DSOS_O_RDWR setted
+  //    b. DSOS_ACCMODE not equals to DSOS_O_RDONLY, DSOS_O_WRONLY and DSOS_O_RDWR
   if( (flags&DSOS_O_ACCMODE)!=DSOS_O_RDONLY && (flags&DSOS_O_ACCMODE)!=DSOS_O_WRONLY && (flags&DSOS_O_ACCMODE)!=DSOS_O_RDWR) return DSOS_EINVAL;
   //    c. DSOS_O_EXCL specified without DSOS_O_CREAT 
   if(!(flags & DSOS_O_CREAT) && (flags & DSOS_O_EXCL)) return DSOS_EINVAL;

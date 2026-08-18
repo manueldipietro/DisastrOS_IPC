@@ -285,11 +285,21 @@ int disastrOS_open(int resource_id, int flags) {
 }
 
 int disastrOS_read(int fd, void* buffer, int count){
-  return disastrOS_syscall(DSOS_CALL_READ_RESOURCE, fd, buffer, count);
+  int ret = DSOS_ERESTARTNOINTR;
+  while(ret == DSOS_ERESTARTNOINTR)
+    ret = disastrOS_syscall(DSOS_CALL_READ_RESOURCE, fd, buffer, count);
+  return ret;
 }
 
 int disastrOS_write(int fd, const void* buffer, int count){
-  return disastrOS_syscall(DSOS_CALL_WRITE_RESOURCE, fd, buffer, count);
+  int writted = 0;
+  do{
+    int ret = disastrOS_syscall(DSOS_CALL_WRITE_RESOURCE, fd, buffer+writted, count-writted);
+    if(ret == DSOS_EAGAIN && writted != 0) return writted;
+    if(ret < 0 && ret != DSOS_ERESTARTNOINTR) return ret;
+    writted += (ret == DSOS_ERESTARTNOINTR ?  0 : ret);
+  }while(writted < count);
+  return writted;
 }
 
 int disastrOS_close(int fd) {

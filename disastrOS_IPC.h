@@ -21,7 +21,7 @@ Ipc* Ipc_alloc(int id, int size_max);
 int Ipc_free(Resource* resource);
 int Ipc_mk(int resource_id, int size_max);
 
-int Ipc_read(int fd, void* buffer, int count);
-int Ipc_write(int fd, const void* buffer, int count);
+int Ipc_read(Descriptor* descriptor, void* buffer, int count);
+int Ipc_write(Descriptor* descriptor, const void* buffer, int count);
 
 int Ipc_close(int fd);

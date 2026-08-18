@@ -40,6 +40,9 @@
 #define DSOS_EMFILE         -25
 #define DSOS_ENFILE         -26
 #define DSOS_ENOSYS         -27
+#define DSOS_EAGAIN         -28
+
+#define DSOS_ERESTARTNOINTR -29 // ERRORE usato solo internamente
 
 static inline const char* DSOS_STRERROR(int err_code){
     switch (err_code){
