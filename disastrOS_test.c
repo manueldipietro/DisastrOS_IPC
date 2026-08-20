@@ -4,6 +4,7 @@
 
 #include "tester.h"
 #include "tester_resource.h"
+#include "tester_ipc.h"
 
 #include "disastrOS.h"
 
@@ -39,6 +40,7 @@ void initFunction(void* args) {
   //    This avoids implementing setup and tear down functions
   int is_utest_ok = 1;
   is_utest_ok *= tester_utest_resources();
+  is_utest_ok *= tester_utest_ipc();
   //is_utest_ok *= tester_utest_IPC();
   //is_utest_ok *= tester_utest_FIFO();
   //is_utest_ok *= tester_utest_PIPE();

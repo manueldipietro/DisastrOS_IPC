@@ -1,4 +1,4 @@
-#include "disastrOS_IPC.h"
+#include "disastrOS_ipc.h"
 #include "disastrOS_resource.h"
 
 #include <assert.h>
@@ -226,7 +226,7 @@ int Ipc_write(Descriptor* descriptor, const void* buffer, int count){
         // 6.a. Remove from writer waiting list
         PCB* unlocking = (PCB*) List_detach(&(ipc->waiting_list_write), (ipc->waiting_list_write).first);
         assert(unlocking && "");
-        // 6.b Insert into raedy list and change status
+        // 6.b Insert into ready list and change status
         unlocking->status = Ready;
         unlocking = (PCB*) List_insert(&ready_list, ready_list.last, (ListItem*) unlocking);
         assert(unlocking && "");

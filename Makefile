@@ -1,5 +1,5 @@
 CC=gcc
-CCOPTS=--std=gnu99 -Wall -g -I .
+CCOPTS=--std=gnu99 -Wall -g -I . -I tester
 AR=ar
 
 HEADERS=disastrOS.h\
@@ -12,6 +12,10 @@ HEADERS=disastrOS.h\
 	disastrOS_timer.h\
 	linked_list.h\
 	pool_allocator.h\
+     \
+     tester/tester_resource.h\
+     tester/tester_ipc.h\
+     
 
 OBJS=pool_allocator.o\
      linked_list.o\
@@ -29,18 +33,23 @@ OBJS=pool_allocator.o\
      disastrOS_preempt.o\
      disastrOS_sleep.o\
      disastrOS_syscalls_resource.o\
+     disastrOS_ipc.o\
+     \
+     \
      tester.o\
-     tester_resource.o\
+     tester/tester_resource.o\
+     tester/tester_ipc.o\
      \
-     tester_utest_resource/tester_resource_mk.o\
-     tester_utest_resource/tester_resource_open.o\
-     tester_utest_resource/tester_resource_unlink.o\
-     tester_utest_resource/tester_resource_close.o\
-     tester_utest_resource/tester_resource_read.o\
-     tester_utest_resource/tester_resource_write.o\
+     tester/tester_utest_resource/tester_resource_mk.o\
+     tester/tester_utest_resource/tester_resource_open.o\
+     tester/tester_utest_resource/tester_resource_unlink.o\
+     tester/tester_utest_resource/tester_resource_close.o\
+     tester/tester_utest_resource/tester_resource_read.o\
+     tester/tester_utest_resource/tester_resource_write.o\
      \
-     disastrOS_IPC.o
-
+     tester/tester_utest_ipc/tester_utest_ipc_mk.o\
+     tester/tester_utest_ipc/tester_utest_ipc_read.o\
+     tester/tester_utest_ipc/tester_utest_ipc_write.o\
 
 LIBS=libdisastrOS.a
 

@@ -118,7 +118,7 @@ int tester_resource_write4(char* test_name){
 }
 
 // Test 5: Modify the VMT and verify that the method implementation is actually executed
-int tester_resource_write5_aux(int fd, const void* buffer, int count){return count;}
+int tester_resource_write5_aux(Descriptor* descriptor, const void* buffer, int count){return count;}
 int tester_resource_write5(char* test_name){
     // 0. Initialization
     int return_value, resource_id, file_descriptor, count;

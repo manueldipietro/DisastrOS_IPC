@@ -132,7 +132,7 @@ int Resource_read(int fd, void* buffer, int count){
   // 5. Use VMT for call virtual method
   disastros_read_fn virtual_read = resource->VMT.read;
   if(!virtual_read) return DSOS_ENOSYS;
-  int ret_value = virtual_read(fd, buffer, count);
+  int ret_value = virtual_read(descriptor, buffer, count);
 
   // 6. Return value returned from virtual method
   return ret_value;
@@ -156,7 +156,7 @@ int Resource_write(int fd, const void* buffer, int count){
   // 5. Use VMT for call virtual method
   disastros_write_fn virtual_write = resource->VMT.write;
   if(!virtual_write) return DSOS_ENOSYS;
-  int ret_value = virtual_write(fd, buffer, count);
+  int ret_value = virtual_write(descriptor, buffer, count);
 
   // 6. Return value returned from virtual method
   return ret_value;

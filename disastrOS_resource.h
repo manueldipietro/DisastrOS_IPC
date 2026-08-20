@@ -5,9 +5,10 @@
 
 // Dichiarazione Forward
 typedef struct Resource Resource;
+typedef struct Descriptor Descriptor;
 
-typedef int (*disastros_read_fn)(int fd, void* buffer, int count);
-typedef int (*disastros_write_fn)(int fd, const void* buffer, int count);
+typedef int (*disastros_read_fn)(Descriptor* descriptor, void* buffer, int count);
+typedef int (*disastros_write_fn)(Descriptor* descriptor, const void* buffer, int count);
 typedef int (*disastros_resource_free_fn)(Resource* resource);
 
 
