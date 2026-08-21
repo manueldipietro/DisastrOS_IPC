@@ -15,6 +15,7 @@ HEADERS=disastrOS.h\
      \
      tester/tester_resource.h\
      tester/tester_ipc.h\
+     tester/tester_circular_buffer.h\
      
 
 OBJS=pool_allocator.o\
@@ -39,6 +40,7 @@ OBJS=pool_allocator.o\
      tester.o\
      tester/tester_resource.o\
      tester/tester_ipc.o\
+     circular_buffer.o\
      \
      tester/tester_utest_resource/tester_resource_mk.o\
      tester/tester_utest_resource/tester_resource_open.o\
@@ -50,6 +52,8 @@ OBJS=pool_allocator.o\
      tester/tester_utest_ipc/tester_utest_ipc_mk.o\
      tester/tester_utest_ipc/tester_utest_ipc_read.o\
      tester/tester_utest_ipc/tester_utest_ipc_write.o\
+     \
+     tester/tester_circular_buffer.o\
 
 LIBS=libdisastrOS.a
 

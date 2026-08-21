@@ -5,6 +5,7 @@
 #include "tester.h"
 #include "tester_resource.h"
 #include "tester_ipc.h"
+#include "tester_circular_buffer.h"
 
 #include "disastrOS.h"
 
@@ -41,6 +42,7 @@ void initFunction(void* args) {
   int is_utest_ok = 1;
   is_utest_ok *= tester_utest_resources();
   is_utest_ok *= tester_utest_ipc();
+  is_utest_ok *= tester_utest_circular_buffer();
   //is_utest_ok *= tester_utest_fifo();
   //is_utest_ok *= tester_utest_pipe();
   //is_utest_ok *= tester_utest_mq();
