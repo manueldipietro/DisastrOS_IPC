@@ -3,6 +3,7 @@
 #include "pool_allocator.h"
 
 #include "disastrOS_constants.h"
+#include "disastrOS.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,6 +50,7 @@ int tester_utest_execute(char* test_name, tester_utest_fn utest_fn){
     }
 
     // 3. Child process: runs test and exits
+    setupSignals();         // Riabilita i segnali dopo la fork
     int exit_status = utest_fn(test_name);
     tester_utest_print(exit_status, test_name, TESTER_UTEST_FAILMSG);
     exit(exit_status);
@@ -62,7 +64,7 @@ int tester_utest_executelist(tester_utest_list* utest_list, int test_number, cha
         utest_counter += tester_utest_execute(utest_list[i].title, utest_list[i].utest_fn);
     }
     printf("Test passed %d of %d\n", utest_counter, test_number);
-    return utest_counter;
+    return utest_counter == test_number;
 }
 
 void tester_utest_print(int status, char* test_name, char* fail_dettails){

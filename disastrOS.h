@@ -30,6 +30,7 @@ void disastrOS_shutdown();
 
 // timers
 void disastrOS_sleep(int);
+void setupSignals(void);
 
 // Syscall resources
 int disastrOS_open(int resource_id, int flags);

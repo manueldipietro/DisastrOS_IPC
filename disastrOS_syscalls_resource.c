@@ -29,6 +29,7 @@ void internal_read(){
   int ret = Resource_read(fd, buffer, count);
 
   // 3. Write result to the PCB and return.
+  if(ret == DSOS_ERESTARTNOINTR) return;
   running->syscall_retvalue = ret;
   return;
 }
@@ -43,7 +44,10 @@ void internal_write(){
   int ret = Resource_write(fd, buffer, count);
 
   // 3. Write result to the PCB and return.
+  if(ret == DSOS_ERESTARTNOINTR) return;
+  
   running->syscall_retvalue = ret;
+  
   return;
 }
 

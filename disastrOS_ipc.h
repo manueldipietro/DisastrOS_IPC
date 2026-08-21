@@ -25,3 +25,5 @@ int Ipc_read(Descriptor* descriptor, void* buffer, int count);
 int Ipc_write(Descriptor* descriptor, const void* buffer, int count);
 
 int Ipc_close(int fd);
+
+PoolAllocator* Ipc_allocator_getinfo();

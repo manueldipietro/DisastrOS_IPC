@@ -125,6 +125,7 @@ int Ipc_read(Descriptor* descriptor, void* buffer, int count){
         if(descriptor->flags & DSOS_O_NONBLOCK) return DSOS_EAGAIN;
         // 1. Metto il mio PCB in coda dentro la waiting_list_read
         running->status = Waiting;
+        running->syscall_retvalue = DSOS_ERESTARTNOINTR;
         running = (PCB*) List_insert(&(ipc->waiting_list_read), (ipc->waiting_list_read).last, (ListItem*) running);
         assert(running && "ERRORE INSERIMENTO LISTA ATTESA");
 
@@ -132,10 +133,9 @@ int Ipc_read(Descriptor* descriptor, void* buffer, int count){
         running = (PCB*) List_detach(&ready_list, ready_list.first);
         assert(running && "");
         running->status = Running;
-        //3. Passo il controllo alla trap che eseguirà il context switch
+        //3. Passo il controllo alla trap che eseguirà il context switch, internal read non copierà il valore DSOS_ERESTARTNOINTR dentro al PCB
         return DSOS_ERESTARTNOINTR;
     }
-
     // 5. Exec the read (ipc manage only how many byte we read, the effective data management are implemented by the up level)
     int n_read = ipc->size < count ? ipc->size : count;
     ipc->size -= n_read;
@@ -150,7 +150,7 @@ int Ipc_read(Descriptor* descriptor, void* buffer, int count){
         unlocking = (PCB*) List_insert(&ready_list, ready_list.last, (ListItem*) unlocking);
         assert(unlocking && "");
     }
-    
+
     // 7. Unlock a reader (If there is still data and at least one reader waiting)
     if(ipc->size > 0 && ipc->waiting_list_read.size > 0){
         // 7.a. Remove from reader waiting list
@@ -195,6 +195,7 @@ int Ipc_write(Descriptor* descriptor, const void* buffer, int count){
             running->status = Waiting;
             running = (PCB*) List_insert(&(ipc->waiting_list_write), (ipc->waiting_list_write).last, (ListItem*) running);
             assert(running && "ERRORE INSERIMENTO LISTA ATTESA");
+            running->syscall_retvalue = DSOS_ERESTARTNOINTR;
 
             // 2. Prendo il prossimo PCB in stato di ready e lo imposto come ready
             running = (PCB*) List_detach(&ready_list, ready_list.first);
@@ -235,3 +236,5 @@ int Ipc_write(Descriptor* descriptor, const void* buffer, int count){
     // 9. Return how many byte write
     return n_write;
 }
+
+PoolAllocator* Ipc_allocator_getinfo(){return &_ipc_allocator;}

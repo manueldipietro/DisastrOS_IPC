@@ -287,9 +287,10 @@ int disastrOS_open(int resource_id, int flags) {
 }
 
 int disastrOS_read(int fd, void* buffer, int count){
-  int ret = DSOS_ERESTARTNOINTR;
-  while(ret == DSOS_ERESTARTNOINTR)
+  int ret;
+  do{
     ret = disastrOS_syscall(DSOS_CALL_READ_RESOURCE, fd, buffer, count);
+  }while(ret == DSOS_ERESTARTNOINTR);
   return ret;
 }
 

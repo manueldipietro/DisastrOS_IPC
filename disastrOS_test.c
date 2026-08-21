@@ -41,10 +41,9 @@ void initFunction(void* args) {
   int is_utest_ok = 1;
   is_utest_ok *= tester_utest_resources();
   is_utest_ok *= tester_utest_ipc();
-  //is_utest_ok *= tester_utest_IPC();
-  //is_utest_ok *= tester_utest_FIFO();
-  //is_utest_ok *= tester_utest_PIPE();
-  //is_utest_ok *= tester_utest_MQ();
+  //is_utest_ok *= tester_utest_fifo();
+  //is_utest_ok *= tester_utest_pipe();
+  //is_utest_ok *= tester_utest_mq();
 
   // 2. Prepare disastrOS for integration test execution
   printf("hello, I am init and I just started\n");

@@ -11,13 +11,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-void tester_utest_ipc_sleeper(void* args){
-  while(1) {
-    getc(stdin);
-    disastrOS_printStatus();
-  }
-}
-
 // Test 1: Try to call write with empty buffer with count <= size_max, should write with success without blocking process
 int tester_utest_ipc_write1(char* test_name){
     // 0. Initialize
@@ -76,7 +69,6 @@ int tester_utest_ipc_write2(char* test_name){
     int return_value, resource_id, size_max;
     int pid_writer;
     Ipc* ipc;
-    setupSignals();
     // ASSERT INIZIALE PER PULIZIA; DA FARE
 
     // 1. Create resource and open
@@ -90,7 +82,7 @@ int tester_utest_ipc_write2(char* test_name){
     ipc->size = 6;
 
     // 3. Spawn writers and sleepers
-    disastrOS_spawn(tester_utest_ipc_sleeper, 0);
+    disastrOS_spawn(tester_utest_ipc_utils_sleeper, 0);
     pid_writer = last_pid;
     disastrOS_spawn(tester_utest_ipc_write2_writer_aux, 0);
 
@@ -114,78 +106,46 @@ int tester_utest_ipc_write2(char* test_name){
 
 
 // Test 3: Try to call write with insufficient free bytes, the process should blocking. After call read and check that write will unlocked
-int tester_utest_ipc_write3_writer(){
-    // 0. Initialize
-    int return_value, resource_id, file_descriptor;
-    char buffer[15];
-    
-    // 1. Open resource
-    resource_id = 10;
-    return_value = disastrOS_open(resource_id, DSOS_O_WRONLY);
-    TESTER_UTEST_CHECK(tester_utest_assert_ecodege(0, return_value, "error on ipc open"));
-    file_descriptor = return_value;
-
-    // 2. Call write
-    return_value = disastrOS_write(file_descriptor, buffer, 10);
-
-    // 3. This will unlock after the read on the test init
-    return 1;
-}
-
 void tester_utest_ipc_write3_writer_aux(){
-    disastrOS_exit(tester_utest_ipc_write3_writer());
+    int resource_id = 10; int count = 10; int expected_write_count = 10; int should_exit = 1; int non_blocking = 0;
+    disastrOS_exit(tester_utest_ipc_utils_writer(resource_id, count, expected_write_count, should_exit, non_blocking));
 }
 
 int tester_utest_ipc_write3(char* test_name){
     // 0. Initialize
     int return_value, resource_id, file_descriptor, size_max;
-    int return_pid, pid_writer;
+    int pid_writer;
     Ipc* ipc; char buffer[15];
-    setupSignals();
     // ASSERT INIZIALE PER PULIZIA; DA FARE
 
-    // 1. Create resource
+    // 1. Create resource and manualy set ipc->size to force write block
     resource_id = 10; size_max = 15;
     return_value = Ipc_mk(resource_id, size_max);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "error on ipc creation"));
-
-    // 2. Set manually ipc->size for force the process to block
     ipc = (Ipc*) ResourceList_byId(&resources_list, resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_allocated(ipc, "can't retrieve ipc from reosurces_list"));
     ipc->size = 6;
-
-    // 3. Spawn writers and sleepers
-    disastrOS_spawn(tester_utest_ipc_sleeper, 0);
+    // 2. Spawn writers and sleepers
+    disastrOS_spawn(tester_utest_ipc_utils_sleeper, 0);
     pid_writer = last_pid;
     disastrOS_spawn(tester_utest_ipc_write3_writer_aux, 0);
-
-    // 4. Sleep waiting write being executed
-    disastrOS_sleep(3);
-
-    // 5. Check that the process is effectively waiting
-    PCB* writer;
-    TESTER_UTEST_CHECK(tester_utest_assert_listsize(&ipc->waiting_list_write, 1, "mismatching on ipc waiting_list_write"));
-    writer = PCB_byPID(&(ipc->waiting_list_write), pid_writer);
-    TESTER_UTEST_CHECK(tester_utest_assert_allocated(writer, "writer not in the ipc waiting list"));
-    TESTER_UTEST_CHECK(tester_utest_assert_int(pid_writer, writer->pid, "writer not in waiting status"));
-    TESTER_UTEST_CHECK(tester_utest_assert_int(Waiting, writer->status, "writer not in waiting status"));
+    // 3. Sleep waiting write being executed
+    disastrOS_sleep(1);
+    // 4. Check that the process is effectively waiting
+    TESTER_UTEST_IPC_ASSERT_WRITERS_WAITING(ipc, 1, pid_writer, "After write execution");
     TESTER_UTEST_CHECK(tester_utest_assert_int(6, ipc->size, "unexpected change on ipc->size"));
 
-    // 6. Open resource and read blocking reader
+    // 6. Open resource and read unlocking writer
     return_value = disastrOS_open(resource_id, DSOS_O_RDONLY);
     TESTER_UTEST_CHECK(tester_utest_assert_ecodege(0, return_value, "error on ipc open"));
     file_descriptor = return_value;
     return_value = disastrOS_read(file_descriptor, buffer, 6);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(6, return_value, "error on read"));
+    disastrOS_sleep(3);
 
     // 7. Check that writers unlock correctly
-    disastrOS_sleep(3);
-    TESTER_UTEST_CHECK(tester_utest_assert_listsize(&ipc->waiting_list_write, 0, "mismatching on ipc waiting_list_write after read"));
-    TESTER_UTEST_CHECK(tester_utest_assert_int(pid_writer, writer->pid, "writer not in waiting status"));
-    TESTER_UTEST_CHECK(tester_utest_assert_int(Zombie, writer->status, "writer not in waiting status"));
-    return_pid = disastrOS_wait(pid_writer, &return_value);
-    TESTER_UTEST_CHECK(tester_utest_assert_ecode(return_pid, pid_writer, "error during wait"));
-    if(return_value == 0) return 0; // Bypass for errors
+    TESTER_UTEST_IPC_ASSERT_WRITERS_UNLOCKANDEXITANDWAIT(ipc, 0, pid_writer, "After read");
+
     TESTER_UTEST_CHECK(tester_utest_assert_int(10, ipc->size, "incorrect ipc->size value after write"));
 
     // 8. Test ok, return 1
@@ -221,7 +181,6 @@ int tester_utest_ipc_write4(char* test_name){
     int return_pid, pid_writer_1, pid_writer_2;
     Ipc* ipc; char buffer[15];
     PCB* writer_1; PCB* writer_2;
-    setupSignals();
     // ASSERT INIZIALE PER PULIZIA; DA FARE
 
     // 1. Create resource
@@ -235,7 +194,7 @@ int tester_utest_ipc_write4(char* test_name){
     ipc->size = 10;
 
     // 3. Spawn writers and sleepers
-    disastrOS_spawn(tester_utest_ipc_sleeper, 0);
+    disastrOS_spawn(tester_utest_ipc_utils_sleeper, 0);
     pid_writer_1 = last_pid;
     disastrOS_spawn(tester_utest_ipc_write4_writer_aux, 0);
     pid_writer_2 = last_pid;
@@ -315,7 +274,6 @@ int tester_utest_ipc_write5(char* test_name){
     int pid_writer;
     Ipc* ipc; char buffer[15];
     PCB* writer;
-    setupSignals();
     // ASSERT INIZIALE PER PULIZIA; DA FARE
 
     // 1. Create resource
@@ -329,7 +287,7 @@ int tester_utest_ipc_write5(char* test_name){
     ipc->size = 10;
 
     // 3. Spawn writers and sleepers
-    disastrOS_spawn(tester_utest_ipc_sleeper, 0);
+    disastrOS_spawn(tester_utest_ipc_utils_sleeper, 0);
     pid_writer = last_pid;
     disastrOS_spawn(tester_utest_ipc_write5_writer_aux, 0);
 
@@ -392,7 +350,6 @@ int tester_utest_ipc_write6(char* test_name){
     int return_value, resource_id, file_descriptor, size_max;
     int return_pid, pid_reader;
     Ipc* ipc; char buffer[15];
-    setupSignals();
     // ASSERT INIZIALE PER PULIZIA; DA FARE
 
     // 1. Create resource and retrieve IPC
@@ -403,7 +360,7 @@ int tester_utest_ipc_write6(char* test_name){
     TESTER_UTEST_CHECK(tester_utest_assert_allocated(ipc, "can't retrieve ipc from resources_list"));
 
     // 3. Spawn readers and sleepers
-    disastrOS_spawn(tester_utest_ipc_sleeper, 0);
+    disastrOS_spawn(tester_utest_ipc_utils_sleeper, 0);
     pid_reader = last_pid;
     disastrOS_spawn(tester_utest_ipc_write6_reader_aux, 0);
 
@@ -470,8 +427,7 @@ int tester_utest_ipc_write7(char* test_name){
     // 0. Initialize
     int return_value, resource_id, file_descriptor, size_max;
     int return_pid, pid_writer;
-    Ipc* ipc; char buffer[15];
-    setupSignals();
+    char buffer[15];
     // ASSERT INIZIALE PER PULIZIA; DA FARE
 
     // 1. Create resource
@@ -480,7 +436,7 @@ int tester_utest_ipc_write7(char* test_name){
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "error on ipc creation"));
 
     // 3. Spawn writers and sleepers
-    disastrOS_spawn(tester_utest_ipc_sleeper, 0);
+    disastrOS_spawn(tester_utest_ipc_utils_sleeper, 0);
     pid_writer = last_pid;
     disastrOS_spawn(tester_utest_ipc_write7_writer_aux, 0);
 
@@ -502,6 +458,7 @@ int tester_utest_ipc_write7(char* test_name){
 
     return_pid = disastrOS_wait(pid_writer, &return_value);
     if(return_value == 0)return 0;
+    TESTER_UTEST_CHECK(tester_utest_assert_ecodege(0, return_pid, "error on ipc wait"));
 
     //Qui si dovrebbe verificare anche che la write abbia cessato gli effetti?
 
@@ -518,7 +475,6 @@ int tester_utest_ipc_write8(char* test_name){
     // 0. Initialize
     int return_value, resource_id, file_descriptor, size_max;
     Ipc* ipc; char buffer[15];
-    setupSignals();
     // ASSERT INIZIALE PER PULIZIA; DA FARE
 
     // 1. Create resource and open with DSOS_O_NONBLOCK
@@ -551,7 +507,6 @@ int tester_utest_ipc_write9(char* test_name){
     // 0. Initialize
     int return_value, resource_id, file_descriptor, size_max;
     Ipc* ipc; char buffer[15];
-    setupSignals();
     // ASSERT INIZIALE PER PULIZIA; DA FARE
 
     // 1. Create resource and open with DSOS_O_NONBLOCK
@@ -607,7 +562,6 @@ int tester_utest_ipc_write10(char* test_name){
     int return_value, resource_id, file_descriptor, size_max;
     int pid_writer;
     Ipc* ipc; char buffer[15];
-    setupSignals();
     // ASSERT INIZIALE PER PULIZIA; DA FARE
 
     // 1. Create resource
@@ -621,7 +575,7 @@ int tester_utest_ipc_write10(char* test_name){
     ipc->size = 6;
 
     // 3. Spawn writers and sleepers
-    disastrOS_spawn(tester_utest_ipc_sleeper, 0);
+    disastrOS_spawn(tester_utest_ipc_utils_sleeper, 0);
     pid_writer = last_pid;
     disastrOS_spawn(tester_utest_ipc_write10_writer_aux, 0);
 
