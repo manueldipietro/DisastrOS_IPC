@@ -19,11 +19,12 @@ typedef struct Ipc{
 void Ipc_init();
 Ipc* Ipc_alloc(int id, int size_max);
 int Ipc_free(Resource* resource);
-int Ipc_mk(int resource_id, int size_max);
 
+int Ipc_mk(int resource_id, int size_max);
 int Ipc_read(Descriptor* descriptor, void* buffer, int count);
 int Ipc_write(Descriptor* descriptor, const void* buffer, int count);
 
-int Ipc_close(int fd);
+void Ipc_setter(Ipc* ipc, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn, int size_max);
+void Ipc_desetter(Resource* resource);
 
 PoolAllocator* Ipc_allocator_getinfo();

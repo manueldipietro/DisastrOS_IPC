@@ -25,29 +25,34 @@ void Resource_init(){
 }
 
 Resource* Resource_alloc(int resource_id){
-  // Qui ci va un assert sul resource_id?
-  // 1. Allocate resource, if allocation goes wrong return NULL
+  // 1. Check argument validity
+  assert(resource_id>=0 && "Resource_alloc fatal error, invalid resource_id. Kernel Panic!");
+  // 2. Allocate resource, if allocation goes wrong return NULL
   Resource* resource = (Resource*) PoolAllocator_getBlock(&_resources_allocator);
   if(!resource)
     return NULL;
+  // 3. Sets attribute and VMT of the resource
+  Resource_setter(resource, resource_id, DSOS_RESTYPE_UNDEFIN, NULL, NULL, NULL, NULL, Resource_free);
+  // 4. Return the pointer to the resource
+  return resource;
+}
 
-  // 2. Fills the fields of the resource
+void Resource_setter(Resource* resource, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn){
+  // 1. Set the fields of resource
   (resource->list).prev = (resource->list).next = 0;
   resource->id = resource_id;
-  resource->type = DSOS_RESTYPE_UNDEFIN;
+  resource->type = resource_type;
   resource->unlinked = (resource_id >= DSOS_ANON_RES_STARTID ? 1 : 0);
-
-  // 3. Fills the VMT, read and write are NULL because resource will be a virtual class,
-  //    but for test purpose we mantain the constructor and destructor
-  (resource->VMT).read = NULL;
-  (resource->VMT).write = NULL;
-  (resource->VMT).free = Resource_free;
-
-  // 4. Initialize the descriptors_ptrs list
+  // 2. Set the VMT
+  (resource->VMT).onopen = onopen_fn;
+  (resource->VMT).onclose = onclose_fn;
+  (resource->VMT).read = read_fn;
+  (resource->VMT).write = write_fn;
+  (resource->VMT).free = free_fn;
+  // 3. Initialize the descriptors_ptrs list
   List_init(&resource->descriptors_ptrs);
-  
-  // 5. Return the pointer to the resource
-  return resource;
+  // 4. Return
+  return;
 }
 
 int Resource_mk(int resource_id){
@@ -110,7 +115,11 @@ int Resource_open(int resource_id, int flags){
   int ret_val = Descriptor_mk(&descriptor, resource, flags);
   if(ret_val != DSOS_SUCCESS) return ret_val;
   
-  // 7. Return file descriptor
+  // 7. Execute resource on open before complete the open
+  if(resource->VMT.onopen != NULL)
+    resource->VMT.onopen(descriptor);
+
+  // 8. Return file descriptor
   return descriptor->fd;
 }
 
@@ -172,13 +181,17 @@ int Resource_close(int fd){
   Resource* resource = descriptor->resource;
   assert(descriptor->resource && "Fatal error during resource close (resource null pointer). Kernel Panic!");
 
-  // 3. Destroy the file descriptor
+  // 3. Execute resource on close before close the resource
+  if(resource->VMT.onclose != NULL)
+    resource->VMT.onclose(descriptor);
+
+  // 4. Destroy the file descriptor
   Descriptor_destroy(descriptor);
 
-  // 4. Try to dealloc resources
+  // 5. Try to dealloc resources
   Resource_destroy(resource);
      
-  // 5. Return DSOS_SUCCESS
+  // 6. Return DSOS_SUCCESS
   return DSOS_SUCCESS;
 }
 
@@ -211,7 +224,7 @@ void Resource_destroy(Resource* resource){
     return;
 
   // 2. Dealloc the resource
-  disastros_resource_free_fn virtual_free = resource->VMT.free;
+  disastros_free_fn virtual_free = resource->VMT.free;
   assert(virtual_free && "Fatal error during Resource free (allocator non implemented. Kernel Panic!)");
   int free_sucess = virtual_free(resource);
   assert(!free_sucess && "Fatal error during Resource free. Kernel Panic!");
@@ -220,10 +233,16 @@ void Resource_destroy(Resource* resource){
   return;
 }
 
-int Resource_free(Resource* r) {
-  assert(r->descriptors_ptrs.first==0);
-  assert(r->descriptors_ptrs.last==0);
-  return PoolAllocator_releaseBlock(&_resources_allocator, r);
+void Resource_desetter(Resource* resource){
+  assert(resource->descriptors_ptrs.first==0);
+  assert(resource->descriptors_ptrs.last==0);
+  assert(resource->descriptors_ptrs.size==0);
+  return;
+}
+
+int Resource_free(Resource* resource){
+  Resource_desetter(resource);
+  return PoolAllocator_releaseBlock(&_resources_allocator, resource);
 }
 
 Resource* ResourceList_byId(ResourceList* l, int id){

@@ -6,6 +6,7 @@
 #include "tester_resource.h"
 #include "tester_ipc.h"
 #include "tester_circular_buffer.h"
+#include "tester_priority_linked_list.h"
 
 #include "disastrOS.h"
 
@@ -40,12 +41,15 @@ void initFunction(void* args) {
   //    Using fork in the test suite, we ensure that each unit test has a clean exectuion environment
   //    This avoids implementing setup and tear down functions
   int is_utest_ok = 1;
+  is_utest_ok *= tester_utest_circular_buffer();
+  is_utest_ok *= tester_utest_priority_linked_list();
   is_utest_ok *= tester_utest_resources();
   is_utest_ok *= tester_utest_ipc();
-  is_utest_ok *= tester_utest_circular_buffer();
   //is_utest_ok *= tester_utest_fifo();
   //is_utest_ok *= tester_utest_pipe();
   //is_utest_ok *= tester_utest_mq();
+  if(is_utest_ok) printf("ALL TESTS IS OK\n");
+  else printf("ERROR ON SOME TESTS");
 
   // 2. Prepare disastrOS for integration test execution
   printf("hello, I am init and I just started\n");

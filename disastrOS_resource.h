@@ -7,9 +7,11 @@
 typedef struct Resource Resource;
 typedef struct Descriptor Descriptor;
 
+typedef void (*disastros_onopen_fn)(Descriptor* descriptor);
+typedef void (*disastros_onclose_fn)(Descriptor* descriptor);
 typedef int (*disastros_read_fn)(Descriptor* descriptor, void* buffer, int count);
 typedef int (*disastros_write_fn)(Descriptor* descriptor, const void* buffer, int count);
-typedef int (*disastros_resource_free_fn)(Resource* resource);
+typedef int (*disastros_free_fn)(Resource* resource);
 
 
 //QUI VANNO AGGIUNTI I PUNTATORI A FUNZIONI DI DEALLOC E DESTROY
@@ -19,9 +21,11 @@ typedef int (*disastros_resource_free_fn)(Resource* resource);
 // SERVE A: read, write, alloc e dealloc.
 // A make no perchè è specifico del tipo risorsa.
 typedef struct {
+  disastros_onopen_fn onopen;
+  disastros_onclose_fn onclose;
   disastros_read_fn read;
   disastros_write_fn write;
-  disastros_resource_free_fn free;
+  disastros_free_fn free;
 } Resource_VMT;
 
 struct Resource{
@@ -36,10 +40,8 @@ struct Resource{
 typedef ListHead ResourceList;
 
 
+// Memory management
 void Resource_init();
-
-// Costruttore e distruttore
-// Nota: type non è più necessario nel costruttore!
 Resource* Resource_alloc(int id);
 int Resource_free(Resource* resource);
 
@@ -51,9 +53,10 @@ int Resource_write(int fd, const void* buffer, int count);
 int Resource_close(int fd);
 int Resource_unlink(int resource_id);
 
-//AUX (NO USER)
+//AUX (For OS)
 void Resource_destroy(Resource* resource);
-
+void Resource_setter(Resource* resource, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn);
+void Resource_desetter(Resource* resource);
 
 // Funzione di ricerca (bisogna eliminare la ricerca sugli ID anonimi)
 Resource* ResourceList_byId(ResourceList* l, int id);

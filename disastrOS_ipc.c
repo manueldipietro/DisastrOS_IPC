@@ -36,30 +36,46 @@ Ipc* Ipc_alloc(int resource_id, int size_max){    // Si chiama resource_id per r
         return NULL;
 
     // 2. Fills the fields of the ipc inherited by resource
-    Resource* resource = (Resource*) &(ipc->resource);
-    (resource->list).prev = (resource->list).next = 0;
-    resource->id = resource_id;
-    resource->type = DSOS_RESTYPE_IPCBASE;
-    resource->unlinked = (resource_id >= DSOS_ANON_RES_STARTID ? 1 : 0);
+    //Resource* resource = (Resource*) &(ipc->resource);
+    //(resource->list).prev = (resource->list).next = 0;
+    //resource->id = resource_id;
+    //resource->type = DSOS_RESTYPE_IPCBASE;
+    //resource->unlinked = (resource_id >= DSOS_ANON_RES_STARTID ? 1 : 0);
 
     // 3. Fills the VMT, read and write are NULL because resource will be a virtual class,
-    (resource->VMT).read = Ipc_read;
-    (resource->VMT).write = Ipc_write;
-    (resource->VMT).free = Ipc_free;
+    //(resource->VMT).read = Ipc_read;
+    //(resource->VMT).write = Ipc_write;
+    //(resource->VMT).free = Ipc_free;
 
     // 4. Initialize the descriptors_ptrs list
-    List_init(&resource->descriptors_ptrs);
+    //List_init(&resource->descriptors_ptrs);
 
     // 5. Fills the specific attribute of ipc
-    ipc->size = 0;
-    ipc->size_max = size_max; 
+    //ipc->size = 0;
+    //ipc->size_max = size_max; 
 
     // 6. Initializze the waiting lists
-    List_init(&ipc->waiting_list_read);
-    List_init(&ipc->waiting_list_write);
+    //List_init(&ipc->waiting_list_read);
+    //List_init(&ipc->waiting_list_write);
+
+    //
+    Ipc_setter(ipc, resource_id, DSOS_RESTYPE_IPCBASE, NULL, NULL, Ipc_read, Ipc_write, Ipc_free, size_max);
 
     // 7. Return pointer to the ipc
     return ipc;
+}
+
+void Ipc_setter(Ipc* ipc, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn, int size_max){
+    // 1. 
+    Resource* resource = &ipc->resource;
+    Resource_setter(resource, resource_id, resource_type, onopen_fn, onclose_fn, read_fn, write_fn, free_fn);
+    // 2.
+    ipc->size = 0;
+    ipc->size_max = size_max;    
+    // 3.
+    List_init(&ipc->waiting_list_read);
+    List_init(&ipc->waiting_list_write);
+    return;
 }
 
 // Questa come si potrebber rendere polimorfica? Pensavo che si potrebbe invocare il free di livello inferiore
@@ -67,13 +83,21 @@ Ipc* Ipc_alloc(int resource_id, int size_max){    // Si chiama resource_id per r
 // oppure mettere una specie di setter al contrario. bisogna capirlo bene.
 // ho dovuto fare il cambio tipo all'inizio sennò non lo accettava il puntatore a funzione della VMT.
 int Ipc_free(Resource* resource){
+    Ipc_desetter(resource);
+    return PoolAllocator_releaseBlock(&_ipc_allocator, (Ipc*) resource);
+}
+
+void Ipc_desetter(Resource* resource){
+    // 1.
+    Resource_desetter(resource);
+    // 2.
     Ipc* ipc = (Ipc*) resource;
-    assert(ipc->resource.descriptors_ptrs.first==0);
-    assert(ipc->resource.descriptors_ptrs.last==0);
     assert(ipc->waiting_list_read.size == 0 && "Fatal error during IPC free (waiting_list_read not empty). Kernel Panic!");
     assert(ipc->waiting_list_write.size == 0 && "Fatal error during IPC free (waiting_list_write not empty). Kernel Panic!");
-    return PoolAllocator_releaseBlock(&_ipc_allocator, ipc);
+    // 3.
+    return;
 }
+
 
 // Questa non ha molto senso renderla polimorfica, il costruttore prende in ingresso dati diversi (seppure la struttura è la stessa)
 // Poi come faccio a gestire il puntatore a funzione? Non avrebbe senso!
