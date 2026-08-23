@@ -35,30 +35,6 @@ Ipc* Ipc_alloc(int resource_id, int size_max){    // Si chiama resource_id per r
     if(!ipc)
         return NULL;
 
-    // 2. Fills the fields of the ipc inherited by resource
-    //Resource* resource = (Resource*) &(ipc->resource);
-    //(resource->list).prev = (resource->list).next = 0;
-    //resource->id = resource_id;
-    //resource->type = DSOS_RESTYPE_IPCBASE;
-    //resource->unlinked = (resource_id >= DSOS_ANON_RES_STARTID ? 1 : 0);
-
-    // 3. Fills the VMT, read and write are NULL because resource will be a virtual class,
-    //(resource->VMT).read = Ipc_read;
-    //(resource->VMT).write = Ipc_write;
-    //(resource->VMT).free = Ipc_free;
-
-    // 4. Initialize the descriptors_ptrs list
-    //List_init(&resource->descriptors_ptrs);
-
-    // 5. Fills the specific attribute of ipc
-    //ipc->size = 0;
-    //ipc->size_max = size_max; 
-
-    // 6. Initializze the waiting lists
-    //List_init(&ipc->waiting_list_read);
-    //List_init(&ipc->waiting_list_write);
-
-    //
     Ipc_setter(ipc, resource_id, DSOS_RESTYPE_IPCBASE, NULL, NULL, Ipc_read, Ipc_write, Ipc_free, size_max);
 
     // 7. Return pointer to the ipc

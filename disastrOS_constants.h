@@ -3,6 +3,10 @@
 #define MAX_NUM_PROCESSES 1024
 #define MAX_NUM_RESOURCES 1024
 #define MAX_NUM_IPCS      128
+#define MAX_NUM_FIFOS     256
+
+// RICORDARSI DI DEFINIRE PIPE_BUF
+#define PIPE_BUF          512
 
 #define MAX_NUM_DESCRIPTORS_PTRS_PER_RESOURCE 32
 #define MAX_NUM_DESCRIPTORS_PER_PROCESS 32
@@ -41,8 +45,9 @@
 #define DSOS_ENFILE         -26
 #define DSOS_ENOSYS         -27
 #define DSOS_EAGAIN         -28
+#define DSOS_EPIPE          -29
 
-#define DSOS_ERESTARTNOINTR -29 // ERRORE usato solo internamente
+#define DSOS_ERESTARTNOINTR -40 // ERRORE usato solo internamente
 
 static inline const char* DSOS_STRERROR(int err_code){
     switch (err_code){

@@ -8,6 +8,8 @@ HEADERS=disastrOS.h\
 	disastrOS_globals.h\
 	disastrOS_pcb.h\
 	disastrOS_resource.h\
+     disastrOS_ipc.h\
+     disastrOS_fifo.h\
 	disastrOS_syscalls.h\
 	disastrOS_timer.h\
 	linked_list.h\
@@ -23,6 +25,7 @@ HEADERS=disastrOS.h\
 OBJS=pool_allocator.o\
      linked_list.o\
      priority_linked_list.o\
+     circular_buffer.o\
      disastrOS_timer.o\
      disastrOS_pcb.o\
      disastrOS_resource.o\
@@ -38,12 +41,12 @@ OBJS=pool_allocator.o\
      disastrOS_sleep.o\
      disastrOS_syscalls_resource.o\
      disastrOS_ipc.o\
+     disastrOS_fifo.o\
      \
      \
      tester.o\
      tester/tester_resource.o\
      tester/tester_ipc.o\
-     circular_buffer.o\
      \
      tester/tester_utest_resource/tester_resource_mk.o\
      tester/tester_utest_resource/tester_resource_open.o\

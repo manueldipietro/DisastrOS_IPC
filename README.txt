@@ -1,41 +1,10 @@
-THIS IS INCOMPLETE
+Di seguito si propone un'implementazione di DisastrOS in cui è stato riorganizzato 
+il sistema di gestione delle risorse per renderlo quando più possibile compatibile con la semantica POSIX e
+con la programmazione in C OOP. In particolare:
+-File resource.c/resource.h: contiene l'implementazione del modulo di gestione delle risorse, inoltre,
+utilizzando il resource_id come se fosse il "nome di un file" sono riuscito a gestire le risorse anonime (che hanno la particolarità di non essere trovabili con resource_id).
+//--> FAR NOTARE CHE NON SONO INDICIZZATE, MA SONO SEMPRE UNLINKED.
 
-In this folder
-
-- resource management system
-  we implemented the infrastructure to handle descriptors and files
-- a "resource is uniquely identified in the system
-  it can be created, opened or closed by one or more files
-  it keeps track of who is usingit
-- a process keeps track of the open resources through descriptors
-
-1. the resource structures and allocation
-   files: disastrOS_resource.*
-
-2. the descriptor structures and allocation
-   files: disastrOS_resource.*
-
-3. the PCB is modified by adding a list of open descriptors
-   files: pcb.h, pcb.c
-
-4. the resources appear in the global variables
-   files: disastrOS.c
-
-5. new system calls to manage resources
-   files:
-   - disastrOS_syscalls.h
-   - disastrOS_resource_open.c
-   - disastrOS_resource_close.c
-   - disastrOS_resource_destroy.c
-
-6. new syscalls are added to the infrastructure
-   files:
-   - disastrOS.c
-     functions:
-     -disastrOS_start
-
-
-NEW_README.txt
 1. Refactor disastrOS_descriptor.c:
    -added: Descriptor_destroy
    -added: Descriptor_make
