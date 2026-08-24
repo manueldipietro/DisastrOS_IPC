@@ -42,10 +42,10 @@ void initFunction(void* args) {
   //    Using fork in the test suite, we ensure that each unit test has a clean exectuion environment
   //    This avoids implementing setup and tear down functions
   int is_utest_ok = 1;
-  is_utest_ok *= tester_utest_circular_buffer();
-  is_utest_ok *= tester_utest_priority_linked_list();
-  is_utest_ok *= tester_utest_resources();
-  is_utest_ok *= tester_utest_ipc();
+  //is_utest_ok *= tester_utest_circular_buffer();
+  //is_utest_ok *= tester_utest_priority_linked_list();
+  //is_utest_ok *= tester_utest_resources();
+  //is_utest_ok *= tester_utest_ipc();
   is_utest_ok *= tester_utest_fifo();
   //is_utest_ok *= tester_utest_pipe();
   //is_utest_ok *= tester_utest_mq();

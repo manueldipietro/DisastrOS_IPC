@@ -95,7 +95,7 @@ void Descriptor_destroy(Descriptor* descriptor){
   assert(descriptor->resource && "Fatal error during descriptor destroy (resource null pointer). Kernel Panic!");
   
   // 2. List detach the descriptor from process' list
-  descriptor = (Descriptor*) List_detach(&running->descriptors, (ListItem*) descriptor);
+  descriptor = (Descriptor*) List_detach(&(descriptor->pcb)->descriptors, (ListItem*) descriptor);
   assert(descriptor && "Fatal error during List detach (Descriptor). Kernel Panic!");
   
   // 3. List detach the descriptor pointer from resource's list

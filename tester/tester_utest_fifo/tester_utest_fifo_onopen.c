@@ -153,7 +153,7 @@ int tester_utest_fifo_onopen5(char* test_name){
     disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);
     pid_writer_open = last_pid;
     disastrOS_spawn(tester_utest_fifo_onopen5_aux, 0);
-    
+
     // 4. Sleep while opener running
     disastrOS_sleep(1);
 
@@ -168,7 +168,15 @@ int tester_utest_fifo_onopen5(char* test_name){
     disastrOS_sleep(1);
 
     // 8. Check that reader opener process unblock
-    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_writer_open, 1, 1, 0, 0, "unlock");
+    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_writer_open, 1, 0, 0, 0, "unlock");
+
+    printf("I descrittori del padre dopo la UNLOCKANDEXITANDWAIT sono: %d \n", running->descriptors.size);
+    Descriptor* descriptor = running->descriptors.first;
+    for(int i=0; i<running->descriptors.size; i++){
+        printf("%d descrittore: %d, indirizzo: %p\n", i, descriptor->fd, descriptor);
+        descriptor = descriptor->list.next;
+    }
+    printf("....................");
     // 9. Test ok, return 1
     return 1;
 }

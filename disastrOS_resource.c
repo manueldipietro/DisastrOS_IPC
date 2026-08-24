@@ -120,7 +120,10 @@ int Resource_open(int resource_id, int flags){
     ret_val = resource->VMT.onopen(descriptor);
   // 8. Roll back if something goes wrong with on open
   if(ret_val != DSOS_SUCCESS){
+    printf("ENTRO NEL ROOLBACK\n");
+    printf("Dimensione lista descrittori prima della destroy: %d\n", running->descriptors.size);
     Descriptor_destroy(descriptor);
+    printf("Dimensione lista descrittori dopo della destroy: %d\n", running->descriptors.size);
     return ret_val;
   }
 
