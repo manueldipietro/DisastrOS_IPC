@@ -117,9 +117,14 @@ int Resource_open(int resource_id, int flags){
   
   // 7. Execute resource on open before complete the open
   if(resource->VMT.onopen != NULL)
-    resource->VMT.onopen(descriptor);
+    ret_val = resource->VMT.onopen(descriptor);
+  // 8. Roll back if something goes wrong with on open
+  if(ret_val != DSOS_SUCCESS){
+    Descriptor_destroy(descriptor);
+    return ret_val;
+  }
 
-  // 8. Return file descriptor
+  // 9. Return file descriptor
   return descriptor->fd;
 }
 
@@ -182,8 +187,10 @@ int Resource_close(int fd){
   assert(descriptor->resource && "Fatal error during resource close (resource null pointer). Kernel Panic!");
 
   // 3. Execute resource on close before close the resource
-  if(resource->VMT.onclose != NULL)
+  if(resource->VMT.onclose != NULL){
+    printf("ESEGUO LA ONCLOSE!\n");
     resource->VMT.onclose(descriptor);
+  }
 
   // 4. Destroy the file descriptor
   Descriptor_destroy(descriptor);
@@ -220,6 +227,7 @@ int Resource_unlink(int resource_id){
 
 void Resource_destroy(Resource* resource){
   // 1. Check if there is file descriptor and in case return and check pointer for avoiding SEGFAULT
+  assert(resource && ""); // Il ! resource può essere eliminato
   if(!resource || !resource->unlinked || (resource->descriptors_ptrs).size)
     return;
 

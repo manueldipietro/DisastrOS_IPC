@@ -20,18 +20,12 @@
 
 // errors
 #define DSOS_ESYSCALL_ARGUMENT_OUT_OF_BOUNDS -1
-#define DSOS_ESYSCALL_NOT_IMPLEMENTED -2
+#define DSOS_ESYSCALL_NOT_IMPLEMENTED   -2
 #define DSOS_ESYSCALL_OUT_OF_RANGE -3
 #define DSOS_EFORK  -4
 #define DSOS_EWAIT  -5
 #define DSOS_ESPAWN  -6
 #define DSOS_ESLEEP  -7
-#define DSOS_ERESOURCECREATE -8
-#define DSOS_ERESOURCEOPEN -9
-#define DSOS_ERESOURCENOEXCL -10
-#define DSOS_ERESOURCENOFD -11
-#define DSOS_ERESOURCECLOSE -12
-#define DSOS_ERESOURCEINUSE -13
 
 //---------NEW-ERRORS-CODE-TO-CHECK
 #define DSOS_SUCCESS        0
@@ -46,8 +40,9 @@
 #define DSOS_ENOSYS         -27
 #define DSOS_EAGAIN         -28
 #define DSOS_EPIPE          -29
+#define DSOS_ENXIO          -30
 
-#define DSOS_ERESTARTNOINTR -40 // ERRORE usato solo internamente
+#define DSOS_ERESTARTNOINTR -40 // Usato solo internamente
 
 static inline const char* DSOS_STRERROR(int err_code){
     switch (err_code){
@@ -74,30 +69,24 @@ static inline const char* DSOS_STRERROR(int err_code){
 }
 
 // syscall numbers
-#define DSOS_MAX_SYSCALLS 32
-#define DSOS_MAX_SYSCALLS_ARGS 8
-#define DSOS_CALL_PREEMPT   1
-#define DSOS_CALL_FORK      2
-#define DSOS_CALL_WAIT      3
-#define DSOS_CALL_EXIT      4
-#define DSOS_CALL_SPAWN     5
-#define DSOS_CALL_SLEEP     6
-#define DSOS_CALL_SHUTDOWN  7
+#define DSOS_MAX_SYSCALLS           32
+#define DSOS_MAX_SYSCALLS_ARGS      8
+#define DSOS_CALL_PREEMPT           1
+#define DSOS_CALL_FORK              2
+#define DSOS_CALL_WAIT              3
+#define DSOS_CALL_EXIT              4
+#define DSOS_CALL_SPAWN             5
+#define DSOS_CALL_SLEEP             6
+#define DSOS_CALL_SHUTDOWN          7
 
-#define DSOS_CALL_OPEN_RESOURCE 8
-#define DSOS_CALL_READ_RESOURCE 9
-#define DSOS_CALL_WRITE_RESOURCE 10
-#define DSOS_CALL_CLOSE_RESOURCE 11
-#define DSOS_CALL_UNLINK_RESOURCE 12
-
-//resources
-/**
-    TODO: Togliere questi e portarli tutti sui nuovi flags (quando si aggiorna la open). 
-*/
-#define DSOS_CREATE 0x1
-#define DSOS_READ 0x2
-#define DSOS_WRITE 0x3
-#define DSOS_EXCL 0x4
+#define DSOS_CALL_OPEN_RESOURCE     8
+#define DSOS_CALL_READ_RESOURCE     9
+#define DSOS_CALL_WRITE_RESOURCE    10
+#define DSOS_CALL_CLOSE_RESOURCE    11
+#define DSOS_CALL_UNLINK_RESOURCE   12
+#define DSOS_CALL_MK_RESOURCE       13
+#define DSOS_CALL_MK_FIFO           14
+#define DSOS_CALL_MK_PIPE           15
 
 // scheduling
 #define ALPHA 0.5f

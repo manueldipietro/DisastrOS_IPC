@@ -25,3 +25,6 @@ void internal_read();
 void internal_write();
 void internal_close();
 void internal_unlink();
+void internal_mkresource();
+void internal_mkfifo();
+void internal_mkpipe();

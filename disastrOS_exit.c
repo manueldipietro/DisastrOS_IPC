@@ -81,6 +81,7 @@ void internal_exit(){
       DescriptorPtr_free(des->ptr);
       Descriptor_free(des);
       */
+      printf("CHIUDO NELLA EXIT!\n");
       Descriptor* descriptor = (Descriptor*) running->descriptors.first;
       int close_ret = Resource_close(descriptor->fd);
       assert(!close_ret && "Fatal error during exit (close resource). Kernel Panic!");

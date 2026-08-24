@@ -16,10 +16,11 @@ HEADERS=disastrOS.h\
      priority_linked_list.h\
 	pool_allocator.h\
      \
-     tester/tester_resource.h\
-     tester/tester_ipc.h\
      tester/tester_circular_buffer.h\
      tester/tester_priority_linked_list.h\
+     tester/tester_resource.h\
+     tester/tester_ipc.h\
+     tester/tester_fifo.h\
      
 
 OBJS=pool_allocator.o\
@@ -47,6 +48,7 @@ OBJS=pool_allocator.o\
      tester.o\
      tester/tester_resource.o\
      tester/tester_ipc.o\
+     tester/tester_fifo.o\
      \
      tester/tester_utest_resource/tester_resource_mk.o\
      tester/tester_utest_resource/tester_resource_open.o\
@@ -61,6 +63,11 @@ OBJS=pool_allocator.o\
      \
      tester/tester_circular_buffer.o\
      tester/tester_priority_linked_list.o\
+     \
+     tester/tester_utest_fifo/tester_utest_fifo_mk.o\
+     tester/tester_utest_fifo/tester_utest_fifo_onopen.o\
+     tester/tester_utest_fifo/tester_utest_fifo_readandwrite.o\
+     tester/tester_utest_fifo/tester_utest_fifo_onclose.o\
 
 LIBS=libdisastrOS.a
 

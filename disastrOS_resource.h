@@ -7,19 +7,12 @@
 typedef struct Resource Resource;
 typedef struct Descriptor Descriptor;
 
-typedef void (*disastros_onopen_fn)(Descriptor* descriptor);
+typedef int (*disastros_onopen_fn)(Descriptor* descriptor);
 typedef void (*disastros_onclose_fn)(Descriptor* descriptor);
 typedef int (*disastros_read_fn)(Descriptor* descriptor, void* buffer, int count);
 typedef int (*disastros_write_fn)(Descriptor* descriptor, const void* buffer, int count);
 typedef int (*disastros_free_fn)(Resource* resource);
 
-
-//QUI VANNO AGGIUNTI I PUNTATORI A FUNZIONI DI DEALLOC E DESTROY
-
-// MI STO RENDENDO CONTO ORA CHE OPEN, CLOSE,UNLINK, DESTROY
-// NON GLI SERVE IL POLIMORFISMO
-// SERVE A: read, write, alloc e dealloc.
-// A make no perchè è specifico del tipo risorsa.
 typedef struct {
   disastros_onopen_fn onopen;
   disastros_onclose_fn onclose;
@@ -38,7 +31,6 @@ struct Resource{
 };
 
 typedef ListHead ResourceList;
-
 
 // Memory management
 void Resource_init();

@@ -3,8 +3,12 @@
 
 typedef struct Fifo{
     Ipc ipc;
+
     int readers_number;
     int writers_number;
+    ListHead waiting_list_open_reader;
+    ListHead waiting_list_open_writer;
+
     int read_pos;
     int write_pos;
     char buffer[PIPE_BUF];
@@ -17,7 +21,7 @@ int Fifo_free(Resource* resource);
 int Fifo_mk(int resource_id);
 int Pipe_mk();
 
-void Fifo_onopen(Descriptor* descriptor);
+int Fifo_onopen(Descriptor* descriptor);
 void Fifo_onclose(Descriptor* descriptor);
 
 int Fifo_read(Descriptor* descriptor, void* buffer, int count);

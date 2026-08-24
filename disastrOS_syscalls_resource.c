@@ -4,6 +4,7 @@
 #include "disastrOS.h"
 #include "disastrOS_syscalls.h"
 #include "disastrOS_resource.h"
+#include "disastrOS_fifo.h"
 #include "disastrOS_descriptor.h"
 
 void internal_open(){
@@ -69,6 +70,42 @@ void internal_unlink(){
 
   // 2. Call unlink function
   int ret = Resource_unlink(resource_id);
+
+  // 3. Write result to the PCB and return.
+  running->syscall_retvalue = ret;
+  return;
+}
+
+void internal_mkresource(){
+  // 1. Retrieve argument from PCB  
+  int resource_id = running->syscall_args[0];
+
+  // 2. Call mk function
+  int ret = Resource_mk(resource_id);
+
+  // 3. Write result to the PCB and return.
+  running->syscall_retvalue = ret;
+  return;
+}
+
+void internal_mkfifo(){
+  // 1. Retrieve argument from PCB  
+  int resource_id = running->syscall_args[0];
+
+  // 2. Call mk function
+  int ret = Fifo_mk(resource_id);
+
+  // 3. Write result to the PCB and return.
+  running->syscall_retvalue = ret;
+  return;
+}
+
+void internal_mkpipe(){
+  // 1. Retrieve argument from PCB  
+  int resource_id = running->syscall_args[0];
+
+  // 2. Call mk function
+  int ret = Pipe_mk(resource_id);
 
   // 3. Write result to the PCB and return.
   running->syscall_retvalue = ret;

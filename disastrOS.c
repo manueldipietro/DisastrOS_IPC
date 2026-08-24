@@ -186,6 +186,14 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   syscall_vector[DSOS_CALL_UNLINK_RESOURCE]   = internal_unlink;
   syscall_numarg[DSOS_CALL_UNLINK_RESOURCE]   = 1;
 
+  syscall_vector[DSOS_CALL_MK_RESOURCE]       = internal_mkresource;
+  syscall_numarg[DSOS_CALL_MK_RESOURCE]       = 1;
+  syscall_vector[DSOS_CALL_MK_FIFO]           = internal_mkfifo;
+  syscall_numarg[DSOS_CALL_MK_FIFO]           = 1;
+  syscall_vector[DSOS_CALL_MK_PIPE]           = internal_mkpipe;
+  syscall_numarg[DSOS_CALL_MK_PIPE]           = 0;
+
+
   // setup the scheduling lists
   running=0;
   List_init(&ready_list);
@@ -285,7 +293,12 @@ int disastrOS_getpid(){
 
 // Syscalls Resources
 int disastrOS_open(int resource_id, int flags) {
-  return disastrOS_syscall(DSOS_CALL_OPEN_RESOURCE, resource_id, flags);
+  int ret;
+  do{
+    ret = disastrOS_syscall(DSOS_CALL_OPEN_RESOURCE, resource_id, flags);
+  }while(ret == DSOS_ERESTARTNOINTR);
+  return ret;
+
 }
 
 int disastrOS_read(int fd, void* buffer, int count){
@@ -315,7 +328,17 @@ int disastrOS_unlink(int resource_id) {
   return disastrOS_syscall(DSOS_CALL_UNLINK_RESOURCE, resource_id);
 }
 
+int disastrOS_mkresource(int resource_id){
+  return disastrOS_syscall(DSOS_CALL_MK_RESOURCE, resource_id);
+}
 
+int disastrOS_mkfifo(int resource_id){
+  return disastrOS_syscall(DSOS_CALL_MK_FIFO, resource_id);
+}
+
+int disastrOS_mkpipe(){
+  return disastrOS_syscall(DSOS_CALL_MK_PIPE);
+}
 
 void disastrOS_printStatus(){
   printf("****************** DisastrOS ******************\n");

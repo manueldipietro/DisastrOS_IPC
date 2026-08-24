@@ -29,20 +29,25 @@ Fifo* Fifo_alloc(int resource_id){
     Fifo* fifo = (Fifo*) PoolAllocator_getBlock(&_fifo_allocator);
     if(!fifo) return NULL;
     Fifo_setter(fifo, resource_id, DSOS_RESTYPE_IPCFIFO, Fifo_onopen, Fifo_onclose, Fifo_read, Fifo_write, Fifo_free, PIPE_BUF);
-    return DSOS_SUCCESS;
+    return fifo;
 }
 
 void Fifo_setter(Fifo* fifo, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn, int size_max){
     // 1. 
     Ipc* ipc = &(fifo->ipc);
     Ipc_setter(ipc, resource_id, resource_type, onopen_fn, onclose_fn, read_fn, write_fn, free_fn, size_max);
+    
     // 2.
+    fifo->readers_number = 0;
+    fifo->writers_number = 0;
+    List_init(&fifo->waiting_list_open_reader);
+    List_init(&fifo->waiting_list_open_writer);
+
+    // 3.
     fifo->read_pos = 0;
     fifo->write_pos = 0;
     memset(fifo->buffer, 0, PIPE_BUF);
-    // 3.
-    fifo->readers_number = 0;
-    fifo->writers_number = 0;
+    
     // 4. Return
     return;
 }
@@ -78,18 +83,29 @@ int Pipe_mk(){
 }
 
 int Fifo_onopen(Descriptor* descriptor){
+
     Fifo* fifo = (Fifo*) descriptor->resource;
     if((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_RDWR) return DSOS_EINVAL;
-    if((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_RDONLY) ++fifo->readers_number;
-    if((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_WRONLY) ++fifo->writers_number;
 
-    if(fifo->writers_number == 0 && (descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_RDONLY){
-        // 1. Metto il mio PCB in coda dentro la waiting_list_read
+    if((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_RDONLY){
+        if(fifo->writers_number > 0 || fifo->waiting_list_open_writer.size > 0 || descriptor->flags & DSOS_O_NONBLOCK){
+            while(fifo->waiting_list_open_writer.size > 0){
+                // 6.a. Remove from writer waiting list
+                PCB* unlocking = (PCB*) List_detach(&(fifo->waiting_list_open_writer), (fifo->waiting_list_open_writer).first);
+                assert(unlocking && "");
+                // 6.b Insert into ready list and change status
+                unlocking->status = Ready;
+                unlocking = (PCB*) List_insert(&ready_list, ready_list.last, (ListItem*) unlocking);
+                assert(unlocking && "");
+            }
+            ++fifo->readers_number;
+            return DSOS_SUCCESS;
+        }
+        // 1. Metto il mio PCB in coda dentro la waiting_list_open_read
         running->status = Waiting;
         running->syscall_retvalue = DSOS_ERESTARTNOINTR;
-        running = (PCB*) List_insert(&(ipc->waiting_list_read), (ipc->waiting_list_read).last, (ListItem*) running);
+        running = (PCB*) List_insert(&(fifo->waiting_list_open_reader), (fifo->waiting_list_open_reader).last, (ListItem*) running);
         assert(running && "ERRORE INSERIMENTO LISTA ATTESA");
-
         // 2. Prendo il prossimo PCB in stato di ready e lo imposto come ready
         running = (PCB*) List_detach(&ready_list, ready_list.first);
         assert(running && "");
@@ -98,10 +114,24 @@ int Fifo_onopen(Descriptor* descriptor){
         return DSOS_ERESTARTNOINTR;
     }
 
-    if(fifo->readers_number == 0 && (descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_WRONLY){
-        // 1. Metto il mio PCB in coda dentro la waiting_list_write
+
+    if((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_WRONLY){
+        if(fifo->readers_number > 0 || fifo->waiting_list_open_reader.size > 0){
+            while(fifo->waiting_list_open_reader.size > 0){
+                // 6.a. Remove from writer waiting list
+                PCB* unlocking = (PCB*) List_detach(&(fifo->waiting_list_open_reader), (fifo->waiting_list_open_reader).first);
+                assert(unlocking && "");
+                // 6.b Insert into ready list and change status
+                unlocking->status = Ready;
+                unlocking = (PCB*) List_insert(&ready_list, ready_list.last, (ListItem*) unlocking);
+                assert(unlocking && "");
+            }
+            ++fifo->writers_number;
+            return DSOS_SUCCESS;
+        }
+        if(descriptor->flags & DSOS_O_NONBLOCK) return DSOS_ENXIO;
         running->status = Waiting;
-        running = (PCB*) List_insert(&(ipc->waiting_list_write), (ipc->waiting_list_write).last, (ListItem*) running);
+        running = (PCB*) List_insert(&(fifo->waiting_list_open_writer), (fifo->waiting_list_open_writer).last, (ListItem*) running);
         assert(running && "ERRORE INSERIMENTO LISTA ATTESA");
         running->syscall_retvalue = DSOS_ERESTARTNOINTR;
         // 2. Prendo il prossimo PCB in stato di ready e lo imposto come ready
@@ -109,51 +139,45 @@ int Fifo_onopen(Descriptor* descriptor){
         assert(running && "");
         running->status = Running;
         //3. Passo il controllo alla trap che eseguirà il context switch
-        return DSOS_ERESTARTNOINTR;            
-    }
-    
-    return DSOS_SUCCESS;
+        return DSOS_ERESTARTNOINTR;
+    } 
+    assert(!"Unexpected error. Kernel Panic!");
 }
 
 void Fifo_onclose(Descriptor* descriptor){
     assert((descriptor->flags & DSOS_O_ACCMODE) != DSOS_O_RDWR && "");
     Fifo* fifo = (Fifo*) descriptor->resource;
     //In realtà la ACCMODE RDWR NON E' CONSENTITA, BISOGNA TROVARE UN MODO PER NON FARLA AVVENIRE
-    if( ((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_RDWR) || ((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_RDONLY) ){
+    if((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_RDONLY){
         --fifo->readers_number;
+        if(fifo->readers_number == 0){
+            Ipc* ipc = &(fifo->ipc);
+            while(ipc->waiting_list_write.size){
+                // 6.a. Remove from writer waiting list
+                PCB* unlocking = (PCB*) List_detach(&(ipc->waiting_list_write), (ipc->waiting_list_write).first);
+                assert(unlocking && "");
+                // 6.b Insert into ready list and change status
+                unlocking->status = Ready;
+                unlocking = (PCB*) List_insert(&ready_list, ready_list.last, (ListItem*) unlocking);
+                assert(unlocking && "");
+            }
+        }
     }
-    if( ((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_RDWR) || ((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_WRONLY) ){
+    if((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_WRONLY){
         --fifo->writers_number;
-    }
-
-    // If readers_number == 0 (and there is some writers) wake up all writers
-    if(fifo->readers_number == 0 && fifo->writers_number > 0){
-        Ipc* ipc = &(fifo->ipc);
-        while(ipc->waiting_list_write.size){
-            // 6.a. Remove from writer waiting list
-            PCB* unlocking = (PCB*) List_detach(&(ipc->waiting_list_write), (ipc->waiting_list_write).first);
-            assert(unlocking && "");
-            // 6.b Insert into ready list and change status
-            unlocking->status = Ready;
-            unlocking = (PCB*) List_insert(&ready_list, ready_list.last, (ListItem*) unlocking);
-            assert(unlocking && "");
+        if(fifo->writers_number == 0){
+            Ipc* ipc = &(fifo->ipc);
+            while(ipc->waiting_list_read.size){
+                // 7.a. Remove from reader waiting list
+                PCB* unlocking = (PCB*) List_detach(&(ipc->waiting_list_read), (ipc->waiting_list_read).first);
+                assert(unlocking && "");
+                // 7.b Insert into raedy list and change status
+                unlocking->status = Ready;
+                unlocking = (PCB*) List_insert(&ready_list, ready_list.last, (ListItem*) unlocking);
+                assert(unlocking && "");
+            }
         }
     }
-    
-    // If writers_numer == 0 (and there is some readers) wake up all readers
-    if(fifo->writers_number == 0 && fifo->readers_number){
-        Ipc* ipc = &(fifo->ipc);
-        while(ipc->waiting_list_read.size){
-            // 7.a. Remove from reader waiting list
-            PCB* unlocking = (PCB*) List_detach(&(ipc->waiting_list_read), (ipc->waiting_list_read).first);
-            assert(unlocking && "");
-            // 7.b Insert into raedy list and change status
-            unlocking->status = Ready;
-            unlocking = (PCB*) List_insert(&ready_list, ready_list.last, (ListItem*) unlocking);
-            assert(unlocking && "");
-        }
-    }
-
     return;
 }
 
@@ -182,3 +206,5 @@ int Fifo_write(Descriptor* descriptor, const void* buffer, int count){
         Circular_buffer_write((const char*) buffer, fifo->buffer, to_write, 256, &fifo->write_pos);
         return to_write;
 }
+
+PoolAllocator* Fifo_allocator_getinfo(){return &_fifo_allocator;}

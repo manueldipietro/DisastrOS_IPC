@@ -5,6 +5,7 @@
 #include "tester.h"
 #include "tester_resource.h"
 #include "tester_ipc.h"
+#include "tester_fifo.h"
 #include "tester_circular_buffer.h"
 #include "tester_priority_linked_list.h"
 
@@ -45,11 +46,13 @@ void initFunction(void* args) {
   is_utest_ok *= tester_utest_priority_linked_list();
   is_utest_ok *= tester_utest_resources();
   is_utest_ok *= tester_utest_ipc();
-  //is_utest_ok *= tester_utest_fifo();
+  is_utest_ok *= tester_utest_fifo();
   //is_utest_ok *= tester_utest_pipe();
   //is_utest_ok *= tester_utest_mq();
-  if(is_utest_ok) printf("ALL TESTS IS OK\n");
-  else printf("ERROR ON SOME TESTS");
+  if(is_utest_ok) printf("\033[1m[\033[1;92m ALL UTEST IS OK \033[0m\033[1m]\033[0m\n");
+  else printf("\033[1m[\033[1;91mSOME TEST FAIL\033[0m\033[1m]\033[0m\n");
+        
+
 
   // 2. Prepare disastrOS for integration test execution
   printf("hello, I am init and I just started\n");
