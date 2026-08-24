@@ -9,13 +9,16 @@ typedef struct Descriptor Descriptor;
 
 typedef int (*disastros_onopen_fn)(Descriptor* descriptor);
 typedef void (*disastros_onclose_fn)(Descriptor* descriptor);
+typedef void (*disastros_onclone_fn)(Descriptor* descriptor);
 typedef int (*disastros_read_fn)(Descriptor* descriptor, void* buffer, int count);
 typedef int (*disastros_write_fn)(Descriptor* descriptor, const void* buffer, int count);
 typedef int (*disastros_free_fn)(Resource* resource);
 
+
 typedef struct {
   disastros_onopen_fn onopen;
   disastros_onclose_fn onclose;
+  disastros_onclone_fn onclone;
   disastros_read_fn read;
   disastros_write_fn write;
   disastros_free_fn free;
@@ -47,7 +50,7 @@ int Resource_unlink(int resource_id);
 
 //AUX (For OS)
 void Resource_destroy(Resource* resource);
-void Resource_setter(Resource* resource, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn);
+void Resource_setter(Resource* resource, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_onclone_fn onclone_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn);
 void Resource_desetter(Resource* resource);
 
 // Funzione di ricerca (bisogna eliminare la ricerca sugli ID anonimi)

@@ -58,6 +58,10 @@ int Descriptor_free(Descriptor* d) {
   return PoolAllocator_releaseBlock(&_descriptor_allocator, d);
 }
 
+int Descriptor_dup(Descriptor* descriptor, PCB* to_attach){
+  return 0;    
+}
+
 int Descriptor_mk(Descriptor** descriptor, Resource* resource, int flags){
   // 1. Check if the maximum number of descriptors ptrs for the resource has been reached
   if(resource->descriptors_ptrs.size >= MAX_NUM_DESCRIPTORS_PTRS_PER_RESOURCE)
@@ -88,6 +92,8 @@ int Descriptor_mk(Descriptor** descriptor, Resource* resource, int flags){
   // 6. Return success
   return DSOS_SUCCESS;
 }
+
+
 
 void Descriptor_destroy(Descriptor* descriptor){
   // 1. Retrieve resource pointer and validate it 

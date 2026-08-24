@@ -20,7 +20,6 @@
 // parent should receive SIGCHLD and be awakened if it was waiting
 // for this process to report its value
 void internal_exit(){
-  printf("Entro nella exit\n");
   // 2nd register in pcb contains the exit value
   running->return_value=running->syscall_args[0];
     
@@ -55,17 +54,11 @@ void internal_exit(){
   }
 
   // we release all resources of a process upon termination
-  int i=0;
-  printf("Prima di liberare i descrittori ci sono spazi liberi nell'allocatore: %d descrittori", Descriptor_allocator_getinfo()->buffer_size);
-  printf("Size lista descrittori letta dentro la exit (prima del while) %d\n", running->descriptors.size);
   while(running->descriptors.first) {
     Descriptor* descriptor = (Descriptor*) running->descriptors.first;
-    printf("CHIUDO NELLA EXIT! Iterazione %d, descrittore: %p\n", i++, descriptor);
     int close_ret = Resource_close(descriptor->fd);
-    printf("Valore ritorno close: %d\n", close_ret);
     assert(!close_ret && "Fatal error during exit (close resource). Kernel Panic!");
   }
-  printf("Dopo liberati i descrittori ci sono spazi liberi nell'allocatore: %d descrittori", Descriptor_allocator_getinfo()->buffer_size);
 
   running->status=Zombie;
   List_insert(&zombie_list, zombie_list.last, (ListItem*) running);

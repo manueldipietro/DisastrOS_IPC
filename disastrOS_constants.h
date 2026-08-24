@@ -6,9 +6,11 @@
 #define MAX_NUM_FIFOS     256
 
 // RICORDARSI DI DEFINIRE PIPE_BUF
-#define PIPE_BUF          512
+#define PIPE_BUF          512       // Ridefinirla con DSOS_PIPE_BUFF
+#define DSOS_PIPE_RD      0
+#define DSOS_PIPE_WR      1
 
-#define MAX_NUM_DESCRIPTORS_PTRS_PER_RESOURCE 32
+#define MAX_NUM_DESCRIPTORS_PTRS_PER_RESOURCE 32 //--> DA ELIMINARE IL LIMITE.
 #define MAX_NUM_DESCRIPTORS_PER_PROCESS 32
 #define DSOS_ANON_RES_STARTID 512
 
@@ -78,15 +80,16 @@ static inline const char* DSOS_STRERROR(int err_code){
 #define DSOS_CALL_SPAWN             5
 #define DSOS_CALL_SLEEP             6
 #define DSOS_CALL_SHUTDOWN          7
+#define DSOS_CALL_SPAWN_WFD         8
 
-#define DSOS_CALL_OPEN_RESOURCE     8
-#define DSOS_CALL_READ_RESOURCE     9
-#define DSOS_CALL_WRITE_RESOURCE    10
-#define DSOS_CALL_CLOSE_RESOURCE    11
-#define DSOS_CALL_UNLINK_RESOURCE   12
-#define DSOS_CALL_MK_RESOURCE       13
-#define DSOS_CALL_MK_FIFO           14
-#define DSOS_CALL_MK_PIPE           15
+#define DSOS_CALL_OPEN_RESOURCE     9
+#define DSOS_CALL_READ_RESOURCE     10
+#define DSOS_CALL_WRITE_RESOURCE    11
+#define DSOS_CALL_CLOSE_RESOURCE    12
+#define DSOS_CALL_UNLINK_RESOURCE   13
+#define DSOS_CALL_MK_RESOURCE       14
+#define DSOS_CALL_MK_FIFO           15
+#define DSOS_CALL_MK_PIPE           16
 
 // scheduling
 #define ALPHA 0.5f

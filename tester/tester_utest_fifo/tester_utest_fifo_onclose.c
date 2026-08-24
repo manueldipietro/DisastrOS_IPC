@@ -1,5 +1,6 @@
 #include "disastrOS_fifo.h"
 #include "disastrOS_ipc.h"
+#include "disastrOS.h"
 
 // Test 1: Spawn 2 reader and 2 writer, after open process in read mode and check close
 // Test 2: Spawn 2 reader and 2 writer, after open process in write and check close
@@ -8,8 +9,8 @@
 
 
 // Test 1: Spawn 2 reader and 2 writer, after open process in read mode and check close
-int tester_utest_fifo_onclose1_auxR(){return disastrOS_exit();}
-int tester_utest_fifo_onclose1_auxW(){return disastrOS_exit();}
+//int tester_utest_fifo_onclose1_auxR(){return disastrOS_exit(1);}
+//int tester_utest_fifo_onclose1_auxW(){return disastrOS_exit(1);}
 int tester_utest_fifo_onclose1(char* test_name){
     // 0. Initialize
 

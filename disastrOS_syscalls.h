@@ -12,6 +12,7 @@ void internal_exit();
 void internal_wait();
 
 void internal_spawn();
+void internal_spawn_withfd();
 
 void internal_shutdown();
 

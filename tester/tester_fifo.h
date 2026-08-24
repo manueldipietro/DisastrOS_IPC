@@ -55,6 +55,7 @@ int tester_utest_fifo_read1(char* test_name);
         TESTER_UTEST_CHECK(tester_utest_assert_allocated(M_pcb, M_error_prefix "error opener not in the waiting list"));\
     }while(0)
 
+// Ragionando idealmente questa macro non dovrebbe fare side_effect, quindi la wait andrebbe chiamata fuori
 #define TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(M_pid_open, M_expected_readers_number, M_expected_writers_number, M_expected_readers_opener_waiting, M_expected_writers_opener_waiting, M_error_prefix)\
     do{\
         TESTER_UTEST_CHECK(tester_utest_assert_int((M_expected_readers_number), fifo->readers_number, M_error_prefix "mismatching on fifo readers_number"));\

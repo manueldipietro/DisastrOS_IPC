@@ -28,14 +28,14 @@ Fifo* Fifo_alloc(int resource_id){
     // 1. Allocate Fifo, if allocation goes wrong return NULL
     Fifo* fifo = (Fifo*) PoolAllocator_getBlock(&_fifo_allocator);
     if(!fifo) return NULL;
-    Fifo_setter(fifo, resource_id, DSOS_RESTYPE_IPCFIFO, Fifo_onopen, Fifo_onclose, Fifo_read, Fifo_write, Fifo_free, PIPE_BUF);
+    Fifo_setter(fifo, resource_id, DSOS_RESTYPE_IPCFIFO, Fifo_onopen, Fifo_onclose, Fifo_onclone, Fifo_read, Fifo_write, Fifo_free, PIPE_BUF);
     return fifo;
 }
 
-void Fifo_setter(Fifo* fifo, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn, int size_max){
+void Fifo_setter(Fifo* fifo, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_onclone_fn onclone_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn, int size_max){
     // 1. 
     Ipc* ipc = &(fifo->ipc);
-    Ipc_setter(ipc, resource_id, resource_type, onopen_fn, onclose_fn, read_fn, write_fn, free_fn, size_max);
+    Ipc_setter(ipc, resource_id, resource_type, onopen_fn, onclose_fn, onclone_fn, read_fn, write_fn, free_fn, size_max);
     
     // 2.
     fifo->readers_number = 0;
@@ -78,8 +78,47 @@ int Fifo_mk(int resource_id){
     return DSOS_SUCCESS;
 }
 
-int Pipe_mk(){
-    return DSOS_ENOSYS;
+int Pipe_mk(int pipefd[2]){
+    // 1. Alloc anonymous Pipe
+    Fifo* pipe = Fifo_alloc(dsos_last_anon_resource_id);
+    if(!pipe) return DSOS_ENOMEM;
+    dsos_last_anon_resource_id++;
+
+    // 2. Alloc first descriptor
+    Descriptor* descriptor_rd;
+    int ret_val = Descriptor_mk(&descriptor_rd, (Resource*) pipe, DSOS_O_RDONLY);
+    if(ret_val != DSOS_SUCCESS){
+        Resource_destroy((Resource*) pipe);
+        return ret_val;
+    }
+    pipefd[DSOS_PIPE_RD] = descriptor_rd->fd;
+    pipe->readers_number = 1;
+
+    //3. Alloc second descriptor, if goes wrong roll back
+    Descriptor* descriptor_wr;
+    ret_val = Descriptor_mk(&descriptor_wr, (Resource*) pipe, DSOS_O_WRONLY);
+    if(ret_val != DSOS_SUCCESS){
+        Descriptor_destroy(descriptor_rd);
+        Resource_destroy((Resource*) pipe);
+        return ret_val;
+    }
+    pipefd[DSOS_PIPE_WR] = descriptor_wr->fd;
+    pipe->writers_number = 1;
+
+    // 4. All ok
+    return DSOS_SUCCESS;
+}
+
+void Fifo_onclone(Descriptor* descriptor){
+    assert(descriptor && "");
+    assert((descriptor->flags & DSOS_O_ACCMODE) != DSOS_O_RDWR && "");
+
+    Fifo* fifo = (Fifo*) descriptor->resource;
+    assert(fifo && "");
+    
+    if((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_RDONLY) fifo->readers_number++;
+    if((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_WRONLY) fifo->writers_number++;
+    return;
 }
 
 int Fifo_onopen(Descriptor* descriptor){

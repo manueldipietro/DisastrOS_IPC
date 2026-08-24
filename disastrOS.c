@@ -162,6 +162,10 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   syscall_vector[DSOS_CALL_SPAWN]      = internal_spawn;
   syscall_numarg[DSOS_CALL_SPAWN]      = 2;
 
+  syscall_vector[DSOS_CALL_SPAWN]      = internal_spawn_withfd;
+  syscall_numarg[DSOS_CALL_SPAWN]      = 2;
+
+
   syscall_vector[DSOS_CALL_WAIT]      = internal_wait;
   syscall_numarg[DSOS_CALL_WAIT]      = 2;
 
@@ -275,6 +279,10 @@ void disastrOS_preempt() {
 
 void disastrOS_spawn(void (*f)(void*), void* args ) {
   disastrOS_syscall(DSOS_CALL_SPAWN, f, args);
+}
+
+void disastrOS_spawn_withfd(void (*f)(void*), void* args){
+  disastrOS_syscall(DSOS_CALL_SPAWN_WFD, f, args);
 }
 
 void disastrOS_shutdown() {

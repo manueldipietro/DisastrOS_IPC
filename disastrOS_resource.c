@@ -32,12 +32,12 @@ Resource* Resource_alloc(int resource_id){
   if(!resource)
     return NULL;
   // 3. Sets attribute and VMT of the resource
-  Resource_setter(resource, resource_id, DSOS_RESTYPE_UNDEFIN, NULL, NULL, NULL, NULL, Resource_free);
+  Resource_setter(resource, resource_id, DSOS_RESTYPE_UNDEFIN, NULL, NULL, NULL, NULL, NULL, Resource_free);
   // 4. Return the pointer to the resource
   return resource;
 }
 
-void Resource_setter(Resource* resource, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn){
+void Resource_setter(Resource* resource, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_onclone_fn onclone_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn){
   // 1. Set the fields of resource
   (resource->list).prev = (resource->list).next = 0;
   resource->id = resource_id;
@@ -46,6 +46,7 @@ void Resource_setter(Resource* resource, int resource_id, int resource_type, dis
   // 2. Set the VMT
   (resource->VMT).onopen = onopen_fn;
   (resource->VMT).onclose = onclose_fn;
+  (resource->VMT).onclone = onclone_fn;
   (resource->VMT).read = read_fn;
   (resource->VMT).write = write_fn;
   (resource->VMT).free = free_fn;
@@ -120,10 +121,7 @@ int Resource_open(int resource_id, int flags){
     ret_val = resource->VMT.onopen(descriptor);
   // 8. Roll back if something goes wrong with on open
   if(ret_val != DSOS_SUCCESS){
-    printf("ENTRO NEL ROOLBACK\n");
-    printf("Dimensione lista descrittori prima della destroy: %d\n", running->descriptors.size);
     Descriptor_destroy(descriptor);
-    printf("Dimensione lista descrittori dopo della destroy: %d\n", running->descriptors.size);
     return ret_val;
   }
 
@@ -190,10 +188,8 @@ int Resource_close(int fd){
   assert(descriptor->resource && "Fatal error during resource close (resource null pointer). Kernel Panic!");
 
   // 3. Execute resource on close before close the resource
-  if(resource->VMT.onclose != NULL){
-    printf("ESEGUO LA ONCLOSE!\n");
+  if(resource->VMT.onclose != NULL)
     resource->VMT.onclose(descriptor);
-  }
 
   // 4. Destroy the file descriptor
   Descriptor_destroy(descriptor);
