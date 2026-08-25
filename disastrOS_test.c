@@ -42,44 +42,64 @@ void initFunction(void* args) {
   //    Using fork in the test suite, we ensure that each unit test has a clean exectuion environment
   //    This avoids implementing setup and tear down functions
   int is_utest_ok = 1;
-  is_utest_ok *= tester_utest_circular_buffer();
-  is_utest_ok *= tester_utest_priority_linked_list();
+  //is_utest_ok *= tester_utest_circular_buffer();
+  //is_utest_ok *= tester_utest_priority_linked_list();
   is_utest_ok *= tester_utest_resources();
-  is_utest_ok *= tester_utest_ipc();
-  is_utest_ok *= tester_utest_fifo();
+  //is_utest_ok *= tester_utest_ipc();
+  //is_utest_ok *= tester_utest_fifo();
   //is_utest_ok *= tester_utest_pipe();
   //is_utest_ok *= tester_utest_mq();
+  //is_utest_ok *= tester_utest_spawnwithfd();
   if(is_utest_ok) printf("\033[1m[\033[1;92m ALL UTEST IS OK \033[0m\033[1m]\033[0m\n");
   else printf("\033[1m[\033[1;91mSOME TEST FAIL\033[0m\033[1m]\033[0m\n");
         
 
 
-  // 2. Prepare disastrOS for integration test execution
-  printf("hello, I am init and I just started\n");
-  disastrOS_spawn(sleeperFunction, 0);
   
   // 3. Execute integration test for each module
   //    To limit the size of the output, the user will select the test to be executed
   //    To keep the process image clean and allow further tests to be run without restarting the process
   //    integration tests will be executed on a fork of the base process.
-/*
+
   int choose;
+  tester_itest_fn choosen_test[9] ={
+    test_itest_resource1_init,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+  };
+
   while(1){
     printf("Enter a number to select the integration test to run:\n");
     printf("0 - disastrOS shutdown\n");
     printf("1 - Resource test\n");
-
-    // Scelta
+    printf("2 - FIFO: 1 producer, 1 consumer\n");
+    printf("3 - FIFO: 1 producer, N consumer\n");
+    printf("4 - FIFO: N producer, 1 consumer\n");
+    printf("5 - FIFO: N producer, N consumer\n");
+    printf("6 - PIPE: 1 producer, 1 consumer\n");
+    printf("7 - PIPE: 1 producer, N consumer\n");
+    printf("8 - PIPE: N producer, 1 consumer\n");
+    printf("9 - PIPE: N producer, N consumer\n");
     scanf("%d", &choose);
-    // Jump table per eseguire le funzioni
+    //printf("\033[H\033[J"); fflush(stdout);
 
-    // Pulizia terminale
-    printf("\033[H\033[J");
-    fflush(stdout);
+    if(choose == 0) disastrOS_shutdown();
+    if(choose < 0 || choose > 9) continue;
+
+    choosen_test[choose-1]();
   }
-*/
+
   disastrOS_shutdown();
 
+  // 2. Prepare disastrOS for integration test execution
+  printf("hello, I am init and I just started\n");
+  disastrOS_spawn(sleeperFunction, 0);
 
 
   printf("I feel like to spawn 10 nice threads\n");

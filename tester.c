@@ -16,8 +16,38 @@
 char TESTER_UTEST_FAILMSG[TESTER_UTEST_FAILMSG_SIZE] = "";
 char TESTER_UTEST_NAME[TESTER_UTEST_NAME_SIZE] = "";
 
+// Nota: forse vanno catturati anche i SIGABRT e verificare per il loop infinito.
+
+void tester_itest_execute(char* test_name, tester_itest_fn itest_fn){
+    pid_t pid;
+    pid = fork();
+    assert(pid >= 0 && "Fatal error during integration_test fork.");
+
+    // 2. Father process
+    if(pid){
+        int w_status;
+        pid = waitpid(pid, &w_status, 0);
+        assert(pid >= 0 && "Fatal error during integration_test wait!");
+
+        // Caso in cui si va in segfault
+        if(WIFSIGNALED(w_status)){
+            int term_signal = WTERMSIG(w_status);
+            if(term_signal == SIGSEGV){
+                printf("INTEGRATION TEST: %s: SEGMENTATION FAULT\n", test_name);
+                return;
+            }
+        }
+
+        return;
+    }
+    // Figlio
+    setupSignals();         // Reimposta i segnali dopo la fork
+    itest_fn();
+    exit(0);
+}
+
 int tester_utest_execute(char* test_name, tester_utest_fn utest_fn){
-    // TODO: Bisogna capire se in questa sezione vanno disattivati i segnali.   
+    // TODO: Bisogna capire se in questa sezione vanno disattivati i segnali. --> Non c'è bisogno, sembra funzionare bene
     // 1. Fork Execution
     pid_t pid;
     pid = fork();
@@ -50,7 +80,7 @@ int tester_utest_execute(char* test_name, tester_utest_fn utest_fn){
     }
 
     // 3. Child process: runs test and exits
-    setupSignals();         // Riabilita i segnali dopo la fork
+    setupSignals();         // Reimposta i segnali dopo la fork
     int exit_status = utest_fn(test_name);
     tester_utest_print(exit_status, test_name, TESTER_UTEST_FAILMSG);
     exit(exit_status);

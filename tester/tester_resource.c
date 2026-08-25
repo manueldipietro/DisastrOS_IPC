@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "tester.h"
 
@@ -85,11 +86,69 @@ int tester_utest_resources(){
 
 // Qui ci vanno le funzioni che compongono gli INTEGRATION TEST!
 
-
-/*
-void test_itest_resource1_init(){}
-
-void test_itest_rosource1_son(){
-
+void test_itest_resource1_sleeper(void* args){
+  printf("Hello, I am the sleeper, and I sleep %d\n",disastrOS_getpid());
+  while(1) {
+    getc(stdin);
+    disastrOS_printStatus();
+  }
 }
-*/
+
+// SISTEMARE LE STAMPE E I COMMENTI, MA PER IL RESTO OK
+// CI STA QUALCHE PROBLEMA CON I CICLI FOR DA CORREGGERE
+
+void test_itest_resource1_son(){
+  printf("Hello, I am the child function %d\n",disastrOS_getpid());
+  printf("I will iterate a bit, before terminating\n");
+  int flags = DSOS_O_RDWR|DSOS_O_CREAT;
+  int fd1 = disastrOS_open(0, DSOS_O_RDONLY);
+  int fd2 = disastrOS_open(disastrOS_getpid(), flags);
+  disastrOS_printStatus();
+
+  for (int i=0; i<(disastrOS_getpid()+1); ++i){
+    printf("PID: %d, iterate %d\n", disastrOS_getpid(), i);
+    disastrOS_sleep((20-disastrOS_getpid())*5);
+  }
+  
+  disastrOS_exit(disastrOS_getpid()+1);
+}
+
+
+void test_itest_resource1_init(){
+  // 2. Prepare disastrOS for integration test execution
+  printf("Hello, I am init and I just started\n");
+  disastrOS_spawn(test_itest_resource1_sleeper, 0);
+
+
+  printf("I feel like to spawn 10 nice threads\n");
+  int alive_children=0;
+
+  for (int i=0; i<10; ++i) {
+    int flags=DSOS_O_CREAT | DSOS_O_RDWR;
+    printf("Open resource (and creating if necessary)\n");
+    int fd=disastrOS_open(i, flags);
+    printf("fd=%d\n", fd);
+    disastrOS_spawn(test_itest_resource1_son, 0);
+    alive_children++;
+  }
+  disastrOS_printStatus();
+  
+  int retval;
+  int pid;
+  while(alive_children>0 && (pid=disastrOS_wait(0, &retval))>=0){ 
+    disastrOS_printStatus();
+    printf("InitFunction, child: %d terminated, retval:%d, alive: %d \n",
+	    pid, retval, alive_children);
+    --alive_children;
+  }
+
+  printf("All childern exited, i will unlink even resource and close all resource\n");
+  for (int i=0; i<10; ++i) {
+    if(i%2==0) disastrOS_unlink(i);
+    disastrOS_close(i);
+  }
+  disastrOS_printStatus();
+  printf("Shutdown!\n");
+  //disastrOS_shutdown();
+  return;
+}

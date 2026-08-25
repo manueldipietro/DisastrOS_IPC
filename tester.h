@@ -17,6 +17,7 @@ extern char TESTER_UTEST_FAILMSG[TESTER_UTEST_FAILMSG_SIZE];
 extern char TESTER_UTEST_NAME[TESTER_UTEST_NAME_SIZE];
 
 typedef int (*tester_utest_fn)(char* test_name);
+typedef void (*tester_itest_fn)(void);
 
 typedef struct tester_utest_list {
     char title[255];
