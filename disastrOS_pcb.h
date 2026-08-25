@@ -46,6 +46,8 @@ typedef struct PCB{
   int syscall_num;
   long int syscall_args[DSOS_MAX_SYSCALLS_ARGS]; 
   int syscall_retvalue;
+  //When used, syscall_intermediate_data variable must be reset to 0 on the success path of the syscall to avoid inconsistent states.
+  int syscall_intermediate_data; // Used by onopen of FIFO
 } PCB;
 
 // initializes the memory allocation

@@ -301,9 +301,12 @@ int disastrOS_getpid(){
 
 // Syscalls Resources
 int disastrOS_open(int resource_id, int flags) {
+  int v_resource_id = resource_id;
+  int v_flags = flags;
   int ret;
+  
   do{
-    ret = disastrOS_syscall(DSOS_CALL_OPEN_RESOURCE, resource_id, flags);
+    ret = disastrOS_syscall(DSOS_CALL_OPEN_RESOURCE, v_resource_id, v_flags);
   }while(ret == DSOS_ERESTARTNOINTR);
   return ret;
 
@@ -312,19 +315,27 @@ int disastrOS_open(int resource_id, int flags) {
 int disastrOS_read(int fd, void* buffer, int count){
   int ret;
   do{
+    printf("Nel wrapper utente sto per tuffarmi nella read\n");
+    printf("Nel wrapper utente prima della syscall read ho i parametri: fd %d, buffer %p, count %d\n", fd, buffer, count);
     ret = disastrOS_syscall(DSOS_CALL_READ_RESOURCE, fd, buffer, count);
+    printf("Nel wrapper utente dopo della syscall read ho i parametri: fd %d, buffer %p, count %d\n", fd, buffer, count);
+
   }while(ret == DSOS_ERESTARTNOINTR);
   return ret;
 }
 
 int disastrOS_write(int fd, const void* buffer, int count){
+  int v_fd = fd;
+  const void* v_buffer = buffer;
+  int v_count = count;
+
   int writted = 0;
   do{
-    int ret = disastrOS_syscall(DSOS_CALL_WRITE_RESOURCE, fd, buffer+writted, count-writted);
+    int ret = disastrOS_syscall(DSOS_CALL_WRITE_RESOURCE, v_fd, v_buffer+writted, v_count-writted);
     if(ret == DSOS_EAGAIN && writted != 0) return writted;
     if(ret < 0 && ret != DSOS_ERESTARTNOINTR) return ret;
     writted += (ret == DSOS_ERESTARTNOINTR ?  0 : ret);
-  }while(writted < count);
+  }while(writted < v_count);
   return writted;
 }
 

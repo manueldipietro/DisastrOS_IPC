@@ -14,7 +14,7 @@ void internal_open(){
 
   // 2. Call open function
   int ret = Resource_open(resource_id, flags);
-
+  if(ret == DSOS_ERESTARTNOINTR) return;
   // 3. Write result to the PCB and return.
   running->syscall_retvalue = ret;
   return;
@@ -26,9 +26,10 @@ void internal_read(){
   void* buffer = (void*) running->syscall_args[1];
   int count = running->syscall_args[2];
 
+  printf("In internal read ho i parametri: fd %d, buffer %p, count %d\n", fd, buffer, count);
+
   // 2. Call read function
   int ret = Resource_read(fd, buffer, count);
-
   // 3. Write result to the PCB and return.
   if(ret == DSOS_ERESTARTNOINTR) return;
   running->syscall_retvalue = ret;

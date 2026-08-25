@@ -122,7 +122,6 @@ void Fifo_onclone(Descriptor* descriptor){
 }
 
 int Fifo_onopen(Descriptor* descriptor){
-
     Fifo* fifo = (Fifo*) descriptor->resource;
     if((descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_RDWR) return DSOS_EINVAL;
 
@@ -135,9 +134,13 @@ int Fifo_onopen(Descriptor* descriptor){
                 // 6.b Insert into ready list and change status
                 unlocking->status = Ready;
                 unlocking = (PCB*) List_insert(&ready_list, ready_list.last, (ListItem*) unlocking);
+                unlocking->syscall_intermediate_data = 1;
+                fifo->writers_number++;
                 assert(unlocking && "");
             }
-            ++fifo->readers_number;
+            if(running->syscall_intermediate_data == 0){
+                ++fifo->readers_number;
+            }else{running->syscall_intermediate_data = 0;}
             return DSOS_SUCCESS;
         }
         // 1. Metto il mio PCB in coda dentro la waiting_list_open_read
@@ -163,9 +166,13 @@ int Fifo_onopen(Descriptor* descriptor){
                 // 6.b Insert into ready list and change status
                 unlocking->status = Ready;
                 unlocking = (PCB*) List_insert(&ready_list, ready_list.last, (ListItem*) unlocking);
+                unlocking->syscall_intermediate_data = 1;
+                fifo->readers_number++;
                 assert(unlocking && "");
             }
-            ++fifo->writers_number;
+            if(running->syscall_intermediate_data == 0){
+                ++fifo->writers_number;
+            }else{running->syscall_intermediate_data = 0;}
             return DSOS_SUCCESS;
         }
         if(descriptor->flags & DSOS_O_NONBLOCK) return DSOS_ENXIO;
@@ -179,7 +186,7 @@ int Fifo_onopen(Descriptor* descriptor){
         running->status = Running;
         //3. Passo il controllo alla trap che eseguirà il context switch
         return DSOS_ERESTARTNOINTR;
-    } 
+    }
     assert(!"Unexpected error. Kernel Panic!");
 }
 
@@ -221,14 +228,16 @@ void Fifo_onclose(Descriptor* descriptor){
 }
 
 int Fifo_read(Descriptor* descriptor, void* buffer, int count){
+        printf("Riavvio la read");
         // 0. Retrive fifo from descriptor
         Fifo* fifo = (Fifo*) descriptor->resource;
         // 1. If ipc.size == 0 and writers == 0 return immediately 0
         if(fifo->ipc.size == 0 && fifo->writers_number == 0) return 0;// In realtà fifo->ipc rompe l'incapsulamento servirebbe una funzione ausiliaria --> NON VALE LA PENA
         // 2. Call Ipc read
         int to_read = Ipc_read(descriptor, buffer, count);
+        printf("NELLA READ ESCO DA IPC_READ, da leggere: %d", to_read);
         // 3. Read from buffer
-        Circular_buffer_read(fifo->buffer, (char*) buffer, to_read, 256, &fifo->read_pos);
+        Circular_buffer_read(fifo->buffer, (char*) buffer, to_read, PIPE_BUF, &fifo->read_pos);
         //4. Return readed bytes
         return to_read;
 }
@@ -242,7 +251,7 @@ int Fifo_write(Descriptor* descriptor, const void* buffer, int count){
         int to_write = Ipc_write(descriptor, buffer, count);
         if(to_write <= 0) return to_write;
         // 3. Write to buffer and return
-        Circular_buffer_write((const char*) buffer, fifo->buffer, to_write, 256, &fifo->write_pos);
+        Circular_buffer_write((const char*) buffer, fifo->buffer, to_write, PIPE_BUF, &fifo->write_pos);
         return to_write;
 }
 

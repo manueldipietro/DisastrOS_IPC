@@ -131,6 +131,7 @@ int Resource_open(int resource_id, int flags){
 
 int Resource_read(int fd, void* buffer, int count){
   // 1. Query for the file descriptor and check if is valid (exist and has correct flags)
+  printf("In Read Virtuale ho i parametri: fd %d, buffer %p, count %d\n", fd, buffer, count);
   Descriptor* descriptor = DescriptorList_byFd(&running->descriptors, fd);
   if(!descriptor) return DSOS_EBADFD;
 
@@ -138,6 +139,7 @@ int Resource_read(int fd, void* buffer, int count){
   if( (descriptor->flags & DSOS_O_ACCMODE) == DSOS_O_WRONLY) return DSOS_EBADFD;
 
   // 3. Check the validity of the buffer and count
+  printf("NELLA READ: Buffer: %p, count: %d\n", buffer, count);
   if(!buffer || count<0) return DSOS_EINVAL;
 
   // 4. Retrive resource pointer and validate it

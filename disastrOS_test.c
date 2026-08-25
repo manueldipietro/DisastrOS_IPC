@@ -44,14 +44,14 @@ void initFunction(void* args) {
   int is_utest_ok = 1;
   //is_utest_ok *= tester_utest_circular_buffer();
   //is_utest_ok *= tester_utest_priority_linked_list();
-  is_utest_ok *= tester_utest_resources();
+  //is_utest_ok *= tester_utest_resources();
   //is_utest_ok *= tester_utest_ipc();
   //is_utest_ok *= tester_utest_fifo();
   //is_utest_ok *= tester_utest_pipe();
   //is_utest_ok *= tester_utest_mq();
   //is_utest_ok *= tester_utest_spawnwithfd();
-  if(is_utest_ok) printf("\033[1m[\033[1;92m ALL UTEST IS OK \033[0m\033[1m]\033[0m\n");
-  else printf("\033[1m[\033[1;91mSOME TEST FAIL\033[0m\033[1m]\033[0m\n");
+  //if(is_utest_ok) printf("\033[1m[\033[1;92m ALL UTEST IS OK \033[0m\033[1m]\033[0m\n");
+  //else printf("\033[1m[\033[1;91mSOME TEST FAIL\033[0m\033[1m]\033[0m\n");
         
 
 
@@ -64,10 +64,10 @@ void initFunction(void* args) {
   int choose;
   tester_itest_fn choosen_test[9] ={
     test_itest_resource1_init,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    test_itest_fifo1_init,
+    test_itest_fifo2_init,
+    test_itest_fifo3_init,
+    test_itest_fifo4_init,
     NULL,
     NULL,
     NULL,
@@ -95,41 +95,6 @@ void initFunction(void* args) {
     choosen_test[choose-1]();
   }
 
-  disastrOS_shutdown();
-
-  // 2. Prepare disastrOS for integration test execution
-  printf("hello, I am init and I just started\n");
-  disastrOS_spawn(sleeperFunction, 0);
-
-
-  printf("I feel like to spawn 10 nice threads\n");
-  int alive_children=0;
-  for (int i=0; i<10; ++i) {
-    int flags=DSOS_O_CREAT | DSOS_O_RDWR;
-    printf("flags: %d\n", flags);
-    printf("opening resource (and creating if necessary)\n");
-    int fd=disastrOS_open(i,flags);
-    printf("fd=%d\n", fd);
-    disastrOS_spawn(childFunction, 0);
-    disastrOS_printStatus();
-    alive_children++;
-  }
-
-  disastrOS_printStatus();
-  int retval;
-  int pid;
-  while(alive_children>0 && (pid=disastrOS_wait(0, &retval))>=0){ 
-    disastrOS_printStatus();
-    printf("initFunction, child: %d terminated, retval:%d, alive: %d \n",
-	   pid, retval, alive_children);
-    --alive_children;
-  }
-  for (int i=0; i<10; ++i) {
-    if(i%2==0) disastrOS_unlink(i);
-    disastrOS_close(i);
-  }
-  disastrOS_printStatus();
-  printf("shutdown!");
   disastrOS_shutdown();
 }
 

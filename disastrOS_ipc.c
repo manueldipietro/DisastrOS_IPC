@@ -191,6 +191,7 @@ int Ipc_write(Descriptor* descriptor, const void* buffer, int count){
     }else{
     // 5. Blocking the writer if count <= ipc->size_max && size_max-size < count or if ipc->size_max - ipc_size == 0
         if(ipc->size_max - ipc->size == 0 || (count <= ipc->size_max && ipc->size_max - ipc->size < count)){
+            printf("E' ora di fermare il write: PID: %d, size: %d\n", running->pid, ipc->size);
             // 1. Metto il mio PCB in coda dentro la waiting_list_write
             running->status = Waiting;
             running = (PCB*) List_insert(&(ipc->waiting_list_write), (ipc->waiting_list_write).last, (ListItem*) running);
@@ -202,6 +203,7 @@ int Ipc_write(Descriptor* descriptor, const void* buffer, int count){
             assert(running && "");
             running->status = Running;
             //3. Passo il controllo alla trap che eseguirà il context switch
+            printf("Sto per tornare DSOS_ERESTARTNOINTR: PID: %d, size: %d\n", running->pid, ipc->size);
             return DSOS_ERESTARTNOINTR;            
         }
     }

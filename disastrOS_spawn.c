@@ -11,7 +11,6 @@
 // returns the pid of the child
 // it starts a function in the form of void f();
 void internal_spawn(){
-  printf("CHiamo la spawn1!\n");
   static PCB* new_pcb;
   new_pcb=PCB_alloc();
   if (!new_pcb) {
@@ -46,7 +45,6 @@ void internal_spawn(){
 }
 
 void internal_spawn_withfd(){
-  printf("CHIAMO LA SPAWN2\n");
   static PCB* new_pcb;
   new_pcb=PCB_alloc();
   if (!new_pcb) {

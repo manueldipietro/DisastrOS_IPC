@@ -54,6 +54,7 @@ PCB* PCB_alloc() {
   pcb->parent=0;
   pcb->timer=0;
   List_init(&pcb->children);
+  pcb->syscall_intermediate_data=0;
   return pcb;
 }
 
