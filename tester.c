@@ -18,7 +18,7 @@ char TESTER_UTEST_NAME[TESTER_UTEST_NAME_SIZE] = "";
 
 // Nota: forse vanno catturati anche i SIGABRT e verificare per il loop infinito.
 
-void tester_itest_execute(char* test_name, tester_itest_fn itest_fn){
+void tester_itest_execute(tester_itest_fn itest_fn){
     pid_t pid;
     pid = fork();
     assert(pid >= 0 && "Fatal error during integration_test fork.");
@@ -33,16 +33,18 @@ void tester_itest_execute(char* test_name, tester_itest_fn itest_fn){
         if(WIFSIGNALED(w_status)){
             int term_signal = WTERMSIG(w_status);
             if(term_signal == SIGSEGV){
-                printf("INTEGRATION TEST: %s: SEGMENTATION FAULT\n", test_name);
+                printf("INTEGRATION TEST: SEGMENTATION FAULT\n");
                 return;
             }
         }
-
+        printf("MA ESCO DAL TEST? 2\n");
         return;
     }
     // Figlio
     setupSignals();         // Reimposta i segnali dopo la fork
+    printf("Entro nel figlio test\n");
     itest_fn();
+    printf("Esco nel figlio test\n");
     exit(0);
 }
 

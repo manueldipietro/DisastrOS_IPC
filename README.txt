@@ -28,3 +28,7 @@ Il lavoro è stato validato andando a creare una suite di test.
 --> Scrivere che il sistema è a Byte-stream (e non datagram) e che inizialmente si voleva sviluppare
 anche un'interfaccia MQ ma poi ci si è resi conto che aveva funzionalità diverse da replicare, è rimasta
 comunque l'implementazione della lista di priorità.
+
+STRUTTURA DEI TEST:
+Il sistema di test si basa su due tipi di test diversi:
+1. Unity test: testano gli edge cases del programma

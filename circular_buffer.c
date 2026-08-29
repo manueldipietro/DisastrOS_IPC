@@ -8,6 +8,8 @@
 // SRC: buffer della fifo
 // DST: buffer utente
 void Circular_buffer_read(const char *src, char* dest, int to_read, int size_max, int* read_pos){
+    // TODO: mettere su entrambi assert su non negatività e non nullità
+    
     assert(to_read <= size_max && "In Circular_buffer_read try to read more than size_max");
     assert(*read_pos < size_max && "In Circular_buffer_read buffer raed_pos out of bound");
     if((*read_pos+to_read) <= size_max){

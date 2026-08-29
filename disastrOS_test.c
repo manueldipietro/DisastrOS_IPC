@@ -8,6 +8,7 @@
 #include "tester_fifo.h"
 #include "tester_circular_buffer.h"
 #include "tester_priority_linked_list.h"
+#include "tester_spawnfd.h"
 
 #include "disastrOS.h"
 
@@ -44,14 +45,13 @@ void initFunction(void* args) {
   int is_utest_ok = 1;
   //is_utest_ok *= tester_utest_circular_buffer();
   //is_utest_ok *= tester_utest_priority_linked_list();
+  //is_utest_ok *= tester_utest_spawnfd();
   //is_utest_ok *= tester_utest_resources();
   //is_utest_ok *= tester_utest_ipc();
   //is_utest_ok *= tester_utest_fifo();
   //is_utest_ok *= tester_utest_pipe();
-  //is_utest_ok *= tester_utest_mq();
-  //is_utest_ok *= tester_utest_spawnwithfd();
-  //if(is_utest_ok) printf("\033[1m[\033[1;92m ALL UTEST IS OK \033[0m\033[1m]\033[0m\n");
-  //else printf("\033[1m[\033[1;91mSOME TEST FAIL\033[0m\033[1m]\033[0m\n");
+  if(is_utest_ok) printf("\033[1m[\033[1;92m ALL UTEST IS OK \033[0m\033[1m]\033[0m\n");
+  else printf("\033[1m[\033[1;91mSOME TEST FAIL\033[0m\033[1m]\033[0m\n");
         
 
 
@@ -61,6 +61,8 @@ void initFunction(void* args) {
   //    To keep the process image clean and allow further tests to be run without restarting the process
   //    integration tests will be executed on a fork of the base process.
 
+
+  // TODO: refactoring, mettere disastrOS_shutdown dentro alla tabella
   int choose;
   tester_itest_fn choosen_test[9] ={
     test_itest_resource1_init,
@@ -68,10 +70,10 @@ void initFunction(void* args) {
     test_itest_fifo2_init,
     test_itest_fifo3_init,
     test_itest_fifo4_init,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    test_itest_pipe1_init,
+    test_itest_pipe2_init,
+    test_itest_pipe3_init,
+    test_itest_pipe4_init
   };
 
   while(1){
@@ -87,14 +89,14 @@ void initFunction(void* args) {
     printf("8 - PIPE: N producer, 1 consumer\n");
     printf("9 - PIPE: N producer, N consumer\n");
     scanf("%d", &choose);
-    //printf("\033[H\033[J"); fflush(stdout);
-
     if(choose == 0) disastrOS_shutdown();
-    if(choose < 0 || choose > 9) continue;
-
-    choosen_test[choose-1]();
+    if(choose < 0 || choose > 9){
+      printf("Scelta non valida\n");
+      break;
+    }
+    //printf("\033[H\033[J"); fflush(stdout);
+    tester_itest_execute(choosen_test[choose-1]);
   }
-
   disastrOS_shutdown();
 }
 
@@ -103,12 +105,7 @@ int main(int argc, char** argv){
   if (argc>1) {
     logfilename=argv[1];
   }
-  // we create the init process processes
-  // the first is in the running variable
-  // the others are in the ready queue
-  printf("the function pointer is: %p", childFunction);
-  // spawn an init process
-  printf("start\n");
+  printf("Started disastrOS\n");
   disastrOS_start(initFunction, 0, logfilename);
   return 0;
 }

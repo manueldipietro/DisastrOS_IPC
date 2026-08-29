@@ -195,7 +195,7 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   syscall_vector[DSOS_CALL_MK_FIFO]           = internal_mkfifo;
   syscall_numarg[DSOS_CALL_MK_FIFO]           = 1;
   syscall_vector[DSOS_CALL_MK_PIPE]           = internal_mkpipe;
-  syscall_numarg[DSOS_CALL_MK_PIPE]           = 0;
+  syscall_numarg[DSOS_CALL_MK_PIPE]           = 1;
 
 
   // setup the scheduling lists
@@ -315,11 +315,7 @@ int disastrOS_open(int resource_id, int flags) {
 int disastrOS_read(int fd, void* buffer, int count){
   int ret;
   do{
-    printf("Nel wrapper utente sto per tuffarmi nella read\n");
-    printf("Nel wrapper utente prima della syscall read ho i parametri: fd %d, buffer %p, count %d\n", fd, buffer, count);
     ret = disastrOS_syscall(DSOS_CALL_READ_RESOURCE, fd, buffer, count);
-    printf("Nel wrapper utente dopo della syscall read ho i parametri: fd %d, buffer %p, count %d\n", fd, buffer, count);
-
   }while(ret == DSOS_ERESTARTNOINTR);
   return ret;
 }
@@ -355,8 +351,8 @@ int disastrOS_mkfifo(int resource_id){
   return disastrOS_syscall(DSOS_CALL_MK_FIFO, resource_id);
 }
 
-int disastrOS_mkpipe(){
-  return disastrOS_syscall(DSOS_CALL_MK_PIPE);
+int disastrOS_mkpipe(int pipefd[2]){
+  return disastrOS_syscall(DSOS_CALL_MK_PIPE, pipefd);
 }
 
 void disastrOS_printStatus(){

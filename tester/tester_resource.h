@@ -1,8 +1,8 @@
 #pragma once
 
-int tester_utest_resources();
-
 void test_itest_resource1_init();
+
+int tester_utest_resources();
 
 int tester_resource_mk1(char* test_name);
 int tester_resource_mk2(char* test_name);

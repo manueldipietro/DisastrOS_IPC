@@ -1,20 +1,12 @@
 #pragma once
 
-typedef struct Arguments_fifo_packet_reader{
-    int reader_id;
-    int resource_id;
-}Arguments_fifo_packet_reader;
-
-typedef struct Arguments_fifo_packet_writer{
-    int writer_id;
-    int resource_id;
-    int to_send;
-}Arguments_fifo_packet_writer;
-
+void test_itest_fifo_text_writer();
+void test_itest_fifo_text_reader();
 void test_itest_fifo_packet_reader(void* arguments);
 void test_itest_fifo_packet_writer(void* arguments);
 
 
+// UNITY TEST SECTION:
 
 int tester_utest_fifo();
 
@@ -22,6 +14,11 @@ void test_itest_fifo1_init();
 void test_itest_fifo2_init();
 void test_itest_fifo3_init();
 void test_itest_fifo4_init();
+
+void test_itest_pipe1_init();
+void test_itest_pipe2_init();
+void test_itest_pipe3_init();
+void test_itest_pipe4_init();
 
 void tester_utest_fifo_utils_sleeper();
 int tester_utest_fifo_utils_reader_open(int resource_id, int should_exit, int non_blocking, int expected_open_retval);
@@ -92,3 +89,5 @@ int tester_utest_fifo_read1(char* test_name);
     }while(0)
 
 // Forse qui serve una macro di assert close
+
+

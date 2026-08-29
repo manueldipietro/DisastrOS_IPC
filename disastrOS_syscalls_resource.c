@@ -25,9 +25,6 @@ void internal_read(){
   int fd = running->syscall_args[0];
   void* buffer = (void*) running->syscall_args[1];
   int count = running->syscall_args[2];
-
-  printf("In internal read ho i parametri: fd %d, buffer %p, count %d\n", fd, buffer, count);
-
   // 2. Call read function
   int ret = Resource_read(fd, buffer, count);
   // 3. Write result to the PCB and return.
@@ -103,10 +100,10 @@ void internal_mkfifo(){
 
 void internal_mkpipe(){
   // 1. Retrieve argument from PCB  
-  int resource_id = running->syscall_args[0];
+  void* pipefd = (void*) running->syscall_args[0];
 
-  // 2. Call mk function
-  int ret = Pipe_mk(resource_id);
+  // 2. Call Pipe_mk function
+  int ret = Pipe_mk(pipefd);
 
   // 3. Write result to the PCB and return.
   running->syscall_retvalue = ret;

@@ -21,6 +21,8 @@ HEADERS=disastrOS.h\
      tester/tester_resource.h\
      tester/tester_ipc.h\
      tester/tester_fifo.h\
+     \
+     tester/tester_spawnfd.h\
      
 
 OBJS=pool_allocator.o\
@@ -46,6 +48,7 @@ OBJS=pool_allocator.o\
      \
      \
      tester.o\
+     tester/tester_aux.o\
      tester/tester_resource.o\
      tester/tester_ipc.o\
      tester/tester_fifo.o\
@@ -68,6 +71,13 @@ OBJS=pool_allocator.o\
      tester/tester_utest_fifo/tester_utest_fifo_onopen.o\
      tester/tester_utest_fifo/tester_utest_fifo_readandwrite.o\
      tester/tester_utest_fifo/tester_utest_fifo_onclose.o\
+     \
+     tester/tester_spawnfd.o\
+     \
+     tester/tester_itest/tester_itest_pipe.o\
+     tester/tester_itest/tester_itest_fifo.o\
+     tester/tester_itest/tester_itest_resource.o\
+
 
 LIBS=libdisastrOS.a
 

@@ -2,11 +2,12 @@
 
 #include "linked_list.h"
 #include "pool_allocator.h"
+#include <stdlib.h>
 
 #define TESTER_UTEST_CHECK(condition)\
     do { \
         if(!condition){ \
-            return 0; \
+            return 0;\
         } \
     } while(0)
 
@@ -24,6 +25,8 @@ typedef struct tester_utest_list {
     tester_utest_fn utest_fn;
 } tester_utest_list;
 
+void tester_itest_execute(tester_itest_fn itest_fn);
+
 int tester_utest_execute(char* test_name, tester_utest_fn utest_fn);
 int tester_utest_executelist(tester_utest_list* utest_list, int test_number, char* testing_object);
 void tester_utest_print(int status, char* test_name, char* fail_dettails);
@@ -33,14 +36,9 @@ int tester_utest_assert_intge(int expected_value, int got_value, char* message);
 int tester_utest_assert_ecode(int expected_value, int got_value, char* message);
 int tester_utest_assert_ecodege(int expected_value, int got_value, char* message);
 
-
 int tester_utest_assert_pointer(void* expected_pointer, void* got_pointer, char* message);
 int tester_utest_assert_allocated(void* pointer, char* message);
 int tester_utest_assert_notallocated(void* pointer, char* message);
 
 int tester_utest_assert_listsize(ListHead* list_head, int expected_size, char* message);
 int tester_utest_assert_poolfreeblock(PoolAllocator* pool, int expected_free_block, char* message);
-
-//void tester_itest();
-//void tester_itest_header();
-//void tester_itest_footer();

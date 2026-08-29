@@ -98,7 +98,7 @@ int Pipe_mk(int pipefd[2]){
     Descriptor* descriptor_wr;
     ret_val = Descriptor_mk(&descriptor_wr, (Resource*) pipe, DSOS_O_WRONLY);
     if(ret_val != DSOS_SUCCESS){
-        Descriptor_destroy(descriptor_rd);
+        Descriptor_destroy(descriptor_wr);
         Resource_destroy((Resource*) pipe);
         return ret_val;
     }
@@ -228,14 +228,13 @@ void Fifo_onclose(Descriptor* descriptor){
 }
 
 int Fifo_read(Descriptor* descriptor, void* buffer, int count){
-        printf("Riavvio la read");
         // 0. Retrive fifo from descriptor
         Fifo* fifo = (Fifo*) descriptor->resource;
         // 1. If ipc.size == 0 and writers == 0 return immediately 0
         if(fifo->ipc.size == 0 && fifo->writers_number == 0) return 0;// In realtà fifo->ipc rompe l'incapsulamento servirebbe una funzione ausiliaria --> NON VALE LA PENA
         // 2. Call Ipc read
         int to_read = Ipc_read(descriptor, buffer, count);
-        printf("NELLA READ ESCO DA IPC_READ, da leggere: %d", to_read);
+        if(to_read <= 0) return to_read;
         // 3. Read from buffer
         Circular_buffer_read(fifo->buffer, (char*) buffer, to_read, PIPE_BUF, &fifo->read_pos);
         //4. Return readed bytes

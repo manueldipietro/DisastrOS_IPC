@@ -36,7 +36,7 @@ int tester_utest_fifo_read1(char* test_name){
     disastrOS_sleep(1);
     
     // 6. Wait for Writer opener and after check number of writers
-    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_writer_open, 1, 1, 0, 0, "After write");
+    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_writer_open, 1, 0, 0, 0, "After write");
     disastrOS_sleep(1);
     TESTER_UTEST_CHECK(tester_utest_assert_int(0, fifo->writers_number, "error on writers number befor read"));
 
@@ -49,5 +49,6 @@ int tester_utest_fifo_read1(char* test_name){
 }
 
 // Test 2: Spawn 1 reader (need for write mode open) and open in write_mode, try to write, should return DSOS_EPIPE
+
 
 // Test 3: One writer write on buffer and one reader read from buffer

@@ -102,6 +102,7 @@ void test_itest_resource1_son(){
   printf("I will iterate a bit, before terminating\n");
   int flags = DSOS_O_RDWR|DSOS_O_CREAT;
   int fd1 = disastrOS_open(0, DSOS_O_RDONLY);
+  // Qui bisognerebbe valutare i codici di errore
   int fd2 = disastrOS_open(disastrOS_getpid(), flags);
   disastrOS_printStatus();
 

@@ -56,13 +56,11 @@ void internal_spawn_withfd(){
   // Per brevità non gestiamo l'errore di allocazione dei descrittori nella duplicazione
   Descriptor* old_descriptor = (Descriptor*) running->descriptors.first;
   while(old_descriptor){
-    
     // 1. Allocate new_descriptor
     Descriptor* new_descriptor = Descriptor_alloc(old_descriptor->fd, old_descriptor->resource, new_pcb, old_descriptor->flags);
     assert(new_descriptor && "Fatal error during descriptor internal_dup (null descriptor). Kernel Panic!");
     new_descriptor = (Descriptor*) List_insert(&new_pcb->descriptors, new_pcb->descriptors.last, (ListItem*) new_descriptor);
     assert(new_descriptor && "Fatal error during during descriptor internal_dup (list_insert descriptor). Kernel Panic!");
-
     // 2. Allocate new descriptorPtr
     Resource* resource = new_descriptor->resource;
     DescriptorPtr* new_descriptor_ptr=DescriptorPtr_alloc(new_descriptor);
@@ -70,10 +68,9 @@ void internal_spawn_withfd(){
     new_descriptor->ptr=new_descriptor_ptr;
     new_descriptor_ptr = (DescriptorPtr*) List_insert(&resource->descriptors_ptrs, resource->descriptors_ptrs.last, (ListItem*) new_descriptor_ptr);
     assert(new_descriptor_ptr && "Fatal error during during descriptor internal_dup (list_insert descriptor_ptr). Kernel Panic!");
-    
+
     // 3. Onclone
     if(resource->VMT.onclone != NULL) resource->VMT.onclone(new_descriptor);
-
     // 4. Advance the list
     old_descriptor = (Descriptor*) old_descriptor->list.next;
   }
