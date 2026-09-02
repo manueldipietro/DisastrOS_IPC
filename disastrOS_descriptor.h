@@ -11,7 +11,7 @@ typedef struct Descriptor{
   PCB* pcb;
   Resource* resource;
   int fd;
-  struct DescriptorPtr* ptr; // Pointer to the entry in the resource list
+  struct DescriptorPtr* ptr;
   int flags;
 } Descriptor;
 

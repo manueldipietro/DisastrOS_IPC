@@ -8,7 +8,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-
 #define FIFO_SIZE sizeof(Fifo)
 #define FIFO_MEMSIZE (sizeof(Fifo)+sizeof(int))
 #define FIFO_BUFFER_SIZE MAX_NUM_FIFOS*FIFO_MEMSIZE
@@ -28,7 +27,7 @@ Fifo* Fifo_alloc(int resource_id){
     // 1. Allocate Fifo, if allocation goes wrong return NULL
     Fifo* fifo = (Fifo*) PoolAllocator_getBlock(&_fifo_allocator);
     if(!fifo) return NULL;
-    Fifo_setter(fifo, resource_id, DSOS_RESTYPE_IPCFIFO, Fifo_onopen, Fifo_onclose, Fifo_onclone, Fifo_read, Fifo_write, Fifo_free, PIPE_BUF);
+    Fifo_setter(fifo, resource_id, DSOS_RESTYPE_IPCFIFO, Fifo_onopen, Fifo_onclose, Fifo_onclone, Fifo_read, Fifo_write, Fifo_free, DSOS_PIPE_BUF);
     return fifo;
 }
 
@@ -46,7 +45,7 @@ void Fifo_setter(Fifo* fifo, int resource_id, int resource_type, disastros_onope
     // 3.
     fifo->read_pos = 0;
     fifo->write_pos = 0;
-    memset(fifo->buffer, 0, PIPE_BUF);
+    memset(fifo->buffer, 0, DSOS_PIPE_BUF);
     
     // 4. Return
     return;
@@ -236,7 +235,7 @@ int Fifo_read(Descriptor* descriptor, void* buffer, int count){
         int to_read = Ipc_read(descriptor, buffer, count);
         if(to_read <= 0) return to_read;
         // 3. Read from buffer
-        Circular_buffer_read(fifo->buffer, (char*) buffer, to_read, PIPE_BUF, &fifo->read_pos);
+        Circular_buffer_read(fifo->buffer, (char*) buffer, to_read, DSOS_PIPE_BUF, &fifo->read_pos);
         //4. Return readed bytes
         return to_read;
 }
@@ -250,7 +249,7 @@ int Fifo_write(Descriptor* descriptor, const void* buffer, int count){
         int to_write = Ipc_write(descriptor, buffer, count);
         if(to_write <= 0) return to_write;
         // 3. Write to buffer and return
-        Circular_buffer_write((const char*) buffer, fifo->buffer, to_write, PIPE_BUF, &fifo->write_pos);
+        Circular_buffer_write((const char*) buffer, fifo->buffer, to_write, DSOS_PIPE_BUF, &fifo->write_pos);
         return to_write;
 }
 

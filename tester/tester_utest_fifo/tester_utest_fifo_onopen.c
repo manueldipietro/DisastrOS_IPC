@@ -95,7 +95,7 @@ int tester_utest_fifo_onopen3(char* test_name){
     disastrOS_sleep(1);
 
     // 8. Check that reader opener process unblock
-    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_reader_open, 1, 1, 0, 0, "unlock");
+    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_reader_open, 0, 1, 0, 0, "unlock");
     // 9. Test ok, return 1
     return 1;
 }
@@ -269,7 +269,7 @@ int tester_utest_fifo_onopen8(char* test_name){
     disastrOS_sleep(1);
     
     // 6. Check
-    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_writer_open, 1, 1, 0, 0, "After write");
+    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_writer_open, 1, 0, 0, 0, "After write");
 
     // 7. Test ok, return 1
     return 1;
@@ -289,7 +289,7 @@ int tester_utest_fifo_onopen9(char* test_name){
     // 2. Retrive fifo from resources list
     fifo = (Fifo*) ResourceList_byId(&resources_list, resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_allocated(fifo, "can't retrive fifo from resources list"));
-    // 3. Spawn sleeper and writer opener process and sleep while opener running
+    // 3. Spawn sleeper and reader opener process and sleep while opener running
     disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);
     pid_reader_open = last_pid;
     disastrOS_spawn(tester_utest_fifo_onopen9_aux, 0);
@@ -301,7 +301,7 @@ int tester_utest_fifo_onopen9(char* test_name){
     disastrOS_sleep(1);
     
     // 6. Check
-    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_reader_open, 1, 1, 0, 0, "After open writer");
+    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_reader_open, 0, 1, 0, 0, "After open writer");
 
     // 7. Test ok, return 1
     return 1;

@@ -167,7 +167,7 @@ void test_itest_pipe1_init(){
     // 0. Print test header
     printf("----------------------------------------------------------------------------------------------\n");
     printf(TESTER_ANSI_BRIGHT_RED TESTER_ANSI_BOLD "INTEGRATION TEST 1 Producer - 1 Consumer\n" TESTER_ANSI_RESET);
-    printf("Transfer a text from Producer to consumer (single write with len > 2*PIPE_BUF)\n");
+    printf("Transfer a text from Producer to consumer (single write with len > 2*DSOS_PIPE_BUF)\n");
     printf("Text will print the incipit of \"Prosmessi Sposi\" Book\n");
     printf("----------------------------------------------------------------------------------------------\n");
     // 1. Create the pipe and spawn the sleeper
@@ -245,6 +245,7 @@ void test_itest_pipe1_init(){
 }
 
 void test_itest_pipe2_init(){
+    // 0. Print test header
     printf("----------------------------------------------------------------------------------------------\n");
     printf(TESTER_ANSI_BRIGHT_RED TESTER_ANSI_BOLD "INTEGRATION TEST 1 Producer - N Consumers\n" TESTER_ANSI_RESET);
     printf("Producer will produce 100 packet each and consumers will consume it\n");
@@ -329,6 +330,7 @@ void test_itest_pipe2_init(){
 }
 
 void test_itest_pipe3_init(){
+    // 0. Print test header
     printf("----------------------------------------------------------------------------------------------\n");
     printf(TESTER_ANSI_BRIGHT_RED TESTER_ANSI_BOLD "INTEGRATION TEST N Producer - 1 Consumers\n" TESTER_ANSI_RESET);
     printf("Producer will produce 100 packet and consumers will consume it\n");
@@ -414,6 +416,7 @@ void test_itest_pipe3_init(){
 }
 
 void test_itest_pipe4_init(){
+    // 0. Print test header
     printf("----------------------------------------------------------------------------------------------\n");
     printf(TESTER_ANSI_BRIGHT_RED TESTER_ANSI_BOLD "INTEGRATION TEST N Producer - N Consumers\n" TESTER_ANSI_RESET);
     printf("Producers will produce 10 packet each and consumers will consume it\n");

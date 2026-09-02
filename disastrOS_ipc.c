@@ -29,15 +29,13 @@ Ipc* Ipc_alloc(int resource_id, int size_max){    // Si chiama resource_id per r
     // 0. Validate size_max and resource_id
     assert(resource_id >=0 && "Fatal error during IPC alloc (resource_id negative). Kernel Panic!");
     assert(size_max >=0 && "Fatal error during IPC alloc (size_max negative). Kernel Panic!");
-    
     // 1. Allocate IPC, if allocation goes wrong return NULL
     Ipc* ipc = (Ipc*) PoolAllocator_getBlock(&_ipc_allocator);
     if(!ipc)
         return NULL;
-
+    // 2. Set attributes
     Ipc_setter(ipc, resource_id, DSOS_RESTYPE_IPCBASE, NULL, NULL, NULL, Ipc_read, Ipc_write, Ipc_free, size_max);
-
-    // 7. Return pointer to the ipc
+    // 3. Return pointer to the ipc
     return ipc;
 }
 

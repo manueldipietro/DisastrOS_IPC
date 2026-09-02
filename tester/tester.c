@@ -179,6 +179,21 @@ int tester_utest_assert_listsize(ListHead* list_head, int expected_size, char* m
     return 0;
 }
 
+int tester_utest_assert_listalloc(ListHead* list_head, char* message){
+    if(!list_head){
+        if(message!=NULL)
+            snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "%s - Unallocated list", message);
+        else snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "Unallocated list");
+        return 0;
+    }
+    if(list_head->size >= 0) return 1;
+    if(message != NULL)
+        snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "%s - Unallocated list", message);
+    else snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "Unallocated list");
+    return 0;
+}
+
+
 int tester_utest_assert_poolfreeblock(PoolAllocator* pool, int expected_free_block, char* message){
     if(!pool){
         if(message!=NULL)

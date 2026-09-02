@@ -6,10 +6,8 @@
 #include "disastrOS_syscalls.h"
 #include "disastrOS_descriptor.h"
 
-// creates a new instance of the running_process
-// and puts it in the ready list
-// returns the pid of the child
-// it starts a function in the form of void f();
+// Creates a new instance of the running_process and puts it in the ready list, returns the pid of the child
+// It starts a function in the form of void f();
 void internal_spawn(){
   static PCB* new_pcb;
   new_pcb=PCB_alloc();
@@ -17,7 +15,6 @@ void internal_spawn(){
     running->syscall_retvalue=DSOS_ESPAWN;
     return;
   } 
-
   new_pcb->status=Ready;
 
   // sets the parent of the newly created process to the running process
@@ -52,10 +49,10 @@ void internal_spawn_withfd(){
     return;
   } 
 
-  // Aggiunta
-  // Per brevità non gestiamo l'errore di allocazione dei descrittori nella duplicazione
+  // Section added to handle descriptor duplication
   Descriptor* old_descriptor = (Descriptor*) running->descriptors.first;
   while(old_descriptor){
+    // To maintain compatibility with the existing spawn implementation, errors regarding descriptor allocation are not handled.
     // 1. Allocate new_descriptor
     Descriptor* new_descriptor = Descriptor_alloc(old_descriptor->fd, old_descriptor->resource, new_pcb, old_descriptor->flags);
     assert(new_descriptor && "Fatal error during descriptor internal_dup (null descriptor). Kernel Panic!");
@@ -68,14 +65,13 @@ void internal_spawn_withfd(){
     new_descriptor->ptr=new_descriptor_ptr;
     new_descriptor_ptr = (DescriptorPtr*) List_insert(&resource->descriptors_ptrs, resource->descriptors_ptrs.last, (ListItem*) new_descriptor_ptr);
     assert(new_descriptor_ptr && "Fatal error during during descriptor internal_dup (list_insert descriptor_ptr). Kernel Panic!");
-
-    // 3. Onclone
+    // 3. Call the specific onclone function of the resource type
     if(resource->VMT.onclone != NULL) resource->VMT.onclone(new_descriptor);
-    // 4. Advance the list
+    // 4. Move the list item forward
     old_descriptor = (Descriptor*) old_descriptor->list.next;
   }
-  new_pcb->last_fd = running->last_fd;  // Non va proprio così bene, ma ce lo teniamo
-  // Fine aggiunta
+  new_pcb->last_fd = running->last_fd;  // This could be a problem
+  // End of the added section
 
   new_pcb->status=Ready;
 

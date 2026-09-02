@@ -40,16 +40,8 @@ int tester_utest_fifo_onopen8(char* test_name);
 int tester_utest_fifo_onopen9(char* test_name);
 
 int tester_utest_fifo_read1(char* test_name);
+int tester_utest_fifo_write1(char* test_name);
 
-#define TESTER_UTEST_FIFO_ASSERT_CLEANUP()\
-    do{\
-    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Fifo_allocator_getinfo(), Fifo_allocator_getinfo()->size_max, "_fifo_allocator not empty at the startup"));\
-    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Ipc_allocator_getinfo(), Ipc_allocator_getinfo()->size_max, "_ipc_allocator not empty at the startup"));\
-    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Resource_allocator_getinfo(), Resource_allocator_getinfo()->size_max, "_resource_allocator not empty at the startup"));\
-    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Descriptor_allocator_getinfo(), Descriptor_allocator_getinfo()->size_max, "_descriptor_allocator not empty at the startup"));\
-    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(DescriptorPtr_allocator_getinfo(), DescriptorPtr_allocator_getinfo()->size_max, "_descriptor_ptr_allocator not empty at the startup"));\
-    TESTER_UTEST_CHECK(tester_utest_assert_listsize(&resources_list, 0, "resources_list not empty at the startup"));\
-    }while(0)
 
 #define TESTER_UTEST_FIFO_ASSERT_ONOPEN_ROLLBACK(M_resource_id, M_expected_resources, M_expected_descriptors, M_expected_descriptors_onprocess, M_expected_descriptorptr_onresource, M_error_prefix)\
     do{\

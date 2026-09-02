@@ -11,7 +11,7 @@ typedef struct Fifo{
 
     int read_pos;
     int write_pos;
-    char buffer[PIPE_BUF];
+    char buffer[DSOS_PIPE_BUF];
 }Fifo;
 
 void Fifo_init();

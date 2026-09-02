@@ -35,17 +35,6 @@ int tester_utest_ipc_utils_writer(int resource_id, int count, int expected_write
 int tester_utest_ipc_utils_reader(int resource_id, int count, int expected_read_count, int should_exit, int non_blocking);
 
 
-// Macro: checks that memory is "clean" before a test
-#define TESTER_UTEST_IPC_ASSERT_CLEANUP()\
-    do{\
-    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Ipc_allocator_getinfo(), Ipc_allocator_getinfo()->size_max, "_ipc_allocator not empty at the startup"));\
-    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Resource_allocator_getinfo(), Resource_allocator_getinfo()->size_max, "_resource_allocator not empty at the startup"));\
-    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Descriptor_allocator_getinfo(), Descriptor_allocator_getinfo()->size_max, "_descriptor_allocator not empty at the startup"));\
-    TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(DescriptorPtr_allocator_getinfo(), DescriptorPtr_allocator_getinfo()->size_max, "_descriptor_ptr_allocator not empty at the startup"));\
-    TESTER_UTEST_CHECK(tester_utest_assert_listsize(&resources_list, 0, "resources_list not empty at the startup"));\
-    }while(0)
-
-
 //TODO: Mettere parentesi di protezione intorno alle variabili delle MARCO!!
 // Macro: check that there is mr_expected_writers waiting in the queue and that there is a specific OCB with mr_pid in the queue
 #define TESTER_UTEST_IPC_ASSERT_WRITERS_WAITING(M_ipc, M_expected_waiting_writers, M_pid, M_error_prefix)\

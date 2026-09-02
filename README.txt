@@ -32,3 +32,25 @@ comunque l'implementazione della lista di priorità.
 STRUTTURA DEI TEST:
 Il sistema di test si basa su due tipi di test diversi:
 1. Unity test: testano gli edge cases del programma
+
+Modulo Resource:
+
+Modulo IPC: estende la classe Resource gestendo la sincronizzazione tra lettore e scrittore e distinguendo tra i casi bloccanti e non bloccanti, contiene i seguenti metodi:
+1. Ipc_init: inizializza il gestore della memoria di disastrOS;
+2. Ipc_alloc: è il costruttore di una risorsa di tipo IPC, alloca la risorsa e chiama Ipc_setter per inizializzarla. 
+3. Ipc_setter: si occupa di inizializzare
+4. 
+5. 
+6. 
+7. 
+
+STRUTTURA DEL SISTEMA DI TEST:
+Per testare approfonditamente le funzioni implementate e i casi limiti, facendo proprio il messaggio del corso "BE EVIL WHEN TESTING" si è implementata una suite di test, che esegue due differenti tipi di test:
+-Unit Test: testano le singole funzioni di una System Call, concentrandosi in particolare sui casi limite. Per individuare i casi limite si è partiti dai possibili codici di ritorno Posix delle varie System Call.
+-Integration Test: testano dei casi d'uso
+All'avvio del sistema vengono eseguiti automaticamente gli unit test, poi viene permesso all'utente di scegliere l'integration test che vuole effettuare. Per il test delle risorse base si è ripreso (cambiando i nomi delle System Call) quello base già presente nel repository del corso. Per gli Integration Test
+
+
+
+-exit.c: il file è stato modificato per far rilasciare eventuali risorse e timer immediatamente all'uscita dal processo, altrimenti bisogna aspettare che un processo effettuasse la wait affinchè effettivamente venissero rilasciate le risorse e questo era un comportamento non desiderato.
+-

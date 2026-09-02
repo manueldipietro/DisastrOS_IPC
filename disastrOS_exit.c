@@ -5,13 +5,6 @@
 #include "disastrOS_syscalls.h"
 #include "disastrOS_descriptor.h"
 
-// COMMENTARE QUESTO CODICE CON I NUMERI
-
-// The original implementation had a problem:
-// resources and timers were released if and only if the parent was in the *waiting* state
-// (i.e., it had already called `disastrOS_wait`).
-// 
-
 // called upon termination
 // moves the process to a zombie status
 // if the process has children they need to be reparented to
@@ -22,26 +15,21 @@
 void internal_exit(){
   // 2nd register in pcb contains the exit value
   running->return_value=running->syscall_args[0];
-    
+
   assert(init_pcb);
   while(running->children.first){
-
     // detach from current list
     ListItem* item = List_detach(& running->children, running->children.first);
     assert(item);
-    
     // attach to init's children list
     List_insert(& init_pcb->children, init_pcb->children.last, item);
-
     // send SIGHUP
     PCBPtr* pcb_ptr=(PCBPtr*) item;
     PCB* pcb=pcb_ptr->pcb;
     pcb->signals |= (DSOS_SIGHUP & pcb->signals_mask);
   }
 
-  // we release all timers put by this process from the timer list, in case there was someone
-  // hanging
-  // WARNING: untested
+  // we release all timers put by this process from the timer list, in case there was someone hanging
   ListItem* aux=timer_list.first;
   while(aux){
     TimerItem* timer=(TimerItem*) aux;
@@ -52,18 +40,16 @@ void internal_exit(){
 	    TimerItem_free(timer);
     }
   }
-
-  // we release all resources of a process upon termination
+  // We release all resources of a process upon termination
   while(running->descriptors.first) {
     Descriptor* descriptor = (Descriptor*) running->descriptors.first;
     int close_ret = Resource_close(descriptor->fd);
     assert(!close_ret && "Fatal error during exit (close resource). Kernel Panic!");
   }
-
+  
   running->status=Zombie;
   List_insert(&zombie_list, zombie_list.last, (ListItem*) running);
   running->parent->signals |= (DSOS_SIGCHLD & running->parent->signals_mask);
-
   // if the parent was waiting for this process to die
   if (running->parent->status==Waiting
       // since he called  wait or waitpid, we wake him up
@@ -74,17 +60,14 @@ void internal_exit(){
     PCB* parent= (PCB*) List_detach(&waiting_list, (ListItem*) running->parent);
     assert(parent);
     parent->status=Running;
-
     // we remove the process from the parent's children list
     PCBPtr* self_in_parent=PCBPtr_byPID(&parent->children, running->pid);
     List_detach(&parent->children, (ListItem*) self_in_parent);
-    
     // hack the PCB of the parent to put in return value
     parent->syscall_retvalue=running->pid;
     int* result=(int*)parent->syscall_args[1];
     if (result)
       *result=running->return_value;
-    
     // the process finally dies
     ListItem* suppressed_item = List_detach(&zombie_list, (ListItem*) running);
     PCB_free((PCB*) suppressed_item);

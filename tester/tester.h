@@ -1,15 +1,20 @@
 #pragma once
+#include "tester_aux.h"
+#include "tester_macro.h"
+
+#include "disastrOS_globals.h"
 
 #include "linked_list.h"
 #include "pool_allocator.h"
+
 #include <stdlib.h>
 
 #define TESTER_UTEST_CHECK(condition)\
-    do { \
-        if(!condition){ \
-            return 0;\
-        } \
-    } while(0)
+    do{\
+        if(!condition){\
+           return 0;\
+        }\
+    }while(0)
 
 #define TESTER_UTEST_FAILMSG_SIZE     255
 #define TESTER_UTEST_NAME_SIZE        255
@@ -41,4 +46,5 @@ int tester_utest_assert_allocated(void* pointer, char* message);
 int tester_utest_assert_notallocated(void* pointer, char* message);
 
 int tester_utest_assert_listsize(ListHead* list_head, int expected_size, char* message);
+int tester_utest_assert_listalloc(ListHead* list_head, char* message);
 int tester_utest_assert_poolfreeblock(PoolAllocator* pool, int expected_free_block, char* message);

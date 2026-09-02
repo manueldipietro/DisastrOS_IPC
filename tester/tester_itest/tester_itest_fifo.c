@@ -177,7 +177,7 @@ void test_itest_fifo1_init(){
     // 0. Print test header
     printf("----------------------------------------------------------------------------------------------\n");
     printf(TESTER_ANSI_BRIGHT_RED TESTER_ANSI_BOLD "INTEGRATION TEST 1 Producer - 1 Consumer\n" TESTER_ANSI_RESET);
-    printf("Transfer a text from Producer to consumer (single write with len > 2*PIPE_BUF)\n");
+    printf("Transfer a text from Producer to consumer (single write with len > 2*DSOS_PIPE_BUF)\n");
     printf("Text will print the incipit of \"Prosmessi Sposi\" Book\n");
     printf("----------------------------------------------------------------------------------------------\n");
     // 1. Create the fifo and spawn the sleeper

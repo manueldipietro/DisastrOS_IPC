@@ -7,49 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int tester_utest_ipc(){
-    int is_all_test_ok = 1;
-
-    tester_utest_list utest_mk[] = {
-        { .title = "Test disastrOS_ipc: mk1:", .utest_fn = tester_utest_ipc_mk1},
-        { .title = "Test disastrOS_ipc: mk2:", .utest_fn = tester_utest_ipc_mk2},
-        { .title = "Test disastrOS_ipc: mk3:", .utest_fn = tester_utest_ipc_mk3},
-        { .title = "Test disastrOS_ipc: mk4:", .utest_fn = tester_utest_ipc_mk4}
-    };
-
-    tester_utest_list utest_read[] = {
-        { .title = "Test disastrOS_ipc: read1: successfully", .utest_fn = tester_utest_ipc_read1},
-        { .title = "Test disastrOS_ipc: read2: blocking reader test", .utest_fn = tester_utest_ipc_read2},
-        { .title = "Test disastrOS_ipc: read3: unblock after write", .utest_fn = tester_utest_ipc_read3},
-        { .title = "Test disastrOS_ipc: read4: double unblock after write", .utest_fn = tester_utest_ipc_read4},
-        { .title = "Test disastrOS_ipc: read5: partially read", .utest_fn = tester_utest_ipc_read5},
-        { .title = "Test disastrOS_ipc: read6: unblock write", .utest_fn = tester_utest_ipc_read6},
-        { .title = "Test disastrOS_ipc: read7: read with count > size_max", .utest_fn = tester_utest_ipc_read7},
-        { .title = "Test disastrOS_ipc: read8: non blocking with empty buffer", .utest_fn = tester_utest_ipc_read8},
-        { .title = "Test disastrOS_ipc: read9: non blocking with non empty buffer", .utest_fn = tester_utest_ipc_read9},
-        { .title = "Test disastrOS_ipc: read10: read with count=0", .utest_fn = tester_utest_ipc_read10}
-    };
-
-    tester_utest_list utest_write[] = {
-        { .title = "Test disastrOS_ipc: write1: successfully", .utest_fn = tester_utest_ipc_write1},
-        { .title = "Test disastrOS_ipc: write2:", .utest_fn = tester_utest_ipc_write2},
-        { .title = "Test disastrOS_ipc: write3:", .utest_fn = tester_utest_ipc_write3},
-        { .title = "Test disastrOS_ipc: write4:", .utest_fn = tester_utest_ipc_write4},
-        { .title = "Test disastrOS_ipc: write5:", .utest_fn = tester_utest_ipc_write5},
-        { .title = "Test disastrOS_ipc: write6:", .utest_fn = tester_utest_ipc_write6},
-        { .title = "Test disastrOS_ipc: write7:", .utest_fn = tester_utest_ipc_write7},
-        { .title = "Test disastrOS_ipc: write8:", .utest_fn = tester_utest_ipc_write8},
-        { .title = "Test disastrOS_ipc: write9:", .utest_fn = tester_utest_ipc_write9},
-        { .title = "Test disastrOS_ipc: write10:", .utest_fn = tester_utest_ipc_write10}
-    };
-
-    printf("Executing utest for resource module:\n");
-    is_all_test_ok *= tester_utest_executelist(utest_mk, sizeof(utest_mk)/sizeof(utest_mk[0]), "ipc_mk") ? 1 : 0;
-    is_all_test_ok *= tester_utest_executelist(utest_read, sizeof(utest_read)/sizeof(utest_read[0]), "ipc_read") ? 1 : 0;
-    is_all_test_ok *= tester_utest_executelist(utest_write, sizeof(utest_write)/sizeof(utest_write[0]), "ipc_write") ? 1 : 0;
-
-    return is_all_test_ok;
-}
 
 void tester_utest_ipc_utils_sleeper(){
     while(1) {

@@ -13,11 +13,8 @@ HEADERS=disastrOS.h\
 	disastrOS_syscalls.h\
 	disastrOS_timer.h\
 	linked_list.h\
-     priority_linked_list.h\
 	pool_allocator.h\
      \
-     tester/tester_circular_buffer.h\
-     tester/tester_priority_linked_list.h\
      tester/tester_resource.h\
      tester/tester_ipc.h\
      tester/tester_fifo.h\
@@ -27,7 +24,6 @@ HEADERS=disastrOS.h\
 
 OBJS=pool_allocator.o\
      linked_list.o\
-     priority_linked_list.o\
      circular_buffer.o\
      disastrOS_timer.o\
      disastrOS_pcb.o\
@@ -47,9 +43,8 @@ OBJS=pool_allocator.o\
      disastrOS_fifo.o\
      \
      \
-     tester.o\
+     tester/tester.o\
      tester/tester_aux.o\
-     tester/tester_resource.o\
      tester/tester_ipc.o\
      tester/tester_fifo.o\
      \
@@ -65,7 +60,6 @@ OBJS=pool_allocator.o\
      tester/tester_utest_ipc/tester_utest_ipc_write.o\
      \
      tester/tester_circular_buffer.o\
-     tester/tester_priority_linked_list.o\
      \
      tester/tester_utest_fifo/tester_utest_fifo_mk.o\
      tester/tester_utest_fifo/tester_utest_fifo_onopen.o\
@@ -77,7 +71,7 @@ OBJS=pool_allocator.o\
      tester/tester_itest/tester_itest_pipe.o\
      tester/tester_itest/tester_itest_fifo.o\
      tester/tester_itest/tester_itest_resource.o\
-
+     tester/tester_utest_executor.o\
 
 LIBS=libdisastrOS.a
 

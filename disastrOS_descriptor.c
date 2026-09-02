@@ -17,7 +17,7 @@
 
 #define DESCRIPTORPTR_SIZE sizeof(DescriptorPtr)
 #define DESCRIPTORPTR_MEMSIZE (sizeof(DescriptorPtr)+sizeof(int))
-#define MAX_NUM_DESCRIPTORS_PTRS  MAX_NUM_DESCRIPTORS_PTRS_PER_RESOURCE*MAX_NUM_PROCESSES
+#define MAX_NUM_DESCRIPTORS_PTRS  MAX_NUM_DESCRIPTORS_PER_PROCESS*MAX_NUM_PROCESSES
 #define DESCRIPTORPTR_BUFFER_SIZE MAX_NUM_DESCRIPTORS_PTRS*DESCRIPTORPTR_MEMSIZE
 
 static char _descriptor_buffer[DESCRIPTOR_BUFFER_SIZE];
@@ -63,37 +63,29 @@ int Descriptor_dup(Descriptor* descriptor, PCB* to_attach){
 }
 
 int Descriptor_mk(Descriptor** descriptor, Resource* resource, int flags){
-  // 1. Check if the maximum number of descriptors ptrs for the resource has been reached
-  if(resource->descriptors_ptrs.size >= MAX_NUM_DESCRIPTORS_PTRS_PER_RESOURCE)
-    return DSOS_ENFILE;
-
-  // 2. Check if the maximum number of descriptors for the file has been reached 
+  // 1. Check if the maximum number of descriptors for the file has been reached 
   if(running->descriptors.size >= MAX_NUM_DESCRIPTORS_PER_PROCESS)
     return DSOS_EMFILE;
-  
-  // DA FARE: con aumento del numero massimo di risorse complessivo a (MAX_IPC+MAX_RESOURCE)
-
-  // 3. Alloc new descriptor and list insert into processes' descriptor list
+  // 2. Alloc new descriptor and list insert into processes' descriptor list
   *descriptor = Descriptor_alloc(running->last_fd, resource, running, flags);
-  assert((*descriptor) && "Fatal error during descriptor mk (null descriptor). Kernel Panic!");
+  if(!*descriptor) return DSOS_ENFILE;
   (*descriptor) = (Descriptor*) List_insert(&running->descriptors, running->descriptors.last, (ListItem*) (*descriptor));
   assert((*descriptor) && "Fatal error during descriptor mk (list_insert descriptor). Kernel Panic!");
-  
-  // 4. Increment the fd value for the next call
-  running->last_fd++;
-  
-  // 5. Alloc new descriptor pointer and list insert it into resource's descriptorPtr list
+  // 3. Alloc new descriptor pointer and list insert it into resource's descriptorPtr list (rollback if fail)
   DescriptorPtr* descriptor_ptr=DescriptorPtr_alloc(*descriptor);
-  assert(descriptor_ptr && "Fatal error during descriptor mk (null descriptor_ptr). Kernel Panic!");
+  if(!descriptor_ptr){
+    Descriptor_free(*descriptor);
+    *descriptor = NULL;
+    return DSOS_ENFILE;
+  }
   (*descriptor)->ptr=descriptor_ptr;
   descriptor_ptr = (DescriptorPtr*) List_insert(&resource->descriptors_ptrs, resource->descriptors_ptrs.last, (ListItem*) descriptor_ptr);
   assert(descriptor_ptr && "Fatal error during descriptor mk (list_insert descriptor_ptr). Kernel Panic!");
-
-  // 6. Return success
+  // 4. Increment the fd value for the next call
+  running->last_fd++;
+  // 5. Return success
   return DSOS_SUCCESS;
 }
-
-
 
 void Descriptor_destroy(Descriptor* descriptor){
   // 1. Retrieve resource pointer and validate it 

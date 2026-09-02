@@ -6,8 +6,6 @@
 #include "tester_resource.h"
 #include "tester_ipc.h"
 #include "tester_fifo.h"
-#include "tester_circular_buffer.h"
-#include "tester_priority_linked_list.h"
 #include "tester_spawnfd.h"
 
 #include "disastrOS.h"
@@ -36,33 +34,19 @@ void childFunction(void* args){
   disastrOS_exit(disastrOS_getpid()+1);
 }
 
-
 void initFunction(void* args) {
   
-  // 1. Execute unit tests to test the developed modules (resource, IPC, PIPE/FIFO, MQ)
-  //    Using fork in the test suite, we ensure that each unit test has a clean exectuion environment
-  //    This avoids implementing setup and tear down functions
+  // 1. Execute Unit Test
   int is_utest_ok = 1;
-  //is_utest_ok *= tester_utest_circular_buffer();
-  //is_utest_ok *= tester_utest_priority_linked_list();
-  //is_utest_ok *= tester_utest_spawnfd();
-  //is_utest_ok *= tester_utest_resources();
-  //is_utest_ok *= tester_utest_ipc();
-  //is_utest_ok *= tester_utest_fifo();
-  //is_utest_ok *= tester_utest_pipe();
+  is_utest_ok *= tester_utest_circular_buffer();
+  is_utest_ok *= tester_utest_spawnfd();
+  is_utest_ok *= tester_utest_resources();
+  is_utest_ok *= tester_utest_ipc();
+  is_utest_ok *= tester_utest_fifo();
   if(is_utest_ok) printf("\033[1m[\033[1;92m ALL UTEST IS OK \033[0m\033[1m]\033[0m\n");
   else printf("\033[1m[\033[1;91mSOME TEST FAIL\033[0m\033[1m]\033[0m\n");
         
-
-
-  
-  // 3. Execute integration test for each module
-  //    To limit the size of the output, the user will select the test to be executed
-  //    To keep the process image clean and allow further tests to be run without restarting the process
-  //    integration tests will be executed on a fork of the base process.
-
-
-  // TODO: refactoring, mettere disastrOS_shutdown dentro alla tabella
+  // 2. Execute Integration Test, use a jump table
   int choose;
   tester_itest_fn choosen_test[9] ={
     test_itest_resource1_init,
@@ -75,7 +59,6 @@ void initFunction(void* args) {
     test_itest_pipe3_init,
     test_itest_pipe4_init
   };
-
   while(1){
     printf("Enter a number to select the integration test to run:\n");
     printf("0 - disastrOS shutdown\n");
@@ -89,7 +72,7 @@ void initFunction(void* args) {
     printf("8 - PIPE: N producer, 1 consumer\n");
     printf("9 - PIPE: N producer, N consumer\n");
     scanf("%d", &choose);
-    if(choose == 0) disastrOS_shutdown();
+    if(choose == 0) break;
     if(choose < 0 || choose > 9){
       printf("Scelta non valida\n");
       break;
