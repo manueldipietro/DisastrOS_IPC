@@ -1,5 +1,3 @@
-#include "tester_resource.h"
-
 #include "disastrOS_resource.h"
 
 #include "disastrOS.h"

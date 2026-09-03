@@ -1,56 +1,42 @@
---> Capire se il readme può essere fatto attraverso PDF o se conviene farlo in WORD e salvarlo in HTML/MARKUP
+Autore: Manuel Di Pietro - 1985969
 
-Si propone un implementazione di disastrOS in cui si sono sviluppati i seguenti aspetti:
-1. Modificato il modulo Resource per renderlo il più vicino possibile alla semantica Posix
-   adottata anche da Linux. Questo modulo è pensato per gestire risorse generiche (che dovranno poi
-   essere specializzate), poichè non si dispone di un VFS e di un sistema che gestisca i nomi dei
-   file si è utilizzato il resource_id come se fosse il "nome" di un file, in particolare si è assunto
-   che sopra un certo id quel file fosse di tipo virtuale. Questo poi in fase di sviluppo si è rilevato
-   abbastanza inutile se non a scopi di debug per tracciare i descrittori e le risorse in memoria usando
-   la funzione disastrOS_print, infatti, si è sviluppato il sistema di rimozione (unlinking) delle risorse
-   in modo che una risorsa fosse distrutta solo quando tutti l'avessero chiuso, pertanto la unlinking si limita
-   a de-indicizzarla dalla lista e sarà poi la close quando invocata su un descrittore (esplicitamente o tramite
-   la chiusura del processo) ad andare a distruggere la risorsa sfruttando la Resource_destroy. Le syscall offerte
-   da questo modulo per l'utente sono:
-   -disastrOS_mkresource;
-   -disastrOS_open;
-   -disastrOS_close;
-   -disastrOS_unlink;
-   -disastrOS_write (non implementata è solo virtuale);
-   -disastrOS_read (non implementata è solo virtuale);
+In questa implementazione di disastrOS sono state apportate le seguenti modifiche:
 
-2. Ipc
+1. Modificata la classe Resource per renderla il più possibile conforme alla semantica Posix adotatta anche da Linux. Poichè non si dispone di un VFS e di un sistema che gestisca i nomi delle risorse si è utilizzato il resource_id come se fosse il "nome" di una risorsa con il quale può essere recuperata, inoltre, per supportare le risorse anonime è stato diviso il namespace dato dai resource id in due domini: un primo che va da 0 a DSOS_ANON_RES_STARTID-1 in cui ci sono le risorse non anonime (quelle che possono essere recuperate attraverso l'indicizzazione su resources_list) e uno che va da DSOS_ANON_RES_STARTID che invece identifica le risorse anonime. La scelta di assegnare un id univoco alle risorse anonime è stata fatta per motivi di debug (infatti si poteva tranquillamente evitare di assegnare un id, avrebbero avuto tutte lo stesso id). La particolarità di questa implementazione è la gestione di unlink, che lavora come in Linux: se su una risorsa viene fatto unlink questa verrà immediatamente rimossa dalla resources_list, ma verrà effettivamente eliminata dalla memoria solamente quando tutti i file che la stano utilizzando la chiudono. Le principali System Calls di questa classe sono le seguenti:
+-disastrOS_open(int resource_id, int flags)*;
+-disastrOS_close(int file_descriptor);
+-disastrOS_read(int file_descriptor, void* buffer, int count);
+-disastrOS_write(int file_descriptor, void* buffer, int count);
+-disastrOS_unlink(int resource_id);
+*La disastrOS_open supporta i flags DSOS_O_RDONLY, DSOS_O_WRONLY, DSOS_O_RDWR, DSOS_O_CREAT, DSOS_O_EXCL.
+La classe supporta pienamente il polimorfismo permettendo alle altre classi di ereditarne le funzionalità di base e ridefinire solo il comportamento delle syscall specifiche (disastrOS_read e disastrOS_write (e la free che viene usata dalla funzione di distruzione invocata da close e unlink)). Per gestire le classi ereditate si è scelto di a utilizzare un diverso allocatore per ognuna di loro, ciò ha il vantaggio di eliminare la frammentazione interna sulla memoria che si avrebbe se si scegliesse di utilizzare un allocatore unico (che avrebbe ogni blocco della dimensione della risorsa più grande). Inoltre, usare questo approccio (piuttosto invece di utilizzare un approccio con il puntatore di specializzazione sulla resource) porta vantaggi sul principio di località della cache. Mentre si sviluppava la classe Fifo sono stati aggiunti alcuni hook alla classe resource che permettono ad una classe che eredita la classe base di eseguire operazioni personalizzati sulle funzioni non soggette ad override (onopen, onclose e onclone).
+Per evitare di dover scrivere codice ridondante la classe è stata dotata di un setter ed un desetter che vengono invocati da alloc e dealloc.
 
-3. PIPE/FIFO
+2. Implementata la classe disastrOS_IPC che estendendo la classe Resource definisce i meccanismi di sincronizzazione tra la disastrOS_read e la disastrOS_write, questa classe è stata pensata per fare da meccanismo di base alla classe FIFO (o eventuali altre classi che la volessero ereditare come semafori, message queue, ecc.). Per poter implementare questa classe con la particolare architettura di disastrOS è stato definito un errore specifico: DSOS_ERESTARTNOINTR che viene intercettato dal wrapper user space e serve per capire se la system call deve essere reinvocata. Infatti, in disastrOS disponiamo di un solo contesto kernel ciò significa che non possiamo semplicemente salvare il contesto e attendere che la syscall venga risvegliata. In questo modo quando una syscall si blocca essa verrà posta nelle apposite waiting list contenute nell'ipc e quando risvegliato e portato in running dallo scheduler ricomincierà da capo l'esecuzione della syscall come se nulla fosse acaduto, eventualmente rimettendosi in attesa o ricominciando l'esecuzione.
+Le system call di cui è stato fatto override sono:
+-disastrOS_read(int file_descriptor, void* buffer, int count);
+-disastrOS_write(int file_descriptor, void* buffer, int count);
+La disastrOS_read agisce in modo "lazy" quindi restituirà immediatamente il numero di byte trovato (al massimo count) se c'è almeno un byte altrimenti si mette in attesa di almeno un byte. La disastrOS_write invece è "ostinata" e se ci si tiene al di sotto di PIPE_BUF allora si ha la garanzia che la scrittura sarà eseguita in modo atomico.
+Questa classe è pensata per essere una classe virtuale quindi la system call DisastrOS_ipcmk non è stata registrata, ma è comunque stata implementata la funzione Ipc_mk che viene utilizzata dagli unit tester.
 
-Il lavoro è stato validato andando a creare una suite di test.
+3. Implementata la classe Fifo, che implementa sia le Fifo che le Pipe (cambia solamente il costruttore invocato, la logica applicativa delle read e write è la stessa), è stata aggiunta la logica di sincronizzazione in apertura richiesta da Posix, avendo la necessità di una ulteriore coda attesa in Fifo per apertura bloccante (l'apertura di uno scrittore o un lettore per essere completata richiede la sua controparte). Inoltre, è stato aggiunto un campo nel PCB (int syscall_intermediate_data;) per registrare stati intermedi della syscall (serve per aggiornare corettamente il contatore in apertura dei lettori e degli scrittori). Sono state registrate le nuove system call:
+-disastrOS_mkfifo(resource_id);
+-disastrOS_mkpipe(int fd[2]);
+Ed è stato fatto override di:
+-disastrOS_read(int file_descriptor, void* buffer, int count);
+-disastrOS_write(int file_descriptor, void* buffer, int count);
+Sono stati anche definite le funzioni onclose e onopen che servono ad aggiornare i contatori di lettori e scrittori.
+Una nota importante che sul campo aggiunto nel PCB:   int syscall_intermediate_data è che su questo campo si è imposto il contratto che ogni qual volta una syscall lo usi ha la responsabilità di ripristinarlo a 0 dopo l'uso, eventuali usi impropri lasceranno il sistema in uno stato inconsistente.
+Nei moduli Resource, Ipc e Fifo sono stati anche aggiunte alcune funzioni che sono state utilizzate per debug e dai tester (tra cui una funzione che restituisce l'allocatore per poterne controllare alcuni campi negli unit test).
+Il buffer circolare usato da Fifo è stato implementato e testato separatamente, quindi integrato nella Fifo.
 
---> Scrivere che il sistema è a Byte-stream (e non datagram) e che inizialmente si voleva sviluppare
-anche un'interfaccia MQ ma poi ci si è resi conto che aveva funzionalità diverse da replicare, è rimasta
-comunque l'implementazione della lista di priorità.
+Altre modifiche sostanziali apportate a disastrOS sono in:
+-Descrittori: ne è stata ridefinita e concentrata la logica, andando a potenziare l'incapsulamento tramite apposite funzioni esposte (principalmente usate dalla open e dalla close di reosurce).
+-disastrOS_spawn_withfd: è stata registrata una nuova system call (il cui codice si trova in disastrOS_spawn.c) in cui vengono duplicati i descrittori, tuttavia, a causa del fatto che non c'è una vera e propria fork i file_descriptor devono comunque essere passati come argomenti dal padre verso il figlio.
+-disastrOS_exit: corretto il comportamento della system call exit che andava a rilasciare le risorse (e anche i timer in realtà) solamente quando il suo stato veniva raccolto da una wait, invece, il comportamento atteso era quello di rilasciare immediatamente alla chiamata della exit tutte le risorse e i timer in uso.
 
-STRUTTURA DEI TEST:
-Il sistema di test si basa su due tipi di test diversi:
-1. Unity test: testano gli edge cases del programma
-
-Modulo Resource:
-
-Modulo IPC: estende la classe Resource gestendo la sincronizzazione tra lettore e scrittore e distinguendo tra i casi bloccanti e non bloccanti, contiene i seguenti metodi:
-1. Ipc_init: inizializza il gestore della memoria di disastrOS;
-2. Ipc_alloc: è il costruttore di una risorsa di tipo IPC, alloca la risorsa e chiama Ipc_setter per inizializzarla. 
-3. Ipc_setter: si occupa di inizializzare
-4. 
-5. 
-6. 
-7. 
-
-STRUTTURA DEL SISTEMA DI TEST:
-Per testare approfonditamente le funzioni implementate e i casi limiti, facendo proprio il messaggio del corso "BE EVIL WHEN TESTING" si è implementata una suite di test, che esegue due differenti tipi di test:
--Unit Test: testano le singole funzioni di una System Call, concentrandosi in particolare sui casi limite. Per individuare i casi limite si è partiti dai possibili codici di ritorno Posix delle varie System Call.
--Integration Test: testano dei casi d'uso
-All'avvio del sistema vengono eseguiti automaticamente gli unit test, poi viene permesso all'utente di scegliere l'integration test che vuole effettuare. Per il test delle risorse base si è ripreso (cambiando i nomi delle System Call) quello base già presente nel repository del corso. Per gli Integration Test
-
-
-
--exit.c: il file è stato modificato per far rilasciare eventuali risorse e timer immediatamente all'uscita dal processo, altrimenti bisogna aspettare che un processo effettuasse la wait affinchè effettivamente venissero rilasciate le risorse e questo era un comportamento non desiderato.
--
+Per la validazione del codice implementato si è costruita una suite di test. Questa suite si basa sulla fork di sistema: all'avvio di disastrOS viene invocata la suite di test, questa, per garantire ai test un ambiente pulito e per non dover poi gestire la pulizia per il test successivo, effettua una fork di sistema (gestita da Linux), potendo così sfruttare il sistema COW di Linux, a quel punto vengono eseguiti i vari test.
+I test sono principalmente di due tipo:
+-Unit test: testano i vari edge case dell'implementazione (sono stati individuati andando a studiare i vari errori ritornabili dalla system call testata e il codice che implementava la system call stessa), questi vengono lanciati automaticamente all'avvio e stampano poi un repository
+-Integration test: servono a testare uno scenario più complesso, sono stati implementati 9 scenari (selezionabili inserendo il numero del test che si vuole eseguire dopo che sono finiti gli unit test), questi coprono uno scenario base (già presente nell'implementazione fornita dal professore ed esteso) per il test della classe Resource e poi propone 4 test per la FIFO e 4 test per la PIPE che implementano uno scenario produttore-consumatore con le varie cardinalità.
+Tutti i test e la suite di test sono implementati nella sottocartella tester.

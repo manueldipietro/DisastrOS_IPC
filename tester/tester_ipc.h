@@ -1,34 +1,5 @@
 #pragma once
 
-int tester_utest_ipc();
-
-int tester_utest_ipc_mk1(char* test_name);
-int tester_utest_ipc_mk2(char* test_name);
-int tester_utest_ipc_mk3(char* test_name);
-int tester_utest_ipc_mk4(char* test_name);
-
-int tester_utest_ipc_read1(char* test_name);
-int tester_utest_ipc_read2(char* test_name);
-int tester_utest_ipc_read3(char* test_name);
-int tester_utest_ipc_read4(char* test_name);
-int tester_utest_ipc_read5(char* test_name);
-int tester_utest_ipc_read6(char* test_name);
-int tester_utest_ipc_read7(char* test_name);
-int tester_utest_ipc_read8(char* test_name);
-int tester_utest_ipc_read9(char* test_name);
-int tester_utest_ipc_read10(char* test_name);
-
-int tester_utest_ipc_write1(char* test_name);
-int tester_utest_ipc_write2(char* test_name);
-int tester_utest_ipc_write3(char* test_name);
-int tester_utest_ipc_write4(char* test_name);
-int tester_utest_ipc_write5(char* test_name);
-int tester_utest_ipc_write6(char* test_name);
-int tester_utest_ipc_write7(char* test_name);
-int tester_utest_ipc_write8(char* test_name);
-int tester_utest_ipc_write9(char* test_name);
-int tester_utest_ipc_write10(char* test_name);
-
 /**/
 void tester_utest_ipc_utils_sleeper();
 int tester_utest_ipc_utils_writer(int resource_id, int count, int expected_write_count, int should_exit, int non_blocking);

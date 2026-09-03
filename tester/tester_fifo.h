@@ -5,43 +5,10 @@ void test_itest_fifo_text_reader();
 void test_itest_fifo_packet_reader(void* arguments);
 void test_itest_fifo_packet_writer(void* arguments);
 
-
 // UNITY TEST SECTION:
-
-int tester_utest_fifo();
-
-void test_itest_fifo1_init();
-void test_itest_fifo2_init();
-void test_itest_fifo3_init();
-void test_itest_fifo4_init();
-
-void test_itest_pipe1_init();
-void test_itest_pipe2_init();
-void test_itest_pipe3_init();
-void test_itest_pipe4_init();
-
 void tester_utest_fifo_utils_sleeper();
 int tester_utest_fifo_utils_reader_open(int resource_id, int should_exit, int non_blocking, int expected_open_retval);
 int tester_utest_fifo_utils_writer_open(int resource_id, int should_exit, int non_blocking, int expected_open_retval);
-
-int tester_utest_fifo_mk1(char* test_name);
-int tester_utest_fifo_mk2(char* test_name);
-int tester_utest_fifo_mk3(char* test_name);
-int tester_utest_fifo_mk4(char* test_name);
-
-int tester_utest_fifo_onopen1(char* test_name);
-int tester_utest_fifo_onopen2(char* test_name);
-int tester_utest_fifo_onopen3(char* test_name);
-int tester_utest_fifo_onopen4(char* test_name);
-int tester_utest_fifo_onopen5(char* test_name);
-int tester_utest_fifo_onopen6(char* test_name);
-int tester_utest_fifo_onopen7(char* test_name);
-int tester_utest_fifo_onopen8(char* test_name);
-int tester_utest_fifo_onopen9(char* test_name);
-
-int tester_utest_fifo_read1(char* test_name);
-int tester_utest_fifo_write1(char* test_name);
-
 
 #define TESTER_UTEST_FIFO_ASSERT_ONOPEN_ROLLBACK(M_resource_id, M_expected_resources, M_expected_descriptors, M_expected_descriptors_onprocess, M_expected_descriptorptr_onresource, M_error_prefix)\
     do{\

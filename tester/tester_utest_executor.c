@@ -1,10 +1,5 @@
 #include "tester.h"
 
-#include "tester_resource.h"
-#include "tester_ipc.h"
-#include "tester_spawnfd.h"
-#include "tester_fifo.h"
-
 #include <stdio.h>
 
 int tester_utest_resources(){

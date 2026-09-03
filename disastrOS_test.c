@@ -2,40 +2,10 @@
 #include <unistd.h>
 #include <poll.h>
 
-#include "tester.h"
-#include "tester_resource.h"
-#include "tester_ipc.h"
-#include "tester_fifo.h"
-#include "tester_spawnfd.h"
-
 #include "disastrOS.h"
+#include "tester.h"
 
-// we need this to handle the sleep state
-void sleeperFunction(void* args){
-  printf("Hello, I am the sleeper, and I sleep %d\n",disastrOS_getpid());
-  while(1) {
-    getc(stdin);
-    disastrOS_printStatus();
-  }
-}
-
-void childFunction(void* args){
-  printf("Hello, I am the child function %d\n",disastrOS_getpid());
-  printf("I will iterate a bit, before terminating\n");
-  int flags=  DSOS_O_RDWR;
-  int fd=disastrOS_open(disastrOS_getpid(), flags);
-  printf("fd=%d\n", fd);
-  printf("PID: %d, terminating\n", disastrOS_getpid());
-
-  for (int i=0; i<(disastrOS_getpid()+1); ++i){
-    printf("PID: %d, iterate %d\n", disastrOS_getpid(), i);
-    disastrOS_sleep((20-disastrOS_getpid())*/*5*/3);
-  }
-  disastrOS_exit(disastrOS_getpid()+1);
-}
-
-void initFunction(void* args) {
-  
+void initFunction(void* args) {  
   // 1. Execute Unit Test
   int is_utest_ok = 1;
   is_utest_ok *= tester_utest_circular_buffer();
@@ -45,7 +15,6 @@ void initFunction(void* args) {
   is_utest_ok *= tester_utest_fifo();
   if(is_utest_ok) printf("\033[1m[\033[1;92m ALL UTEST IS OK \033[0m\033[1m]\033[0m\n");
   else printf("\033[1m[\033[1;91mSOME TEST FAIL\033[0m\033[1m]\033[0m\n");
-        
   // 2. Execute Integration Test, use a jump table
   int choose;
   tester_itest_fn choosen_test[9] ={
@@ -74,7 +43,7 @@ void initFunction(void* args) {
     scanf("%d", &choose);
     if(choose == 0) break;
     if(choose < 0 || choose > 9){
-      printf("Scelta non valida\n");
+      printf("Invalid choice\n");
       break;
     }
     //printf("\033[H\033[J"); fflush(stdout);

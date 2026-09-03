@@ -1,5 +1,4 @@
 #include "tester.h"
-#include "tester_spawnfd.h"
 
 #include "disastrOS.h"
 #include "disastrOS_globals.h"

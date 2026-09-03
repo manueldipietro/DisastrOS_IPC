@@ -42,8 +42,6 @@
 #define MAX_NUM_DESCRIPTORS_PER_PROCESS         32
 #define DSOS_ANON_RES_STARTID                   512
 #define DSOS_PIPE_BUF                           512
-#define DSOS_PIPE_RD                            0
-#define DSOS_PIPE_WR                            1
 
 // RESOURCE TYPE
 #define DSOS_RESTYPE_UNDEFIN                    0
@@ -69,6 +67,10 @@
 #define DSOS_O_CREAT                            0b00000100
 #define DSOS_O_EXCL                             0b00001000
 #define DSOS_O_NONBLOCK                         0b00010000
+
+// MODE FOR PIPE
+#define DSOS_PIPE_RD                            0
+#define DSOS_PIPE_WR                            1
 
 // POSIX LIKE ERRORS USED BY RESOURCE IMPLEMENTATION
 #define DSOS_SUCCESS                            0

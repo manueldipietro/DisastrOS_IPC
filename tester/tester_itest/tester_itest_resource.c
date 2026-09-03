@@ -1,5 +1,4 @@
-#include "tester_resource.h"
-#include "tester_aux.h"
+#include "tester.h"
 
 #include "disastrOS.h"
 #include "disastrOS_constants.h"

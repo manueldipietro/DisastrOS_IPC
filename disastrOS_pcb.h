@@ -30,14 +30,10 @@ typedef struct PCB{
   int last_fd;
   ListHead descriptors;
   
-  
   //we are really rude :) the stack is INSIDE the pcb
   //forgive me for the bestiality
   char stack[STACK_SIZE];
 
-  // more stuff to come
-
-  
   //the one below is a hack for the syscalls
   //in a real system one needs to use the cpu to pass
   //arguments to a syscall

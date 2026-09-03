@@ -58,7 +58,6 @@ void timerInterrupt(){
   setcontext(&running->cpu_state);
 }
 
-
 //set up the signal action
 void setupSignals(void) {
   struct sigaction act;
@@ -80,9 +79,6 @@ void setupSignals(void) {
   it.it_value = it.it_interval;
   if (setitimer(ITIMER_REAL, &it, NULL) ) perror("setitiimer");
 }
-
-
-
 
 int disastrOS_syscall(int syscall_num, ...) {
   assert(running); 
@@ -304,12 +300,10 @@ int disastrOS_open(int resource_id, int flags) {
   int v_resource_id = resource_id;
   int v_flags = flags;
   int ret;
-  
   do{
     ret = disastrOS_syscall(DSOS_CALL_OPEN_RESOURCE, v_resource_id, v_flags);
   }while(ret == DSOS_ERESTARTNOINTR);
   return ret;
-
 }
 
 int disastrOS_read(int fd, void* buffer, int count){
@@ -324,7 +318,6 @@ int disastrOS_write(int fd, const void* buffer, int count){
   int v_fd = fd;
   const void* v_buffer = buffer;
   int v_count = count;
-
   int writted = 0;
   do{
     int ret = disastrOS_syscall(DSOS_CALL_WRITE_RESOURCE, v_fd, v_buffer+writted, v_count-writted);

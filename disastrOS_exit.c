@@ -46,7 +46,6 @@ void internal_exit(){
     int close_ret = Resource_close(descriptor->fd);
     assert(!close_ret && "Fatal error during exit (close resource). Kernel Panic!");
   }
-  
   running->status=Zombie;
   List_insert(&zombie_list, zombie_list.last, (ListItem*) running);
   running->parent->signals |= (DSOS_SIGCHLD & running->parent->signals_mask);

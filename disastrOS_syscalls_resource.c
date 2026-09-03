@@ -4,9 +4,6 @@
 #include "disastrOS_fifo.h"
 #include "disastrOS_descriptor.h"
 
-#include <assert.h>
-#include <stdio.h>
-
 void internal_open(){
   // 1. Retrieve arguments from PCB  
   int resource_id = running->syscall_args[0];

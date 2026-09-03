@@ -58,12 +58,8 @@ int Descriptor_free(Descriptor* d) {
   return PoolAllocator_releaseBlock(&_descriptor_allocator, d);
 }
 
-int Descriptor_dup(Descriptor* descriptor, PCB* to_attach){
-  return 0;    
-}
-
 int Descriptor_mk(Descriptor** descriptor, Resource* resource, int flags){
-  // 1. Check if the maximum number of descriptors for the file has been reached 
+  // 1. Check if the maximum number of descriptors for the pcb has been reached 
   if(running->descriptors.size >= MAX_NUM_DESCRIPTORS_PER_PROCESS)
     return DSOS_EMFILE;
   // 2. Alloc new descriptor and list insert into processes' descriptor list
@@ -91,19 +87,15 @@ void Descriptor_destroy(Descriptor* descriptor){
   // 1. Retrieve resource pointer and validate it 
   Resource* resource = descriptor->resource;
   assert(descriptor->resource && "Fatal error during descriptor destroy (resource null pointer). Kernel Panic!");
-  
   // 2. List detach the descriptor from process' list
   descriptor = (Descriptor*) List_detach(&(descriptor->pcb)->descriptors, (ListItem*) descriptor);
   assert(descriptor && "Fatal error during List detach (Descriptor). Kernel Panic!");
-  
   // 3. List detach the descriptor pointer from resource's list
   DescriptorPtr* descriptor_pointer = (DescriptorPtr*) List_detach(&resource->descriptors_ptrs, (ListItem*)(descriptor->ptr));
   assert(descriptor_pointer && "Fatal error during List detach (Descriptor Pointer). Kernel Panic!");
-  
   //4. Dealloc descriptor and descriptor pointer
   Descriptor_free(descriptor);
   DescriptorPtr_free(descriptor_pointer);
-  
   // 5. Return
   return;
 }

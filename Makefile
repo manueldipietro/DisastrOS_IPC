@@ -15,11 +15,9 @@ HEADERS=disastrOS.h\
 	linked_list.h\
 	pool_allocator.h\
      \
-     tester/tester_resource.h\
      tester/tester_ipc.h\
      tester/tester_fifo.h\
      \
-     tester/tester_spawnfd.h\
      
 
 OBJS=pool_allocator.o\

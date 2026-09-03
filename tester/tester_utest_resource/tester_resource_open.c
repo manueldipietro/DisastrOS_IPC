@@ -1,5 +1,3 @@
-#include "tester_resource.h"
-
 #include "tester.h"
 #include "disastrOS.h"
 #include "disastrOS_globals.h"

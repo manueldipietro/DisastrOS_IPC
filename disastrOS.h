@@ -33,7 +33,7 @@ void disastrOS_shutdown();
 void disastrOS_sleep(int);
 void setupSignals(void);
 
-// Syscall resources
+// Resource
 int disastrOS_open(int resource_id, int flags);
 int disastrOS_read(int fd, void* buffer, int count);
 int disastrOS_write(int fd, const void* buffer, int count);
@@ -42,5 +42,6 @@ int disastrOS_unlink(int resource_id);
 int disastrOS_mkresource(int resource_id);
 int disastrOS_mkfifo(int resource_id);
 int disastrOS_mkpipe(int pipefd[2]);
+
 // debug function, prints the state of the internal system
 void disastrOS_printStatus();

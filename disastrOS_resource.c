@@ -39,7 +39,7 @@ Resource* Resource_alloc(int resource_id){
 }
 
 void Resource_setter(Resource* resource, int resource_id, int resource_type, disastros_onopen_fn onopen_fn, disastros_onclose_fn onclose_fn, disastros_onclone_fn onclone_fn, disastros_read_fn read_fn, disastros_write_fn write_fn, disastros_free_fn free_fn){
-  // 1. Set the fields of resource
+  // 1. Set the attribute of resource
   (resource->list).prev = (resource->list).next = 0;
   resource->id = resource_id;
   resource->type = resource_type;
@@ -85,10 +85,8 @@ int Resource_open(int resource_id, int flags){
   if( (flags&DSOS_O_ACCMODE)!=DSOS_O_RDONLY && (flags&DSOS_O_ACCMODE)!=DSOS_O_WRONLY && (flags&DSOS_O_ACCMODE)!=DSOS_O_RDWR) return DSOS_EINVAL;
   //    c. DSOS_O_EXCL specified without DSOS_O_CREAT 
   if(!(flags & DSOS_O_CREAT) && (flags & DSOS_O_EXCL)) return DSOS_EINVAL;
-
   // 3. Query for resource
   Resource* resource = ResourceList_byId(&resources_list, resource_id);
-
   // 4. If resource non-existing we distinguish two case:
   //    a Flags DSOS_O_CREAT setted (with or without DSOS_EXCL): create resource and continue
   //        Note: in this case we can have error ENOMEM because we can't alloc the resource
