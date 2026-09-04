@@ -1,4 +1,3 @@
-#include "tester_fifo.h"
 #include "tester.h"
 
 #include "disastrOS.h"
@@ -35,26 +34,20 @@ int tester_utest_fifo_onopen2(char* test_name){
     int pid_reader_open;
     Fifo* fifo;
     TESTER_UTEST_FIFO_ASSERT_CLEANUP();
-    
     // 1. Create a fifo
     return_value = disastrOS_mkfifo(resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "error on disastrOS_mkfifo"));
-    
     // 2. Retrive fifo from resources list
     fifo = (Fifo*) ResourceList_byId(&resources_list, resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_allocated(fifo, "can't retrive fifo from resources list"));
-
     // 3. Spawn sleeper and reader opener process
-    disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);
+    disastrOS_spawn(tester_aux_sleeper, 0);
     pid_reader_open = last_pid;
     disastrOS_spawn(tester_utest_fifo_onopen2_aux, 0);
-    
     // 4. Sleep while opener running
     disastrOS_sleep(1);
-    
     // 5. Check if open effectively wait
     TESTER_UTEST_FIFO_ASSERT_OPEN_WAITING(pid_reader_open, DSOS_O_RDONLY, 0, 0, 1, 0, "reader open wait");
-
     // 6. Test ok, return 1
     return 1;
 }
@@ -67,33 +60,25 @@ int tester_utest_fifo_onopen3(char* test_name){
     int pid_reader_open;
     Fifo* fifo;
     TESTER_UTEST_FIFO_ASSERT_CLEANUP();
-    
     // 1. Create a fifo
     return_value = disastrOS_mkfifo(resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "error on disastrOS_mkfifo"));
-    
     // 2. Retrive fifo from resources list
     fifo = (Fifo*) ResourceList_byId(&resources_list, resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_allocated(fifo, "can't retrive fifo from resources list"));
-
     // 3. Spawn sleeper and reader opener process
-    disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);
+    disastrOS_spawn(tester_aux_sleeper, 0);
     pid_reader_open = last_pid;
     disastrOS_spawn(tester_utest_fifo_onopen3_aux, 0);
-    
     // 4. Sleep while opener running
     disastrOS_sleep(1);
-    
     // 5. Check if open effectively wait
     TESTER_UTEST_FIFO_ASSERT_OPEN_WAITING(pid_reader_open, DSOS_O_RDONLY, 0, 0, 1, 0, "reader open wait");
-
     // 6. Open the fifo as writer
     return_value = disastrOS_open(resource_id, DSOS_O_WRONLY);
     TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "error on writer opener"));
-    
     // 7. Sleep while opener running
     disastrOS_sleep(1);
-
     // 8. Check that reader opener process unblock
     TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_reader_open, 0, 1, 0, 0, "unlock");
     // 9. Test ok, return 1
@@ -108,26 +93,20 @@ int tester_utest_fifo_onopen4(char* test_name){
     int pid_writer_open;
     Fifo* fifo;
     TESTER_UTEST_FIFO_ASSERT_CLEANUP();
-
     // 1. Create a fifo
     return_value = disastrOS_mkfifo(resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "error on disastrOS_mkfifo"));
-    
     // 2. Retrive fifo from resources list
     fifo = (Fifo*) ResourceList_byId(&resources_list, resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_allocated(fifo, "can't retrive fifo from resources list"));
-
     // 3. Spawn sleeper and writer opener process
-    disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);
+    disastrOS_spawn(tester_aux_sleeper, 0);
     pid_writer_open = last_pid;
     disastrOS_spawn(tester_utest_fifo_onopen4_aux, 0);
-    
     // 4. Sleep while opener running
     disastrOS_sleep(1);
-
     // 5. Check if open effectively wait
     TESTER_UTEST_FIFO_ASSERT_OPEN_WAITING(pid_writer_open, DSOS_O_WRONLY, 0, 0, 0, 1, "writer open wait");
-
     // 6. Test ok, return 1
     return 1;
 }
@@ -140,36 +119,27 @@ int tester_utest_fifo_onopen5(char* test_name){
     int pid_writer_open;
     Fifo* fifo;
     TESTER_UTEST_FIFO_ASSERT_CLEANUP();
-
     // 1. Create a fifo
     return_value = disastrOS_mkfifo(resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "error on disastrOS_mkfifo"));
-    
     // 2. Retrive fifo from resources list
     fifo = (Fifo*) ResourceList_byId(&resources_list, resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_allocated(fifo, "can't retrive fifo from resources list"));
-
     // 3. Spawn sleeper and writer opener process
-    disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);
+    disastrOS_spawn(tester_aux_sleeper, 0);
     pid_writer_open = last_pid;
     disastrOS_spawn(tester_utest_fifo_onopen5_aux, 0);
-
     // 4. Sleep while opener running
     disastrOS_sleep(1);
-
     // 5. Check if open effectively wait
     TESTER_UTEST_FIFO_ASSERT_OPEN_WAITING(pid_writer_open, DSOS_O_WRONLY, 0, 0, 0, 1, "writer open wait");
-
     // 6. Open the fifo as writer
     return_value = disastrOS_open(resource_id, DSOS_O_RDONLY);
     TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "error on reader opener"));
-    
     // 7. Sleep while opener running
     disastrOS_sleep(1);
-
     // 8. Check that reader opener process unblock
     TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_writer_open, 1, 0, 0, 0, "unlock");
-
     // 9. Test ok, return 1
     return 1;
 }
@@ -180,18 +150,15 @@ int tester_utest_fifo_onopen6(char* test_name){
     int return_value, resource_id=10;
     Fifo* fifo;
     TESTER_UTEST_FIFO_ASSERT_CLEANUP();
-
     // 1. Create a fifo
     return_value = disastrOS_mkfifo(resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "error on disastrOS_mkfifo"));
     // 2. Retrive fifo from resources list
     fifo = (Fifo*) ResourceList_byId(&resources_list, resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_allocated(fifo, "can't retrive fifo from resources list"));
-    
     // 3. Open Fifo with DSOS_O_RDONLY and DSOS_O_NONBLOCK
     return_value = disastrOS_open(resource_id, DSOS_O_RDONLY|DSOS_O_NONBLOCK);
     TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "error on disastrOS_open"));
-
     // 4. Check memory
     TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Fifo_allocator_getinfo(), Fifo_allocator_getinfo()->size_max-1, "_fifo_allocator mismatch"));\
     TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Descriptor_allocator_getinfo(), Descriptor_allocator_getinfo()->size_max-1, "_descriptor_allocator mismatch"));\
@@ -203,7 +170,6 @@ int tester_utest_fifo_onopen6(char* test_name){
     TESTER_UTEST_CHECK(tester_utest_assert_int(0, fifo->writers_number, "mismatching on readers_number"));
     TESTER_UTEST_CHECK(tester_utest_assert_listsize(&fifo->waiting_list_open_reader, 0, "mismatching on waiting list open reader"));
     TESTER_UTEST_CHECK(tester_utest_assert_listsize(&fifo->waiting_list_open_writer, 0, "mismatching on waiting list open writer"));
-
     // 5. Test ok, return 1
     return 1;
 }
@@ -214,18 +180,15 @@ int tester_utest_fifo_onopen7(char* test_name){
     int return_value, resource_id=10;
     Fifo* fifo;
     TESTER_UTEST_FIFO_ASSERT_CLEANUP();
-
     // 1. Create a fifo
     return_value = disastrOS_mkfifo(resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "error on disastrOS_mkfifo"));
     // 2. Retrive fifo from resources list
     fifo = (Fifo*) ResourceList_byId(&resources_list, resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_allocated(fifo, "can't retrive fifo from resources list"));
-    
     // 3. Open Fifo with DSOS_O_WRONLY and DSOS_O_NONBLOCK
     return_value = disastrOS_open(resource_id, DSOS_O_WRONLY|DSOS_O_NONBLOCK);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_ENXIO, return_value, "error on disastrOS_open"));
-
     // 4. Check memory
     TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Fifo_allocator_getinfo(), Fifo_allocator_getinfo()->size_max-1, "_fifo_allocator mismatch"));
     TESTER_UTEST_CHECK(tester_utest_assert_poolfreeblock(Descriptor_allocator_getinfo(), Descriptor_allocator_getinfo()->size_max, "_descriptor_allocator mismatch"));
@@ -237,8 +200,6 @@ int tester_utest_fifo_onopen7(char* test_name){
     TESTER_UTEST_CHECK(tester_utest_assert_int(0, fifo->writers_number, "mismatching on readers_number"));
     TESTER_UTEST_CHECK(tester_utest_assert_listsize(&fifo->waiting_list_open_reader, 0, "mismatching on waiting list open reader"));
     TESTER_UTEST_CHECK(tester_utest_assert_listsize(&fifo->waiting_list_open_writer, 0, "mismatching on waiting list open writer"));
-
-
     // 5. Test ok, return 1
     return 1;
 }
@@ -250,7 +211,6 @@ int tester_utest_fifo_onopen8(char* test_name){
     int return_value, pid_writer_open, resource_id=10;
     Fifo* fifo;
     TESTER_UTEST_FIFO_ASSERT_CLEANUP();
-
     // 1. Create a fifo
     return_value = disastrOS_mkfifo(resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "error on disastrOS_mkfifo"));
@@ -258,19 +218,16 @@ int tester_utest_fifo_onopen8(char* test_name){
     fifo = (Fifo*) ResourceList_byId(&resources_list, resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_allocated(fifo, "can't retrive fifo from resources list"));
     // 3. Spawn sleeper and writer opener process and sleep while opener running
-    disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);
+    disastrOS_spawn(tester_aux_sleeper, 0);
     pid_writer_open = last_pid;
     disastrOS_spawn(tester_utest_fifo_onopen8_aux, 0);
     disastrOS_sleep(2);
-
     // 5. Open Fifo with DSOS_O_RDONLY and DSOS_O_NONBLOCK
     return_value = disastrOS_open(resource_id, DSOS_O_RDONLY|DSOS_O_NONBLOCK);
     TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "error on disastrOS_open"));
     disastrOS_sleep(1);
-    
     // 6. Check
     TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_writer_open, 1, 0, 0, 0, "After write");
-
     // 7. Test ok, return 1
     return 1;
 }
@@ -282,7 +239,6 @@ int tester_utest_fifo_onopen9(char* test_name){
     int return_value, pid_reader_open, resource_id=10;
     Fifo* fifo;
     TESTER_UTEST_FIFO_ASSERT_CLEANUP();
-
     // 1. Create a fifo
     return_value = disastrOS_mkfifo(resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "error on disastrOS_mkfifo"));
@@ -290,19 +246,16 @@ int tester_utest_fifo_onopen9(char* test_name){
     fifo = (Fifo*) ResourceList_byId(&resources_list, resource_id);
     TESTER_UTEST_CHECK(tester_utest_assert_allocated(fifo, "can't retrive fifo from resources list"));
     // 3. Spawn sleeper and reader opener process and sleep while opener running
-    disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);
+    disastrOS_spawn(tester_aux_sleeper, 0);
     pid_reader_open = last_pid;
     disastrOS_spawn(tester_utest_fifo_onopen9_aux, 0);
     disastrOS_sleep(2);
-
     // 5. Open Fifo with DSOS_O_RDONLY and DSOS_O_NONBLOCK
     return_value = disastrOS_open(resource_id, DSOS_O_WRONLY|DSOS_O_NONBLOCK);
     TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "error on disastrOS_open"));
     disastrOS_sleep(1);
-    
     // 6. Check
     TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_reader_open, 0, 1, 0, 0, "After open writer");
-
     // 7. Test ok, return 1
     return 1;
 }

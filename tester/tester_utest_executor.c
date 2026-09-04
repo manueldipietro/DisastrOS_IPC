@@ -69,10 +69,10 @@ int tester_utest_resources(){
 int tester_utest_ipc(){
     int is_all_test_ok = 1;
     tester_utest_list utest_mk[] = {
-        { .title = "Test disastrOS_ipc: mk1:", .utest_fn = tester_utest_ipc_mk1},
-        { .title = "Test disastrOS_ipc: mk2:", .utest_fn = tester_utest_ipc_mk2},
-        { .title = "Test disastrOS_ipc: mk3:", .utest_fn = tester_utest_ipc_mk3},
-        { .title = "Test disastrOS_ipc: mk4:", .utest_fn = tester_utest_ipc_mk4}
+        { .title = "Test disastrOS_ipc: mk1: succesfully", .utest_fn = tester_utest_ipc_mk1},
+        { .title = "Test disastrOS_ipc: mk2: double make", .utest_fn = tester_utest_ipc_mk2},
+        { .title = "Test disastrOS_ipc: mk3: invalid (negative) or anonymous id or invalid size_max", .utest_fn = tester_utest_ipc_mk3},
+        { .title = "Test disastrOS_ipc: mk4: allocating more resource than the memory capacity", .utest_fn = tester_utest_ipc_mk4}
     };
     tester_utest_list utest_read[] = {
         { .title = "Test disastrOS_ipc: read1: successfully", .utest_fn = tester_utest_ipc_read1},
@@ -88,15 +88,15 @@ int tester_utest_ipc(){
     };
     tester_utest_list utest_write[] = {
         { .title = "Test disastrOS_ipc: write1: successfully", .utest_fn = tester_utest_ipc_write1},
-        { .title = "Test disastrOS_ipc: write2:", .utest_fn = tester_utest_ipc_write2},
-        { .title = "Test disastrOS_ipc: write3:", .utest_fn = tester_utest_ipc_write3},
-        { .title = "Test disastrOS_ipc: write4:", .utest_fn = tester_utest_ipc_write4},
-        { .title = "Test disastrOS_ipc: write5:", .utest_fn = tester_utest_ipc_write5},
-        { .title = "Test disastrOS_ipc: write6:", .utest_fn = tester_utest_ipc_write6},
-        { .title = "Test disastrOS_ipc: write7:", .utest_fn = tester_utest_ipc_write7},
-        { .title = "Test disastrOS_ipc: write8:", .utest_fn = tester_utest_ipc_write8},
-        { .title = "Test disastrOS_ipc: write9:", .utest_fn = tester_utest_ipc_write9},
-        { .title = "Test disastrOS_ipc: write10:", .utest_fn = tester_utest_ipc_write10}
+        { .title = "Test disastrOS_ipc: write2: blocking writer test", .utest_fn = tester_utest_ipc_write2},
+        { .title = "Test disastrOS_ipc: write3: unblocking after read", .utest_fn = tester_utest_ipc_write3},
+        { .title = "Test disastrOS_ipc: write4: double unblock after write", .utest_fn = tester_utest_ipc_write4},
+        { .title = "Test disastrOS_ipc: write5: read insufficient byte for unblock writer", .utest_fn = tester_utest_ipc_write5},
+        { .title = "Test disastrOS_ipc: write6: read empty buffer and unblock writer", .utest_fn = tester_utest_ipc_write6},
+        { .title = "Test disastrOS_ipc: write7: write with count > size_max", .utest_fn = tester_utest_ipc_write7},
+        { .title = "Test disastrOS_ipc: write8: non blocking with full buffer", .utest_fn = tester_utest_ipc_write8},
+        { .title = "Test disastrOS_ipc: write9: non blocking with partially full buffer", .utest_fn = tester_utest_ipc_write9},
+        { .title = "Test disastrOS_ipc: write10: write with count=0", .utest_fn = tester_utest_ipc_write10}
     };
     printf("Executing utest for ipc module:\n");
     is_all_test_ok *= tester_utest_executelist(utest_mk, sizeof(utest_mk)/sizeof(utest_mk[0]), "ipc_mk") ? 1 : 0;
@@ -135,10 +135,10 @@ int tester_utest_circular_buffer(){
 int tester_utest_fifo(){
     int is_all_test_ok = 1;
     tester_utest_list utest_mk[] = {
-        { .title = "Test disastrOS_fifo: mk1:", .utest_fn = tester_utest_fifo_mk1},
-        { .title = "Test disastrOS_fifo: mk2:", .utest_fn = tester_utest_fifo_mk2},
-        { .title = "Test disastrOS_fifo: mk3:", .utest_fn = tester_utest_fifo_mk3},
-        { .title = "Test disastrOS_fifo: mk4:", .utest_fn = tester_utest_fifo_mk4}
+        { .title = "Test disastrOS_fifo: mk1: succesfully", .utest_fn = tester_utest_fifo_mk1},
+        { .title = "Test disastrOS_fifo: mk2: double make", .utest_fn = tester_utest_fifo_mk2},
+        { .title = "Test disastrOS_fifo: mk3: invalid (negative) or anonyous id", .utest_fn = tester_utest_fifo_mk3},
+        { .title = "Test disastrOS_fifo: mk4: allocating more resource than the memory capacity", .utest_fn = tester_utest_fifo_mk4}
     };
     tester_utest_list utest_onopen[] = {
         { .title = "Test disastrOS_fifo: onopen1: invalid flag DSOS_O_RDWR", .utest_fn = tester_utest_fifo_onopen1},
@@ -156,8 +156,15 @@ int tester_utest_fifo(){
         { .title = "Test disastrOS_fifo: write1: no more reader (DSOS_E_PIPE) ", .utest_fn = tester_utest_fifo_write1}
     };
     tester_utest_list utest_onclose[] = {
+        { .title = "Test disastrOS_fifo: onclose1: writers_number decrease", .utest_fn = tester_utest_fifo_onclose1},
+        { .title = "Test disastrOS_fifo: onclose2: readers_number decrease", .utest_fn = tester_utest_fifo_onclose2},
+        { .title = "Test disastrOS_fifo: onclose3: reader unblock", .utest_fn = tester_utest_fifo_onclose3},
+        { .title = "Test disastrOS_fifo: onclose4: writer unblock", .utest_fn = tester_utest_fifo_onclose4}
     };
     tester_utest_list utest_mkpipe[] = {
+        { .title = "Test disastrOS_fifo: mkpipe1: succesfully", .utest_fn = tester_utest_pipe_mk1},
+        { .title = "Test disastrOS_fifo: mkpipe2: rollback (only resource)", .utest_fn = tester_utest_pipe_mk2},
+        { .title = "Test disastrOS_fifo: mkpipe3: rollback (resource + descriptor)", .utest_fn = tester_utest_pipe_mk3},
     };
     printf("Executing utest for fifo module:\n");
     is_all_test_ok *= tester_utest_executelist(utest_mk, sizeof(utest_mk)/sizeof(utest_mk[0]), "fifo_mk") ? 1 : 0;

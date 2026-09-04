@@ -1,10 +1,10 @@
 #include "tester.h"
+
 #include "disastrOS.h"
 #include "disastrOS_globals.h"
 #include "disastrOS_constants.h"
 #include "disastrOS_descriptor.h"
 #include "disastrOS_resource.h"
-
 
 #include <stdio.h>
 
@@ -242,7 +242,7 @@ int tester_resource_open11(char* test_name){
     return 1;
 }
 
-// Test 12: Try allocating more descriptor in a process than the memory can handle (should return DSOS_EMFILE)
+// Test 12: Try allocating too many descriptors per process (should return DSOS_EMFILE)
 int tester_resource_open12(char* test_name){
     // 0. Initialization
     int return_value, resource_id;
@@ -252,8 +252,8 @@ int tester_resource_open12(char* test_name){
         resource_id = i;
         return_value = disastrOS_open(resource_id, DSOS_O_RDWR|DSOS_O_CREAT);
         TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "error during required resources disastrOS_open"));
-        TESTER_UTEST_ASSERT_RESOURCE_ALLOC(resource_id, i, i, "error after required resource disastrOS_open");
-        TESTER_UTEST_ASSERT_DESCRIPTOR_MEM(running, i, i, "error after required resource disastrOS_open");
+        TESTER_UTEST_ASSERT_RESOURCE_ALLOC(resource_id, i+1, i+1, "error after required resource disastrOS_open");
+        TESTER_UTEST_ASSERT_DESCRIPTOR_MEM(running, i+1, i+1, "error after required resource disastrOS_open");
     }
     // 3. Open another resource (should return DSOS_EMFILE) (Check for not allocation)
     resource_id = MAX_NUM_DESCRIPTORS_PER_PROCESS;
@@ -265,9 +265,63 @@ int tester_resource_open12(char* test_name){
     return 1;
 }
 
-// Test 13: Try allocating more descriptor_ptr in a resource than the memory can handle (should return DSOS_ENFILE)
+// Test 13: Try allocating more descriptor than the memory can handle (should return DSOS_ENFILE)
+// This work only with single core - single thread, already we will have race-condition
+volatile int tester_resource_open13_aux_exit = 0;
+volatile int tester_resource_open13_aux_executed_child = 0;
+int tester_resource_open13_aux_opener(){
+    // 0. Initialization
+    int return_value, resource_id = 100;
+    // 1. Open descriptors
+    for(int i=0; i<MAX_NUM_DESCRIPTORS_PER_PROCESS; i++){
+        return_value = disastrOS_open(resource_id, DSOS_O_RDWR);
+        TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "error on disastrOS_open (child)"));
+    }
+    tester_resource_open13_aux_executed_child++;
+    // 2. The process cannot proceed until the father says so.
+    while(!tester_resource_open13_aux_exit){
+        disastrOS_sleep(1);
+    }
+    return 1;
+}
+void tester_resource_open13_aux(){
+    disastrOS_exit(tester_resource_open13_aux_opener());
+}
 int tester_resource_open13(char* test_name){
     // 0. Initialization
-    // . Test ok, return 1
-    return 0;
+    int return_value, resource_id = 100;
+    TESTER_UTEST_ASSERT_RESOURCE_CLEANUP();
+    return_value = disastrOS_mkresource(resource_id);
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_SUCCESS, return_value, "error during disastrOS_mkresource"));
+    // 1. Need to open MAX_NUM_RESOURCES descriptor in the childs
+    int to_open_on_init = (MAX_NUM_RESOURCES + 1) % MAX_NUM_DESCRIPTORS_PER_PROCESS;
+    to_open_on_init = to_open_on_init == 0 ? MAX_NUM_DESCRIPTORS_PER_PROCESS : to_open_on_init;
+    int to_open_on_childs = (MAX_NUM_RESOURCES+1) - to_open_on_init;
+    int number_of_childs = to_open_on_childs / MAX_NUM_DESCRIPTORS_PER_PROCESS;
+    // 2. Spawn the sleeper and the childs
+    disastrOS_spawn(tester_aux_sleeper, 0);
+    for(int i=0; i<number_of_childs; i++){
+        disastrOS_spawn(tester_resource_open13_aux, 0);
+    }
+    // 3. Sleep while child execute
+    while(tester_resource_open13_aux_executed_child < number_of_childs){
+        disastrOS_sleep(1);
+    }
+    // 3. Open the remain descriptors
+    for(int i=0; i<to_open_on_init-1; i++){
+        return_value = disastrOS_open(resource_id, DSOS_O_RDWR);
+        TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "error on disastrOS_open (init)"));
+    }
+    // 4. Spawn out of memory descriptor (should return DSOS_ENFILE)
+    return_value = disastrOS_open(resource_id, DSOS_O_RDWR);
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_ENFILE, return_value, "error on disastrOS_open (target)"));
+    // 5. Wait for child
+    tester_resource_open13_aux_exit = 1;
+    for(int i=0; i<number_of_childs; i++){
+        int ret_pid = disastrOS_wait(0, &return_value);
+        TESTER_UTEST_CHECK(tester_utest_assert_ecodege(0, ret_pid, "error on disastrOS_wait"));
+        TESTER_UTEST_CHECK(tester_utest_assert_int(1, return_value, "error on child (return value)"));
+    }
+    // 6. Test ok, return 1
+    return 1;
 }

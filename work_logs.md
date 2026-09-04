@@ -77,4 +77,6 @@ Quest evita di dover srivere continuamente la condizione di uscita. Modificata a
 
 03-09-2026:
 1. Refactoring generale codice per miglioramenti estetici (tolta descriptor_dup, lasciato in disastrOS_spawn la logica dei descrittori, idealmente dovrebbe essere incapsulato). Ho notato che nella spawn_withfd andrebbe gestito il caso di rollback, e forse andrebbe fatta una gestione più oculata degli errori, ma per il momento mi limito a lanciare un kernel panic per semplicità. Nota: durante il refactoring mi era venuto il dubbio se la onclose dovesse sbloccare o no i processi in waiting_open, la risposta è no, Posix non lo prevede. Terminato il refactoring del codice di disastrOS.
-2.
+
+04-09-2026:
+1. Refactoring dei test. Completati i test mancanti. Ragruppati alcuni file.

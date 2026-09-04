@@ -1,4 +1,5 @@
 #include "tester.h"
+
 #include "disastrOS.h"
 #include "disastrOS_globals.h"
 #include "disastrOS_descriptor.h"
@@ -7,7 +8,7 @@
 #include <stdio.h>
 
 // Test 1: Try to make a resource with success and check its allocation, list insert and attribute (should return DSOS_SUCCESS)
-int tester_resource_mk1(char* test_name){
+int tester_resource_mk1(){
     // 0. Initialization
     int return_value, resource_id = 0;
     TESTER_UTEST_ASSERT_RESOURCE_CLEANUP();
@@ -23,7 +24,7 @@ int tester_resource_mk1(char* test_name){
 }
 
 // Test 2: Try to make a resource with the ID of an already allocated resource (should return DSOS_EEXIST)
-int tester_resource_mk2(char* test_name){
+int tester_resource_mk2(){
     // 0. Initialization
     int return_value, resource_id = 0;
     Resource* resource;
@@ -46,7 +47,7 @@ int tester_resource_mk2(char* test_name){
 }
 
 // Test 3: Try to pass invalid id: negative or anonymous (should return both DSOS_EINVAL)
-int tester_resource_mk3(char* test_name){
+int tester_resource_mk3(){
     // 0. Initialization
     int return_value, resource_id;
     TESTER_UTEST_ASSERT_RESOURCE_CLEANUP();
@@ -65,7 +66,7 @@ int tester_resource_mk3(char* test_name){
 }
 
 // Test 4: Try allocating more resources than the memory can handle. 
-int tester_resource_mk4(char* test_name){
+int tester_resource_mk4(){
     // 0. Initialization
     int return_value, resource_id;
     Resource* resource;

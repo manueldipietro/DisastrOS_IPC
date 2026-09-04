@@ -1,10 +1,8 @@
-#include "tester_fifo.h"
 #include "tester.h"
 
 #include "disastrOS.h"
 #include "disastrOS_constants.h"
 #include "disastrOS_globals.h"
-
 #include "disastrOS_fifo.h"
 
 // Test 1: Open in read mode (spawn a writer for allow open), try to read without reader and without data (should return EOF)
@@ -29,16 +27,13 @@ int tester_utest_fifo_read1(char* test_name){
     TESTER_UTEST_CHECK(tester_utest_assert_ecodege(DSOS_SUCCESS, return_value, "error on disastrOS_open"));
     file_descriptor = return_value;
     disastrOS_sleep(1);
-    
     // 5. Wait for Writer opener and after check number of writers
-    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_writer_open, 1, 0, 0, 0, "After write");
+    TESTER_UTEST_FIFO_ASSERT_ONOPEN_UNLOCKANDEXITANDWAIT(pid_writer_open, 1, 0, 0, 0, "After disastrOS_write");
     disastrOS_sleep(1);
-    TESTER_UTEST_CHECK(tester_utest_assert_int(0, fifo->writers_number, "error on writers number befor read"));
-
+    TESTER_UTEST_CHECK(tester_utest_assert_int(0, fifo->writers_number, "error on writers number befor disastrOS_read"));
     // 6. Read from fifo, should return EOF (0)
     return_value = disastrOS_read(file_descriptor, buffer, count);
-    TESTER_UTEST_CHECK(tester_utest_assert_ecode(0, return_value, "error, read doesn't return EOF"));
-
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(0, return_value, "error, disastrOS_read doesn't return EOF"));
     // 7. Test ok, return 1
     return 1;
 }
@@ -67,7 +62,7 @@ int tester_utest_fifo_write1(char* test_name){
     disastrOS_sleep(1);
     // 5. Write on the fifo, should return DSOS_EPIPE
     return_value = disastrOS_write(file_descriptor, buffer, count);
-    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_EPIPE, return_value, "error, write doesn't return DSOS_EPIPE"));
+    TESTER_UTEST_CHECK(tester_utest_assert_ecode(DSOS_EPIPE, return_value, "error, disastrOS_write doesn't return DSOS_EPIPE"));
     // 6. Test ok, return 1
     return 1;
 }

@@ -9,7 +9,7 @@
 #include <string.h>
 
 // Test 1: Write without Wrap-around: write on an empty buffer, with to_write < size_max
-int tester_utest_circular_buffer_1(char* test_name){
+int tester_utest_circular_buffer_1(){
     // 0. Initialization
     const char user_buffer[10] = "CIAOCIAOCI"; char system_buffer[10];
     int to_write = 8, size_max = 10, write_pos = 0;
@@ -24,7 +24,7 @@ int tester_utest_circular_buffer_1(char* test_name){
 }
 
 // Test 2: Read without Wrap-around: read to_read byte < size bytes (number of bytes in the circular buffer)
-int tester_utest_circular_buffer_2(char* test_name){
+int tester_utest_circular_buffer_2(){
     // 0. Initialization
     const char system_buffer[10] = "CIAOCIAOCI"; char user_buffer[10];
     int to_read = 8, size_max = 10, read_pos = 0;
@@ -38,7 +38,7 @@ int tester_utest_circular_buffer_2(char* test_name){
 }
 
 // Test 3: Write with Wrap-around: write on a buffer and check that Wrap-arround work properly
-int tester_utest_circular_buffer_3(char* test_name){
+int tester_utest_circular_buffer_3(){
     // 0. Initialization
     const char user_buffer[10] = "CIAOCIAOCI"; char system_buffer[10];
     int to_write = 6, size_max = 10, write_pos = 8;
@@ -53,7 +53,7 @@ int tester_utest_circular_buffer_3(char* test_name){
 }
 
 // Test 4: Read with Wrap-around: read on a buffer and check that Wrap-arround work properly
-int tester_utest_circular_buffer_4(char* test_name){
+int tester_utest_circular_buffer_4(){
     // 0. Initialization
     const char system_buffer[10] = "CIAOCIAOCI"; char user_buffer[10];
     int to_read = 6, size_max = 10, read_pos = 6;
@@ -67,7 +67,7 @@ int tester_utest_circular_buffer_4(char* test_name){
 }
 
 // Test 5: Write all empty buffer: Write size_max bytes with empty buffer (write_pos = 0)
-int tester_utest_circular_buffer_5(char* test_name){
+int tester_utest_circular_buffer_5(){
     // 0. Initialization
     const char user_buffer[10] = "CIAOCIAOCI"; char system_buffer[10];
     int to_write = 10, size_max = 10, write_pos = 0;
@@ -82,7 +82,7 @@ int tester_utest_circular_buffer_5(char* test_name){
 }
 
 // Test 6: Read all full buffer: size_max bytes with full buffer (read_pos = 0)
-int tester_utest_circular_buffer_6(char* test_name){
+int tester_utest_circular_buffer_6(){
     // 0. Initialization
     const char system_buffer[10] = "CIAOCIAOCI"; char user_buffer[10];
     int to_read = 10, size_max = 10, read_pos = 0;
@@ -96,7 +96,7 @@ int tester_utest_circular_buffer_6(char* test_name){
 }
 
 // Test 7: Write all empty buffer: Write size_max bytes with empty buffer (write_pos != 0)
-int tester_utest_circular_buffer_7(char* test_name){
+int tester_utest_circular_buffer_7(){
     // 0. Initialization
     const char user_buffer[10] = "CIAOCIAOCI"; char system_buffer[10];
     int to_write = 10, size_max = 10, write_pos = 7;
@@ -111,7 +111,7 @@ int tester_utest_circular_buffer_7(char* test_name){
 }
 
 // Test 8: Read all full buffer: size_max bytes with full buffer (read_pos != 0)
-int tester_utest_circular_buffer_8(char* test_name){
+int tester_utest_circular_buffer_8(){
     // 0. Initialization
     const char system_buffer[10] = "CIAOCIAOCI"; char user_buffer[10];
     int to_read = 10, size_max = 10, read_pos = 6;

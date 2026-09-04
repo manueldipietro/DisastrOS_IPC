@@ -1,4 +1,3 @@
-#include "tester_fifo.h"
 #include "tester.h"
 
 #include "disastrOS_fifo.h"
@@ -9,7 +8,7 @@
 #include <stdio.h>
 
 // Test 1: Try to make a fifo with success and check its allocation, list insert and attribute (should return DSOS_SUCCESS)
-int tester_utest_fifo_mk1(char* test_name){
+int tester_utest_fifo_mk1(){
     // 0. Initialization
     int return_value, resource_id = 0;
     TESTER_UTEST_FIFO_ASSERT_CLEANUP();
@@ -25,7 +24,7 @@ int tester_utest_fifo_mk1(char* test_name){
 }
 
 // Test 2: Try to make a fifo with the ID of an already allocated resource (should return DSOS_EEXIST)
-int tester_utest_fifo_mk2(char* test_name){
+int tester_utest_fifo_mk2(){
     // 0. Initialize
     int return_value, resource_id = 0;
     TESTER_UTEST_FIFO_ASSERT_CLEANUP();
@@ -47,7 +46,7 @@ int tester_utest_fifo_mk2(char* test_name){
 }
 
 // Test 3: Try to pass invalid id: negative or anonymous (should return both DSOS_EINVAL)
-int tester_utest_fifo_mk3(char* test_name){
+int tester_utest_fifo_mk3(){
     // 0. Initialize
     int return_value, resource_id;
     TESTER_UTEST_FIFO_ASSERT_CLEANUP();
@@ -66,7 +65,7 @@ int tester_utest_fifo_mk3(char* test_name){
 }
 
 // Test 4: Try allocating more fifo than the memory can handle. 
-int tester_utest_fifo_mk4(char* test_name){
+int tester_utest_fifo_mk4(){
     // 0. Initialization
     int return_value, resource_id;
     Fifo* fifo;

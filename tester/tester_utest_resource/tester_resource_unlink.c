@@ -1,4 +1,5 @@
 #include "tester.h"
+
 #include "disastrOS.h"
 #include "disastrOS_globals.h"
 #include "disastrOS_descriptor.h"
@@ -7,7 +8,7 @@
 #include <stdio.h>
 
 // Test 1: Unlink a resource that is not open by any process and verify that is destroyed properly and return DSOS_SUCCESS
-int tester_resource_unlink1(char* test_name){
+int tester_resource_unlink1(){
     // 0. Initialization
     int return_value, resource_id = 0;
     Resource* resource;
@@ -28,7 +29,7 @@ int tester_resource_unlink1(char* test_name){
 }
 
 // Test 2: Unlink a resource that is open by at least one process and verify that it is not destroyed
-int tester_resource_unlink2(char* test_name){
+int tester_resource_unlink2(){
     // 0. Initialization
     int return_value, resource_id = 0;
     Resource* resource;
@@ -51,7 +52,7 @@ int tester_resource_unlink2(char* test_name){
 }
 
 // Test 3: Unlink resources with invalid id and check returned error (EINVAL) (2 case: negative id and anonymous id)
-int tester_resource_unlink3(char* test_name){
+int tester_resource_unlink3(){
     // 0. Initialization
     int return_value, resource_id;
     TESTER_UTEST_ASSERT_RESOURCE_CLEANUP();
@@ -70,7 +71,7 @@ int tester_resource_unlink3(char* test_name){
 }
 
 // Test 4: Unlink a resource that doesn't exist (should return DSOS_ENOENT)
-int tester_resource_unlink4(char* test_name){
+int tester_resource_unlink4(){
     // 0. Initialization
     int return_value, resource_id = 10;
     TESTER_UTEST_ASSERT_RESOURCE_CLEANUP();
@@ -83,7 +84,7 @@ int tester_resource_unlink4(char* test_name){
 }
 
 // Test 5: Double unlink of a resource (the second unlink should return DSOS_ENOENT)
-int tester_resource_unlink5(char* test_name){
+int tester_resource_unlink5(){
     // 0. Initialization
     int return_value, resource_id = 0;
     Resource* resource;
@@ -110,7 +111,7 @@ int tester_resource_unlink5(char* test_name){
 }
 
 // Test 6: Unlink a resource and try to reuse its id (it should work)
-int tester_resource_unlink6(char* test_name){
+int tester_resource_unlink6(){
     // 0. Initialization
     int return_value, resource_id = 0;
     Resource* resource;

@@ -1,4 +1,5 @@
 #include "tester.h"
+
 #include "disastrOS.h"
 #include "disastrOS_globals.h"
 #include "disastrOS_descriptor.h"
@@ -7,7 +8,7 @@
 #include <stdio.h>
 
 // Test 1: Try to read a resource with a bad file descriptor (should return DSOS_EBADFD)
-int tester_resource_read1(char* test_name){
+int tester_resource_read1(){
     // 0. Initialization
     int return_value, file_descriptor = 150, count = 10;
     void* buffer = (void*) 1;
@@ -20,7 +21,7 @@ int tester_resource_read1(char* test_name){
 }
 
 // Test 2: Try to pass a null buffer (should return DSOS_EINVAL), a negative count (should return DSOS_EINVAL), count equals to 0 (should return DSOS_ENOSYS);
-int tester_resource_read2(char* test_name){
+int tester_resource_read2(){
     // 0. Initialization 
     int return_value, file_descriptor, resource_id = 100, count;
     void* buffer;
@@ -46,7 +47,7 @@ int tester_resource_read2(char* test_name){
 }
 
 // Test 3: Try to call read with valid arguments and verify the operation is not supported on the resource (it's a virtual method not implemented (res->VMT.read->NULL)) (should return DSOS_ENOSYS)
-int tester_resource_read3(char* test_name){
+int tester_resource_read3(){
     // 0. Initialization
     int return_value, file_descriptor, resource_id = 100, count = 100;
     void* buffer = (void*) 1;
@@ -63,7 +64,7 @@ int tester_resource_read3(char* test_name){
 }
 
 // Test 4: Test the various flag assignment scenarios for the test access mode (DSOS_O_RDWR (should return DSOS_EBADFD) and DSOS_O_RDONLY/DSOS_O_WRONLY (should return DSOS_ENOSYS))
-int tester_resource_read4(char* test_name){
+int tester_resource_read4(){
     // 0. Initialization
     int return_value, resource_id, file_descriptor, count = 100;
     void* buffer = (void*) 1;
@@ -95,7 +96,7 @@ int tester_resource_read4(char* test_name){
 
 // Test 5: Modify the VMT and verify that the method implementation is actually executed
 int tester_resource_read5_aux(Descriptor* descriptor, void* buffer, int count){return count;}
-int tester_resource_read5(char* test_name){
+int tester_resource_read5(){
     // 0. Initialization
     int return_value, resource_id = 100, file_descriptor, count = 272;
     void* buffer = (void*) 1; Resource* resource;

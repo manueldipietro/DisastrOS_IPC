@@ -1,5 +1,6 @@
-#include "disastrOS_resource.h"
+#include "tester.h"
 
+#include "disastrOS_resource.h"
 #include "disastrOS.h"
 #include "disastrOS_descriptor.h"
 #include "disastrOS_globals.h"
@@ -7,10 +8,9 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "tester.h"
 
 // Test 1: Try to close a resource (not unlinked) and check descriptor deletion
-int tester_resource_close1(char* test_name){
+int tester_resource_close1(){
     // 0. Initialize
     int return_value, file_descriptor, resource_id = 0;
     TESTER_UTEST_ASSERT_RESOURCE_CLEANUP();
@@ -29,7 +29,7 @@ int tester_resource_close1(char* test_name){
 }
 
 // Test 2: Try to close an unlinked resource and check resource deletion
-int tester_resource_close2(char* test_name){
+int tester_resource_close2(){
     // 0. Initialize
     int return_value, file_descriptor, resource_id = 0;
     TESTER_UTEST_ASSERT_RESOURCE_CLEANUP();
@@ -51,7 +51,7 @@ int tester_resource_close2(char* test_name){
 }
 
 // Test 3: Try to double close a file
-int tester_resource_close3(char* test_name){
+int tester_resource_close3(){
     // 0. Initialize
     int return_value, file_descriptor, resource_id = 0;
     TESTER_UTEST_ASSERT_RESOURCE_CLEANUP();
@@ -73,7 +73,7 @@ int tester_resource_close3(char* test_name){
 }
 
 // Test 4: Try to pass bad file descriptor (two cases: negative file descriptor and never opened file descriptor)
-int tester_resource_close4(char* test_name){
+int tester_resource_close4(){
     // 0. Initialize
     int return_value, file_descriptor;
     TESTER_UTEST_ASSERT_RESOURCE_CLEANUP();
@@ -92,7 +92,7 @@ int tester_resource_close4(char* test_name){
 }
 
 // Test 5: Try to close an unlinked file (twice opened) and check if it yet exist and try to check if file descriptor deallocated and check descriptor and after the file deletion
-int tester_resource_close5(char* test_name){
+int tester_resource_close5(){
     // 0. Initialize
     int return_value, file_descriptor, file_descriptor_2, resource_id = 0;
     Resource* resource;
@@ -140,7 +140,7 @@ int tester_resource_close6_aux(){
 void tester_resource_close6_child(){
     disastrOS_exit(tester_resource_close6_aux());
 }
-int tester_resource_close6(char* test_name){
+int tester_resource_close6(){
     // 0. Initialize
     int return_value, pid, resource_id = 0;
     TESTER_UTEST_ASSERT_RESOURCE_CLEANUP();
@@ -173,7 +173,7 @@ int tester_resource_close7_aux(){
 void tester_resource_close7_child(){
     disastrOS_exit(tester_resource_close7_aux());
 }
-int tester_resource_close7(char* test_name){
+int tester_resource_close7(){
     // 0. Initialize
     int return_value, pid;
     TESTER_UTEST_ASSERT_RESOURCE_CLEANUP();

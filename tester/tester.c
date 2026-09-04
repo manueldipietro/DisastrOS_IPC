@@ -16,20 +16,18 @@
 char TESTER_UTEST_FAILMSG[TESTER_UTEST_FAILMSG_SIZE] = "";
 char TESTER_UTEST_NAME[TESTER_UTEST_NAME_SIZE] = "";
 
-// Nota: forse vanno catturati anche i SIGABRT e verificare per il loop infinito.
-
 void tester_itest_execute(tester_itest_fn itest_fn){
+    // 1. Fork Execution
     pid_t pid;
     pid = fork();
     assert(pid >= 0 && "Fatal error during integration_test fork.");
-
     // 2. Father process
     if(pid){
+        // 2.a. Wait for son and retrieves its status
         int w_status;
         pid = waitpid(pid, &w_status, 0);
         assert(pid >= 0 && "Fatal error during integration_test wait!");
-
-        // Caso in cui si va in segfault
+        // 2.b. Handles SEGFAULT in child process
         if(WIFSIGNALED(w_status)){
             int term_signal = WTERMSIG(w_status);
             if(term_signal == SIGSEGV){
@@ -37,31 +35,25 @@ void tester_itest_execute(tester_itest_fn itest_fn){
                 return;
             }
         }
-        printf("MA ESCO DAL TEST? 2\n");
         return;
     }
-    // Figlio
-    setupSignals();         // Reimposta i segnali dopo la fork
-    printf("Entro nel figlio test\n");
+    // 3. Child process: runs test and exits
+    setupSignals();         // Re-setup signal after fork
     itest_fn();
-    printf("Esco nel figlio test\n");
     exit(0);
 }
 
 int tester_utest_execute(char* test_name, tester_utest_fn utest_fn){
-    // TODO: Bisogna capire se in questa sezione vanno disattivati i segnali. --> Non c'è bisogno, sembra funzionare bene
     // 1. Fork Execution
     pid_t pid;
     pid = fork();
     assert(pid >= 0 && "Fatal error during unit_test fork.");
-    
     // 2. Father process
     if(pid){
         // 2.a. Wait for son and retrieves its status
         int w_status;
         pid = waitpid(pid, &w_status, 0);
         assert(pid >= 0 && "Fatal error during unit_test wait!");
-
         // 2.b. Handles SEGFAULT in child process
         if(WIFSIGNALED(w_status)){
             int term_signal = WTERMSIG(w_status);
@@ -70,20 +62,17 @@ int tester_utest_execute(char* test_name, tester_utest_fn utest_fn){
                 return 0;
             }
         }
-
         // 2.c Retrieve w_status and return it
         if(WIFEXITED(w_status)){
             w_status = WEXITSTATUS(w_status);
             return w_status;
         }
-
         // 2.d Fallback
         return 0;
     }
-
     // 3. Child process: runs test and exits
-    setupSignals();         // Reimposta i segnali dopo la fork
-    int exit_status = utest_fn(test_name);
+    setupSignals();         // Re-setup signal after fork
+    int exit_status = utest_fn();
     tester_utest_print(exit_status, test_name, TESTER_UTEST_FAILMSG);
     exit(exit_status);
     return 0;
@@ -192,7 +181,6 @@ int tester_utest_assert_listalloc(ListHead* list_head, char* message){
     else snprintf(TESTER_UTEST_FAILMSG, TESTER_UTEST_FAILMSG_SIZE, "Unallocated list");
     return 0;
 }
-
 
 int tester_utest_assert_poolfreeblock(PoolAllocator* pool, int expected_free_block, char* message){
     if(!pool){

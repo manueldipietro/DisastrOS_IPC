@@ -1,4 +1,3 @@
-#include "tester_ipc.h"
 #include "tester.h"
 
 #include "disastrOS_resource.h"
@@ -9,7 +8,7 @@
 #include <stdio.h>
 
 // Test 1: Try to make an ipc with success and check its allocation, list insert and attribute (should return DSOS_SUCCESS)
-int tester_utest_ipc_mk1(char* test_name){
+int tester_utest_ipc_mk1(){
     // 0. Initialization
     int return_value, resource_id = 0, size_max = 10;
     TESTER_UTEST_IPC_ASSERT_CLEANUP();
@@ -25,7 +24,7 @@ int tester_utest_ipc_mk1(char* test_name){
 }
 
 // Test 2: Try to make a ipc with the ID of an already allocated resource (should return DSOS_EEXIST)
-int tester_utest_ipc_mk2(char* test_name){
+int tester_utest_ipc_mk2(){
     // 0. Initialize
     int return_value, resource_id = 0, size_max = 10;
     Ipc* ipc;
@@ -48,7 +47,7 @@ int tester_utest_ipc_mk2(char* test_name){
 }
 
 // Test 3: Try to pass invalid id: negative or anonymous (should return both DSOS_EINVAL) and try to pass invalid size: negative (should return DSOS_EINVAL)
-int tester_utest_ipc_mk3(char* test_name){
+int tester_utest_ipc_mk3(){
     // 0. Initialization
     int return_value, resource_id,  size_max;
     TESTER_UTEST_IPC_ASSERT_CLEANUP();
@@ -72,7 +71,7 @@ int tester_utest_ipc_mk3(char* test_name){
 }
 
 // Test 4: Try allocating more ipc than the memory can handle
-int tester_utest_ipc_mk4(char* test_name){
+int tester_utest_ipc_mk4(){
     // 0. Initialization
     int return_value, resource_id,  size_max;
     Ipc* ipc;

@@ -31,9 +31,9 @@ Nei moduli Resource, Ipc e Fifo sono stati anche aggiunte alcune funzioni che so
 Il buffer circolare usato da Fifo è stato implementato e testato separatamente, quindi integrato nella Fifo.
 
 Altre modifiche sostanziali apportate a disastrOS sono in:
--Descrittori: ne è stata ridefinita e concentrata la logica, andando a potenziare l'incapsulamento tramite apposite funzioni esposte (principalmente usate dalla open e dalla close di reosurce).
--disastrOS_spawn_withfd: è stata registrata una nuova system call (il cui codice si trova in disastrOS_spawn.c) in cui vengono duplicati i descrittori, tuttavia, a causa del fatto che non c'è una vera e propria fork i file_descriptor devono comunque essere passati come argomenti dal padre verso il figlio.
--disastrOS_exit: corretto il comportamento della system call exit che andava a rilasciare le risorse (e anche i timer in realtà) solamente quando il suo stato veniva raccolto da una wait, invece, il comportamento atteso era quello di rilasciare immediatamente alla chiamata della exit tutte le risorse e i timer in uso.
+1. disastrOS_descriptor: ne è stata ridefinita e concentrata la logica, andando a potenziare l'incapsulamento tramite apposite funzioni esposte (principalmente usate dalla open e dalla close di reosurce).
+2. disastrOS_spawn_withfd: è stata registrata una nuova system call (il cui codice si trova in disastrOS_spawn.c) in cui vengono duplicati i descrittori, tuttavia, a causa del fatto che non c'è una vera e propria fork i file_descriptor devono comunque essere passati come argomenti dal padre verso il figlio.
+3. disastrOS_exit: corretto il comportamento della system call exit che andava a rilasciare le risorse (e anche i timer in realtà) solamente quando il suo stato veniva raccolto da una wait, invece, il comportamento atteso era quello di rilasciare immediatamente alla chiamata della exit tutte le risorse e i timer in uso.
 
 Per la validazione del codice implementato si è costruita una suite di test. Questa suite si basa sulla fork di sistema: all'avvio di disastrOS viene invocata la suite di test, questa, per garantire ai test un ambiente pulito e per non dover poi gestire la pulizia per il test successivo, effettua una fork di sistema (gestita da Linux), potendo così sfruttare il sistema COW di Linux, a quel punto vengono eseguiti i vari test.
 I test sono principalmente di due tipo:

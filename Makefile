@@ -3,22 +3,22 @@ CCOPTS=--std=gnu99 -Wall -g -I . -I tester
 AR=ar
 
 HEADERS=disastrOS.h\
+	linked_list.h\
+	pool_allocator.h\
+     circular_buffer.h\
 	disastrOS_constants.h\
 	disastrOS_descriptor.h\
 	disastrOS_globals.h\
 	disastrOS_pcb.h\
+	disastrOS_syscalls.h\
+	disastrOS_timer.h\
 	disastrOS_resource.h\
      disastrOS_ipc.h\
      disastrOS_fifo.h\
-	disastrOS_syscalls.h\
-	disastrOS_timer.h\
-	linked_list.h\
-	pool_allocator.h\
      \
-     tester/tester_ipc.h\
-     tester/tester_fifo.h\
-     \
-     
+     tester/tester.h\
+     tester/tester_aux.h\
+     tester/tester_macro.h\
 
 OBJS=pool_allocator.o\
      linked_list.o\
@@ -40,11 +40,9 @@ OBJS=pool_allocator.o\
      disastrOS_ipc.o\
      disastrOS_fifo.o\
      \
-     \
      tester/tester.o\
      tester/tester_aux.o\
-     tester/tester_ipc.o\
-     tester/tester_fifo.o\
+     tester/tester_utest_executor.o\
      \
      tester/tester_utest_resource/tester_resource_mk.o\
      tester/tester_utest_resource/tester_resource_open.o\
@@ -52,24 +50,19 @@ OBJS=pool_allocator.o\
      tester/tester_utest_resource/tester_resource_close.o\
      tester/tester_utest_resource/tester_resource_read.o\
      tester/tester_utest_resource/tester_resource_write.o\
-     \
      tester/tester_utest_ipc/tester_utest_ipc_mk.o\
      tester/tester_utest_ipc/tester_utest_ipc_read.o\
      tester/tester_utest_ipc/tester_utest_ipc_write.o\
-     \
-     tester/tester_circular_buffer.o\
-     \
+     tester/tester_utest_circular_buffer.o\
+     tester/tester_utest_spawnfd.o\
      tester/tester_utest_fifo/tester_utest_fifo_mk.o\
+     tester/tester_utest_fifo/tester_utest_pipe_mk.o\
      tester/tester_utest_fifo/tester_utest_fifo_onopen.o\
      tester/tester_utest_fifo/tester_utest_fifo_readandwrite.o\
      tester/tester_utest_fifo/tester_utest_fifo_onclose.o\
-     \
-     tester/tester_spawnfd.o\
-     \
      tester/tester_itest/tester_itest_pipe.o\
      tester/tester_itest/tester_itest_fifo.o\
      tester/tester_itest/tester_itest_resource.o\
-     tester/tester_utest_executor.o\
 
 LIBS=libdisastrOS.a
 

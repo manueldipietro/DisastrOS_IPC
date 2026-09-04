@@ -1,5 +1,4 @@
-#include "tester_fifo.h"
-#include "tester_aux.h"
+#include "tester.h"
 
 #include "disastrOS.h"
 #include "disastrOS_constants.h"
@@ -171,7 +170,7 @@ void test_itest_pipe1_init(){
     printf("Text will print the incipit of \"Prosmessi Sposi\" Book\n");
     printf("----------------------------------------------------------------------------------------------\n");
     // 1. Create the pipe and spawn the sleeper
-    disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);    // DA CAMBIARE CON SLEEP AUSILIARIO GENERALE
+    disastrOS_spawn(tester_aux_sleeper, 0);    // DA CAMBIARE CON SLEEP AUSILIARIO GENERALE
     int pipefd[2];
     int return_value = disastrOS_mkpipe(pipefd);
     if(return_value != DSOS_SUCCESS){
@@ -253,7 +252,7 @@ void test_itest_pipe2_init(){
     printf("Spawn 1 writers (produce 10 packet each) and 10 readers (will receive 100 packet total)\n");
     printf("----------------------------------------------------------------------------------------------\n");
     // 1. Create the pipe and spawn the sleeper
-    disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);
+    disastrOS_spawn(tester_aux_sleeper, 0);
     int pipefd[2];
     int return_value = disastrOS_mkpipe(pipefd);
     if(return_value != DSOS_SUCCESS){
@@ -338,7 +337,7 @@ void test_itest_pipe3_init(){
     printf("Spawn N writers (produce 10 packet each) and 1 readers (will receive 100 packet total)\n");
     printf("----------------------------------------------------------------------------------------------\n");
     // 1. Create the pipe and spawn the sleeper
-    disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);
+    disastrOS_spawn(tester_aux_sleeper, 0);
     int pipefd[2];
     int return_value = disastrOS_mkpipe(pipefd);
     if(return_value != DSOS_SUCCESS){
@@ -424,7 +423,7 @@ void test_itest_pipe4_init(){
     printf("Spawn 10 writers (produce 10 packet each) and 10 readers (will receive 100 packet total)\n");
     printf("----------------------------------------------------------------------------------------------\n");
     // 1. Create the pipe and spawn the sleeper
-    disastrOS_spawn(tester_utest_fifo_utils_sleeper, 0);
+    disastrOS_spawn(tester_aux_sleeper, 0);
     int pipefd[2];
     int return_value = disastrOS_mkpipe(pipefd);
     if(return_value != DSOS_SUCCESS){
